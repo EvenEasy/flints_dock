@@ -1,165 +1,194 @@
-
-use anyhow::Result;
+use crate::{models::*, rpc};
+use anyhow::{Result, ensure};
 use mpl_token_metadata::{
     accounts::{Edition, MasterEdition, Metadata},
-    types::TokenStandard,
-    ID as METADATA_PROGRAM_ID,
+    types::{Key, TokenStandard},
 };
+use solana_account::Account;
 use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_commitment_config::CommitmentConfig;
-use solana_pubkey::Pubkey as RpcPubkey;
-use solana_pubkey_v2::Pubkey as MetaplexPubkey;
+use solana_pubkey::Pubkey;
+use std::collections::BTreeMap;
 
-use crate::scanner::tokens::TokenAccount;
-
-#[derive(Debug)]
-pub struct Nft {
-    pub mint: String,
-    pub token_account: String,
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub programmable: bool,
+pub fn decode_metadata(account: &Account, mint: &Pubkey) -> Result<Metadata> {
+    ensure!(
+        account.owner == rpc::to_rpc(mpl_token_metadata::ID),
+        "Metadata PDA has wrong program owner"
+    );
+    let metadata = Metadata::from_bytes(&account.data)?;
+    ensure!(
+        metadata.key == Key::MetadataV1,
+        "Wrong metadata discriminator"
+    );
+    ensure!(
+        metadata.mint.to_bytes() == mint.to_bytes(),
+        "Metadata mint mismatch"
+    );
+    Ok(metadata)
 }
 
-pub async fn get_nfts(
+pub fn edition_evidence(account: &Account) -> Option<bool> {
+    if account.owner != rpc::to_rpc(mpl_token_metadata::ID) {
+        return None;
+    }
+    // Generated Borsh decoders don't validate discriminators: check them explicitly.
+    if let Ok(edition) = Edition::from_bytes(&account.data)
+        && edition.key == Key::EditionV1
+    {
+        return Some(true);
+    }
+    if let Ok(master) = MasterEdition::from_bytes(&account.data)
+        && matches!(master.key, Key::MasterEditionV1 | Key::MasterEditionV2)
+        // V1 appends two printing mint keys after the common prefix. Its
+        // optional max_supply changes that prefix length by eight bytes.
+        && (master.key != Key::MasterEditionV1
+            || account.data.len() >= 74 + usize::from(master.max_supply.is_some()) * 8)
+    {
+        return Some(false);
+    }
+    None
+}
+
+pub fn standard_kind(standard: &TokenStandard) -> AssetKind {
+    match standard {
+        TokenStandard::NonFungible | TokenStandard::NonFungibleEdition => AssetKind::NonFungible,
+        TokenStandard::ProgrammableNonFungible | TokenStandard::ProgrammableNonFungibleEdition => {
+            AssetKind::ProgrammableNonFungible
+        }
+        TokenStandard::Fungible | TokenStandard::FungibleAsset => AssetKind::Fungible,
+    }
+}
+
+pub async fn get_metadata(
     rpc: &RpcClient,
-    token_accounts: &[TokenAccount],
-) -> Result<Vec<Nft>> {
-    let mut nfts = Vec::new();
-
-    let metadata_program = RpcPubkey::new_from_array(
-        METADATA_PROGRAM_ID.to_bytes(),
-    );
-
-    let mut candidates = 0;
-    let mut missing_metadata = 0;
-    let mut missing_edition = 0;
-    let mut other_standard = 0;
-
-    println!("Token accounts: {}", token_accounts.len());
-
-    for token in token_accounts {
-        let raw_amount = token.amount.parse::<u64>().unwrap();
-
-        if raw_amount == 0 || token.decimals != 0 {
-            continue;
+    tokens: &[TokenAccount],
+    mints: &[MintInfo],
+) -> ScanCollection<MetadataRecord> {
+    // Fetch metadata for fungible mints too. Names/symbols are labels, never NFT evidence.
+    let keys: BTreeMap<Pubkey, Pubkey> = tokens
+        .iter()
+        .filter_map(|token| token.mint.parse::<Pubkey>().ok())
+        .map(|mint| {
+            // Metadata PDA seeds are ["metadata", metadata_program, mint]; Metaplex
+            // derives them using its own Pubkey version, converted at this boundary.
+            let pda = Metadata::find_pda(&rpc::to_metaplex(mint)).0;
+            (mint, rpc::to_rpc(pda))
+        })
+        .collect();
+    let fetched = rpc::multiple_accounts(rpc, &keys.values().copied().collect::<Vec<_>>()).await;
+    let mut result = ScanCollection::complete(Vec::new());
+    let mut decoded = Vec::new();
+    for (mint, pda) in keys {
+        match fetched.get(&pda) {
+            Some(Ok(Some(account))) => match decode_metadata(account, &mint) {
+                Ok(metadata) => decoded.push((mint, metadata)),
+                Err(error) => result.issue(format!("Metadata {mint}: {error}")),
+            },
+            Some(Err(error)) => result.issue(format!("Metadata {mint}: {error}")),
+            _ => {} // No metadata is a valid result, not proof of NFT or fungibility.
         }
-
-        candidates += 1;
-
-        let mint: RpcPubkey = token.mint.parse()?;
-
-        let mpl_mint = MetaplexPubkey::new_from_array(
-            mint.to_bytes(),
-        );
-
-        let (metadata_pda, _) = Metadata::find_pda(&mpl_mint);
-
-        let rpc_pda = RpcPubkey::new_from_array(
-            metadata_pda.to_bytes(),
-        );
-
-        let Some(account) = rpc
-            .get_account_with_commitment(
-                &rpc_pda,
-                CommitmentConfig::confirmed(),
+    }
+    let candidate = |mint: &Pubkey| {
+        mints
+            .iter()
+            .any(|info| info.mint == mint.to_string() && info.decimals == 0 && info.supply == 1)
+            && tokens.iter().any(|token| {
+                token.mint == mint.to_string() && token.raw_amount == 1 && token.decimals == Some(0)
+            })
+    };
+    let editions: BTreeMap<_, _> = decoded
+        .iter()
+        .filter(|(mint, data)| data.token_standard.is_none() && candidate(mint))
+        .map(|(mint, _)| {
+            (
+                *mint,
+                rpc::to_rpc(MasterEdition::find_pda(&rpc::to_metaplex(*mint)).0),
             )
-            .await?
-            .value
-        else {
-            missing_metadata += 1;
-            continue;
+        })
+        .collect();
+    let edition_accounts =
+        rpc::multiple_accounts(rpc, &editions.values().copied().collect::<Vec<_>>()).await;
+    for (mint, data) in decoded {
+        let metadata = TokenMetadata {
+            name: Some(data.name.trim_end_matches('\0').to_owned()),
+            symbol: Some(data.symbol.trim_end_matches('\0').to_owned()),
+            uri: Some(data.uri.trim_end_matches('\0').to_owned()),
+            image_uri: None,
+            token_standard: data
+                .token_standard
+                .as_ref()
+                .map(|standard| format!("{standard:?}")),
+            source: Some("metaplex".into()),
         };
-
-        if account.owner != metadata_program {
-            missing_metadata += 1;
-            continue;
-        }
-
-        let metadata = match Metadata::from_bytes(&account.data) {
-            Ok(metadata) => metadata,
-            Err(err) => {
-                eprintln!(
-                    "Cannot decode metadata for {}: {}",
-                    token.mint, err
-                );
-                continue;
-            }
-        };
-
-        if metadata.mint != mpl_mint {
-            eprintln!("Metadata mint mismatch: {}", token.mint);
-            continue;
-        }
-
-        let programmable = match metadata.token_standard {
-            Some(TokenStandard::NonFungible)
-            | Some(TokenStandard::NonFungibleEdition) => false,
-
-            Some(TokenStandard::ProgrammableNonFungible)
-            | Some(TokenStandard::ProgrammableNonFungibleEdition) => true,
-
-            None => {
-                // Старі NFT можуть не мати token_standard.
-                // Перевіряємо наявність справжнього Edition PDA.
-                let (edition_pda, _) =
-                    MasterEdition::find_pda(&mpl_mint);
-
-                let rpc_edition = RpcPubkey::new_from_array(
-                    edition_pda.to_bytes(),
-                );
-
-                let edition_account = rpc
-                    .get_account_with_commitment(
-                        &rpc_edition,
-                        CommitmentConfig::confirmed(),
-                    )
-                    .await?
-                    .value;
-
-                let Some(edition) = edition_account else {
-                    missing_edition += 1;
-                    continue;
-                };
-
-                if edition.owner != metadata_program {
-                    missing_edition += 1;
-                    continue;
-                }
-
-                if MasterEdition::from_bytes(&edition.data).is_err()
-                    && Edition::from_bytes(&edition.data).is_err()
+        let mut nft = None;
+        if candidate(&mint) {
+            let verified = match &data.token_standard {
+                Some(standard)
+                    if matches!(
+                        standard_kind(standard),
+                        AssetKind::NonFungible | AssetKind::ProgrammableNonFungible
+                    ) =>
                 {
-                    missing_edition += 1;
-                    continue;
+                    Some((
+                        standard_kind(standard) == AssetKind::ProgrammableNonFungible,
+                        matches!(
+                            standard,
+                            TokenStandard::NonFungibleEdition
+                                | TokenStandard::ProgrammableNonFungibleEdition
+                        ),
+                        "metaplex_token_standard",
+                    ))
                 }
-
-                false
+                None => match editions
+                    .get(&mint)
+                    .and_then(|pda| edition_accounts.get(pda))
+                {
+                    Some(Ok(Some(account))) => {
+                        let evidence = edition_evidence(account);
+                        if evidence.is_none() {
+                            result.issue(format!("{mint}: invalid legacy edition account"));
+                        }
+                        evidence.map(|edition| (false, edition, "legacy_edition_account"))
+                    }
+                    Some(Err(error)) => {
+                        result.issue(format!("Edition {mint}: {error}"));
+                        None
+                    }
+                    _ => None,
+                },
+                _ => None,
+            };
+            if let Some((programmable, edition, evidence)) = verified {
+                nft = Some(NftAsset {
+                    mint: mint.to_string(),
+                    token_accounts: tokens
+                        .iter()
+                        .filter(|token| token.mint == mint.to_string() && token.raw_amount > 0)
+                        .map(|token| token.address.clone())
+                        .collect(),
+                    metadata: metadata.clone(),
+                    programmable,
+                    edition,
+                    evidence: evidence.into(),
+                });
             }
-
-            _ => {
-                other_standard += 1;
-                continue;
-            }
-        };
-
-        nfts.push(Nft {
-            mint: token.mint.clone(),
-            token_account: token.address.clone(),
-            name: metadata.name.trim_end_matches('\0').to_owned(),
-            symbol: metadata.symbol.trim_end_matches('\0').to_owned(),
-            uri: metadata.uri.trim_end_matches('\0').to_owned(),
-            programmable,
+        } else if data.token_standard.as_ref().is_some_and(|standard| {
+            matches!(
+                standard_kind(standard),
+                AssetKind::NonFungible | AssetKind::ProgrammableNonFungible
+            )
+        }) && tokens
+            .iter()
+            .any(|token| token.mint == mint.to_string() && token.raw_amount > 0)
+        {
+            result.issue(format!(
+                "{mint}: NFT metadata but mint supply/decimals/holding unavailable or inconsistent"
+            ));
+        }
+        result.items.push(MetadataRecord {
+            mint: mint.to_string(),
+            metadata,
+            nft,
         });
     }
-
-    println!("NFT scan:");
-    println!("  Candidates: {}", candidates);
-    println!("  Missing metadata: {}", missing_metadata);
-    println!("  Missing legacy edition: {}", missing_edition);
-    println!("  Other token standards: {}", other_standard);
-    println!("  Found NFTs: {}", nfts.len());
-
-    Ok(nfts)
+    result
 }

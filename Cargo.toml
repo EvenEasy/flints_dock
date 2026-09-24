@@ -11,7 +11,6 @@ solana-account-decoder = "4.3.0"
 solana-client = "4.3.0"
 solana-commitment-config = "3.1.1"
 solana-pubkey = "4.4.0"
-solana-sdk = "5.0.0"
 solana-pubkey-v2 = {
     package = "solana-pubkey",
     version = "=2.4.0"
@@ -20,3 +19,13 @@ spl-token-2022-interface = "3.1.1"
 spl-token-interface = "3.0.0"
 tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread"] }
 mpl-core = "0.12.1"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.12.28", default-features = false, features = ["json", "rustls-tls"] }
+solana-account = "4.7.0"
+
+[dev-dependencies]
+async-trait = "0.1"
+base64 = "0.22"
+borsh = "0.10.4"
