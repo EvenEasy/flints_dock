@@ -1,6 +1,9 @@
 use crate::{models::*, rpc};
 use anyhow::{Context, Result, ensure};
-use mpl_core::{accounts::BaseAssetV1, types::Key};
+use mpl_core::{
+    accounts::BaseAssetV1,
+    types::{Key, UpdateAuthority},
+};
 use solana_account_decoder::UiAccount;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_pubkey::Pubkey;
@@ -24,6 +27,13 @@ pub fn parse_asset(address: Pubkey, account: &UiAccount, owner: &Pubkey) -> Resu
         lamports: account.lamports,
         data_len: data.len(),
         update_authority: format!("{:?}", asset.update_authority),
+        collection: match &asset.update_authority {
+            UpdateAuthority::Collection(address) => Some(CollectionInfo {
+                address: address.to_string(),
+                verified: true,
+            }),
+            _ => None,
+        },
         // Base ownership is discoverable even with unknown future plugins. Plugin
         // authorities/collection inheritance may restrict transfer or burning.
         plugins_status: ScanStatus::Unsupported(

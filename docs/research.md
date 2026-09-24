@@ -6,7 +6,7 @@ Reviewed 2026-09-24 against the repository's installed sources and lockfile. Exi
 
 | Integration | Locked version | Relevant API |
 | --- | --- | --- |
-| RPC client / account decoder | 4.3.0 | `RpcClient::send`, `get_program_ui_accounts_with_config`, `get_multiple_accounts`, local SPL/stake/nonce decoders |
+| RPC client / account decoder | 4.3.0 | `RpcClient::send`, `get_program_ui_accounts_with_config`, `get_multiple_accounts`, local SPL decoders |
 | RPC pubkey | 4.4.0 | `Pubkey::new_from_array` |
 | Token Metadata | 5.1.1 | `Metadata`, `MasterEdition`, `Edition`, `TokenStandard`; pubkey **2.4.0** |
 | MPL Core | 0.12.1 | `BaseAssetV1`, `Key`; its solana-program 3.0.0 uses pubkey **3.0.0** |
@@ -20,17 +20,15 @@ The Token Metadata/RPC conversions are named helpers; Core's program ID is conve
 
 - [getTokenAccountsByOwner](https://solana.com/docs/rpc/http/gettokenaccountsbyowner): both program IDs come from the installed SPL crates. The convenience method forces parsed JSON, so the common RPC transport requests base64 and the application decodes locally. This avoids losing accounts when RPC cannot resolve mint metadata.
 - [getMultipleAccounts](https://solana.com/docs/rpc/http/getmultipleaccounts): deduplicated batches of at most 100 for mints, metadata PDAs and legacy edition PDAs. Batch errors are distinct from absent accounts.
-- [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts): ordinary memcmp filters for Core/stake/nonce, with local type/authority validation. No indexing-service RPC methods are used.
+- [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts): ordinary memcmp filters for Core, with local type/authority validation. No indexing-service RPC methods are used.
 - [getBalance](https://solana.com/docs/rpc/http/getbalance) and [official endpoints](https://solana.com/docs/references/clusters): integer lamports; the current documented mainnet endpoint is `https://api.mainnet.solana.com`.
 - [Core fetching](https://www.metaplex.com/docs/smart-contracts/core/fetch): Core supports GPA discovery. Installed `BaseAssetV1` confirms discriminator at byte 0 and owner at byte 1; no fixed data size is assumed. Base fields are decoded even with a plugin tail, with permissions explicitly unassessed.
 - [Metaplex token standards](https://www.metaplex.com/docs/smart-contracts/token-metadata/token-standard): classification covers classic/edition/programmable standards. Installed generated decoders deserialize a `Key` without verifying its expected variant, so the scanner checks discriminators explicitly. Legacy V1 master editions also require their additional printing-mint fields.
 - [Token-2022 metadata](https://solana.com/docs/tokens/extensions/metadata): the pointer may target another program; embedded TokenMetadata provides name/symbol/URI and additional fields. External target formats are not guessed. Installed account-decoder output is retained for other extensions.
-- [Stake account authority semantics](https://solana.com/docs/references/staking/stake-accounts) and [official stake interface source](https://github.com/solana-program/stake/blob/main/interface/src/state.rs): `StakeStateV2` uses a four-byte variant tag, then an eight-byte reserve before `Authorized`; staker/withdrawer offsets are 12/44. The local decoder uses the compatible stake-interface 4.4.0. Authority discovery does not imply immediate withdrawal eligibility.
-- [Durable nonces](https://solana.com/developers/cookbook/transactions/durable-nonces): installed solana-nonce and decoder sources confirm version + state tags before the authority at offset 8, and 80-byte initialized accounts. The system program ID is the all-zero public key.
 
 ## Compressed assets
 
-[Metaplex's cNFT fetching documentation](https://www.metaplex.com/docs/smart-contracts/bubblegum-v2/fetch-cnfts) describes transaction-event data and DAS indexing. Bubblegum and account-compression tree accounts contain commitments and bounded changelogs, not an enumerable collection of owner records. `getSignaturesForAddress(wallet)` cannot substitute for a tree-event index: wallet ownership may only occur in event data, and RPC history may be pruned. A complete local solution must replay all relevant retained events and maintain transfers/burns and proofs. That infrastructure is beyond an on-demand wallet CLI; the capability is reported as unsupported, never as a zero count.
+See [the current V1/V2 investigation](cnfts.md) for official event/source references, historical replay feasibility, required self-hosted infrastructure and the CLI's unavailable status. No external asset index is used. Recent wallet transactions are never presented as a complete inventory.
 
 ## Pricing
 

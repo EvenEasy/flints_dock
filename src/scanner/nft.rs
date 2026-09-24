@@ -118,6 +118,10 @@ pub async fn get_metadata(
                 .as_ref()
                 .map(|standard| format!("{standard:?}")),
             source: Some("metaplex".into()),
+            collection: data.collection.map(|collection| CollectionInfo {
+                address: collection.key.to_string(),
+                verified: collection.verified,
+            }),
         };
         let mut nft = None;
         if candidate(&mint) {

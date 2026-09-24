@@ -7,3 +7,78 @@ pub trait PriceProvider {
     fn get_prices(&self, mints: &[String])
     -> impl std::future::Future<Output = PriceReport> + Send;
 }
+
+use crate::{models::*, portfolio::aggregate::approximate_value};
+use jupiter::WRAPPED_SOL;
+
+pub async fn price_portfolio<P: PriceProvider>(
+    portfolio: &mut Portfolio,
+    no_prices: bool,
+    provider: Option<&P>,
+) -> ScanStatus {
+    if no_prices {
+        return ScanStatus::Skipped("Disabled by --no-prices".into());
+    }
+    // Only quote balances that can actually be valued in the selected categories.
+    let mut mints: Vec<_> = portfolio
+        .tokens
+        .iter()
+        .filter(|token| {
+            token.kind == AssetKind::Fungible
+                && token.total_raw_amount > 0
+                && !special_units(portfolio, &token.mint)
+        })
+        .map(|token| token.mint.clone())
+        .collect();
+    if portfolio.native_sol.is_some() {
+        mints.push(WRAPPED_SOL.into());
+    }
+    mints.sort();
+    mints.dedup();
+    if mints.is_empty() {
+        return ScanStatus::Skipped("No priceable assets in selected categories".into());
+    }
+    let Some(provider) = provider else {
+        return ScanStatus::Skipped("Set JUPITER_API_KEY to enable USD prices".into());
+    };
+    let mut report = provider.get_prices(&mints).await;
+    if let Some(native) = &mut portfolio.native_sol
+        && let Some(quote) = report
+            .quotes
+            .get(WRAPPED_SOL)
+            .filter(|quote| quote.decimals == 9)
+    {
+        native.price = Some(quote.clone());
+        native.value_usd = approximate_value(native.lamports.into(), 9, quote.usd);
+    }
+    for token in &mut portfolio.tokens {
+        // A provider must not accidentally value excluded units or NFT mints.
+        if !mints.contains(&token.mint) || token.kind != AssetKind::Fungible {
+            continue;
+        }
+        if let Some(quote) = report.quotes.get(&token.mint) {
+            if token.decimals == Some(quote.decimals) {
+                token.value_usd =
+                    approximate_value(token.total_raw_amount, quote.decimals, quote.usd);
+                token.price = Some(quote.clone());
+            } else {
+                report.status = ScanStatus::Partial(
+                    "Some price decimals do not match on-chain mint decimals".into(),
+                );
+            }
+        }
+    }
+    report.status
+}
+
+fn special_units(portfolio: &Portfolio, mint: &str) -> bool {
+    portfolio
+        .mints
+        .iter()
+        .find(|info| info.mint == mint)
+        .is_some_and(|info| {
+            info.extension_types
+                .iter()
+                .any(|kind| matches!(kind.as_str(), "ScaledUiAmount" | "InterestBearingConfig"))
+        })
+}

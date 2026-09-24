@@ -1,3 +1,7 @@
+use crate::{
+    models::{ScanOptions, ScanSelection},
+    output::OutputOptions,
+};
 use clap::{Parser, ValueEnum};
 use solana_pubkey::Pubkey;
 
@@ -10,24 +14,78 @@ pub enum OutputFormat {
 #[derive(Parser)]
 #[command(
     version,
-    about = "Discover a Solana wallet portfolio using standard RPC"
+    about = "Scan selected Solana wallet assets (defaults to --all)"
 )]
 pub struct Cli {
-    /// Wallet public key; no private key or signing is needed
+    /// Wallet public key; no signing is needed
     #[arg(short, long)]
     pub pubkey: Pubkey,
-    /// Solana JSON-RPC endpoint
     #[arg(short, long, default_value = "https://api.mainnet.solana.com")]
     pub rpc_url: String,
-    /// Disable optional Jupiter pricing (otherwise uses JUPITER_API_KEY)
+    /// Native SOL balance
+    #[arg(long)]
+    pub balance: bool,
+    /// Fungible SPL / Token-2022 assets and unclassified tokens
+    #[arg(long)]
+    pub tokens: bool,
+    /// Classic, programmable and MPL Core NFTs
+    #[arg(long)]
+    pub nfts: bool,
+    /// Compressed NFTs (requires a historical owner index)
+    #[arg(long)]
+    pub cnfts: bool,
+    /// All categories; also the default when no category flags are given
+    #[arg(long)]
+    pub all: bool,
+    /// Disable external price requests; otherwise uses JUPITER_API_KEY
     #[arg(long)]
     pub no_prices: bool,
+    /// Display full token mints and NFT asset IDs in tables
+    #[arg(long)]
+    pub show_mint: bool,
+    /// Display unit USD prices as well as values in tables
+    #[arg(long)]
+    pub show_price: bool,
+    /// Include zero-balance token assets in output
+    #[arg(long)]
+    pub include_empty: bool,
+    /// Show raw amounts, accounts, lamports and metadata
+    #[arg(long)]
+    pub details: bool,
     #[arg(long, value_enum, default_value = "table")]
     pub format: OutputFormat,
-    /// Progress on stderr; JSON stdout remains clean
+    /// Scanner diagnostics on stderr; does not expand asset tables
     #[arg(short, long)]
     pub verbose: bool,
-    /// Per-request timeout in seconds
     #[arg(long, default_value_t = 30, value_parser = clap::value_parser!(u64).range(1..=300))]
     pub timeout_seconds: u64,
+}
+
+impl Cli {
+    pub fn scan_options(&self) -> ScanOptions {
+        let selection = ScanSelection {
+            balance: self.balance,
+            tokens: self.tokens,
+            nfts: self.nfts,
+            cnfts: self.cnfts,
+        };
+        ScanOptions {
+            selection: if self.all || selection.is_empty() {
+                ScanSelection::ALL
+            } else {
+                selection
+            },
+            no_prices: self.no_prices,
+            verbose: self.verbose,
+        }
+    }
+
+    pub fn output_options(&self) -> OutputOptions {
+        OutputOptions {
+            show_mint: self.show_mint,
+            show_price: self.show_price,
+            include_empty: self.include_empty,
+            details: self.details,
+        }
+    }
 }

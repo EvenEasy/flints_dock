@@ -1,4 +1,8 @@
-use crate::{models::*, portfolio::aggregate::exact_amount};
+use crate::{
+    models::*,
+    output::{OutputOptions, nft_rows, token_name, visible_tokens},
+    portfolio::aggregate::exact_amount,
+};
 use std::io::{self, Write};
 
 pub fn status(status: &ScanStatus) -> String {
@@ -10,169 +14,261 @@ pub fn status(status: &ScanStatus) -> String {
         ScanStatus::Skipped(reason) => format!("Skipped: {reason}"),
     }
 }
-fn money(value: Option<f64>) -> String {
-    value
-        .map(|value| format!("${value:.2}"))
-        .unwrap_or_else(|| "unavailable".into())
+
+pub fn money(value: Option<f64>) -> String {
+    match value.filter(|value| value.is_finite() && *value >= 0.0) {
+        None => "-".into(),
+        Some(0.0) => "$0.00".into(),
+        Some(value) if value >= 0.01 => format!("${value:.2}"),
+        Some(value) if value >= 0.000001 => format!("${value:.8}").trim_end_matches('0').to_owned(),
+        Some(value) => format!("${value:.3e}"),
+    }
 }
-// Token names/URIs are untrusted on-chain text. Escape terminal control characters.
+
 fn label(value: &str) -> String {
-    value.chars().flat_map(char::escape_default).collect()
+    // Preserve Unicode names, but never let on-chain text execute terminal controls.
+    value
+        .chars()
+        .flat_map(|ch| {
+            if ch.is_control() {
+                ch.escape_default().collect::<Vec<_>>()
+            } else {
+                vec![ch]
+            }
+        })
+        .collect()
+}
+fn name(value: &str) -> String {
+    let safe = label(value);
+    if safe.chars().count() > 32 {
+        format!("{}…", safe.chars().take(31).collect::<String>())
+    } else {
+        safe
+    }
+}
+fn table(out: &mut impl Write, headings: Vec<String>, rows: Vec<Vec<String>>) -> io::Result<()> {
+    let mut widths: Vec<_> = headings.iter().map(|cell| cell.chars().count()).collect();
+    for row in &rows {
+        for (width, cell) in widths.iter_mut().zip(row) {
+            *width = (*width).max(cell.chars().count());
+        }
+    }
+    for row in std::iter::once(headings).chain(rows) {
+        write!(out, "  ")?;
+        for (i, cell) in row.iter().enumerate() {
+            write!(out, "{cell}")?;
+            if i + 1 < row.len() {
+                write!(out, "{}", " ".repeat(widths[i] - cell.chars().count() + 2))?;
+            }
+        }
+        writeln!(out)?;
+    }
+    Ok(())
+}
+
+fn heading(
+    out: &mut impl Write,
+    title: &str,
+    count: usize,
+    scan: Option<&ScanStatus>,
+    details: bool,
+) -> io::Result<bool> {
+    match scan {
+        Some(ScanStatus::Complete) => {
+            if count == 0 {
+                writeln!(out, "\n{title}: none")?;
+            } else {
+                writeln!(out, "\n{title} ({count})")?;
+            }
+        }
+        Some(ScanStatus::Partial(_)) => {
+            writeln!(out, "\n{title} ({count} found; incomplete)")?;
+        }
+        _ => {
+            writeln!(out, "\n{title}: unavailable")?;
+        }
+    }
+    if details
+        && let Some(scan) = scan
+        && !scan.is_complete()
+    {
+        writeln!(out, "  {}", label(&status(scan)))?;
+    }
+    Ok(count > 0)
 }
 
 pub fn write_portfolio(
     mut out: impl Write,
     portfolio: &Portfolio,
-    verbose: bool,
+    options: &OutputOptions,
 ) -> io::Result<()> {
-    writeln!(
-        out,
-        "Wallet: {}\nCommitment: {}",
-        portfolio.owner, portfolio.commitment
-    )?;
-    writeln!(out, "\nSOL")?;
-    if let Some(native) = &portfolio.native_sol {
-        writeln!(
-            out,
-            "  Balance: {} SOL ({} lamports)\n  USD: {}",
-            exact_amount(native.lamports.into(), 9),
-            native.lamports,
-            money(native.value_usd)
-        )?;
+    let wallet = &portfolio.owner;
+    let shortened = if wallet.len() > 16 {
+        format!("{}...{}", &wallet[..8], &wallet[wallet.len() - 5..])
     } else {
-        writeln!(out, "  Balance unavailable; see scanner status")?;
-    }
+        wallet.clone()
+    };
     writeln!(
         out,
-        "\nTOKENS (includes NFT token balances; not counted again in valuation)"
+        "Wallet: {}",
+        if options.details { wallet } else { &shortened }
     )?;
-    for token in &portfolio.tokens {
-        writeln!(
-            out,
-            "  {} [{:?}]\n    mint: {}\n    balance: {} (raw={}, decimals={:?})\n    price: {}  value: {}  accounts: {}",
-            label(
-                token
-                    .metadata
-                    .symbol
-                    .as_deref()
-                    .or(token.metadata.name.as_deref())
-                    .unwrap_or("UNKNOWN TOKEN")
-            ),
-            token.kind,
-            token.mint,
-            token.balance.as_deref().unwrap_or("unavailable"),
-            token.total_raw_amount,
-            token.decimals,
-            money(token.price.as_ref().map(|price| price.usd)),
-            money(token.value_usd),
-            token.accounts.len()
-        )?;
-    }
-    writeln!(
-        out,
-        "\nNFT: {} discovered ({} programmable)",
-        portfolio.classic_nfts.len(),
-        portfolio
-            .classic_nfts
-            .iter()
-            .filter(|nft| nft.programmable)
-            .count()
-    )?;
-    for nft in &portfolio.classic_nfts {
-        writeln!(
-            out,
-            "  {} {} (edition={})",
-            nft.mint,
-            label(nft.metadata.name.as_deref().unwrap_or("unnamed")),
-            nft.edition
-        )?;
-    }
-    writeln!(
-        out,
-        "\nMPL CORE: {} discovered AssetV1",
-        portfolio.core_assets.len()
-    )?;
-    for core in &portfolio.core_assets {
-        writeln!(
-            out,
-            "  {} {} ({} lamports)",
-            core.address,
-            label(&core.name),
-            core.lamports
-        )?;
-    }
-    writeln!(
-        out,
-        "\nSTAKE: {} authority-associated accounts",
-        portfolio.stake_accounts.len()
-    )?;
-    for stake in &portfolio.stake_accounts {
-        writeln!(
-            out,
-            "  {}: {} SOL; delegated={} lamports; withdraw authority={}; vote={}",
-            stake.address,
-            exact_amount(stake.lamports.into(), 9),
-            stake
-                .delegated_lamports
-                .map(|amount| amount.to_string())
-                .unwrap_or_else(|| "none".into()),
-            stake.wallet_can_withdraw,
-            stake.validator_vote_account.as_deref().unwrap_or("none")
-        )?;
-    }
-    writeln!(
-        out,
-        "\nNONCE ACCOUNTS: {} discovered",
-        portfolio.associated_accounts.len()
-    )?;
-    for account in &portfolio.associated_accounts {
-        writeln!(out, "  {}: {} lamports", account.address, account.lamports)?;
-    }
-    let summary = &portfolio.account_summary;
-    writeln!(
-        out,
-        "\nTOKEN ACCOUNTS\n  Total decoded: {}\n  Empty public balances: {}\n  Lamports stored: {} ({} SOL)\n  Potentially reclaimable from empty accounts: {} lamports ({} SOL; conditional, before fees)\n  Closure needs extension review: {}",
-        summary.token_accounts,
-        summary.empty_token_accounts,
-        summary.token_account_lamports,
-        exact_amount(summary.token_account_lamports, 9),
-        summary.potentially_reclaimable_lamports,
-        exact_amount(summary.potentially_reclaimable_lamports, 9),
-        summary.closure_review_accounts
-    )?;
-    if verbose {
-        for account in &portfolio.token_accounts {
+    if portfolio.selected.balance {
+        if let Some(native) = &portfolio.native_sol {
             writeln!(
                 out,
-                "  {} mint={} raw={} lamports={} close={:?}",
-                account.address,
-                account.mint,
-                account.raw_amount,
-                account.lamports,
-                account.closure
+                "\nSOL\n  Balance: {} SOL ({})",
+                exact_amount(native.lamports.into(), 9),
+                money(native.value_usd)
+            )?;
+            if options.show_price {
+                writeln!(
+                    out,
+                    "  Price: {}",
+                    money(native.price.as_ref().map(|price| price.usd))
+                )?;
+            }
+            if options.details {
+                writeln!(out, "  Lamports: {}", native.lamports)?;
+            }
+        } else {
+            heading(
+                &mut out,
+                "SOL",
+                0,
+                portfolio.scanners.get("native_sol"),
+                options.details,
             )?;
         }
     }
-    writeln!(
-        out,
-        "\nUNKNOWN / UNCLASSIFIED: {}",
-        portfolio.unknown_assets.len()
-    )?;
-    for asset in &portfolio.unknown_assets {
-        writeln!(out, "  {}: {}", asset.address, label(&asset.reason))?;
+    if portfolio.selected.tokens {
+        let tokens = visible_tokens(portfolio, options);
+        if heading(
+            &mut out,
+            "TOKENS",
+            tokens.len(),
+            portfolio.scanners.get("tokens"),
+            options.details,
+        )? {
+            let mut headers = vec!["Token".into(), "Balance".into(), "Value".into()];
+            if options.show_price {
+                headers.push("Price".into());
+            }
+            if options.show_mint {
+                headers.push("Mint".into());
+            }
+            if options.details {
+                headers.extend(
+                    ["Raw", "Decimals", "Accounts", "Lamports", "Metadata URI"].map(str::to_owned),
+                );
+            }
+            let rows = tokens
+                .iter()
+                .map(|token| {
+                    let mut row = vec![
+                        name(token_name(token)),
+                        token.balance.clone().unwrap_or_else(|| "-".into()),
+                        money(token.value_usd),
+                    ];
+                    if options.show_price {
+                        row.push(money(token.price.as_ref().map(|price| price.usd)));
+                    }
+                    if options.show_mint {
+                        row.push(token.mint.clone());
+                    }
+                    if options.details {
+                        let lamports: u128 = portfolio
+                            .token_accounts
+                            .iter()
+                            .filter(|account| token.accounts.contains(&account.address))
+                            .map(|account| u128::from(account.lamports))
+                            .sum();
+                        row.extend([
+                            token.total_raw_amount.to_string(),
+                            token
+                                .decimals
+                                .map(|decimals| decimals.to_string())
+                                .unwrap_or_else(|| "-".into()),
+                            token.accounts.join(","),
+                            lamports.to_string(),
+                            label(token.metadata.uri.as_deref().unwrap_or("-")),
+                        ]);
+                    }
+                    row
+                })
+                .collect();
+            table(&mut out, headers, rows)?;
+        }
     }
-    writeln!(out, "\nSCAN STATUS")?;
-    for (scanner, state) in &portfolio.scanners {
-        writeln!(out, "  {scanner}: {}", label(&status(state)))?;
+    if portfolio.selected.nfts {
+        let nfts = nft_rows(portfolio);
+        if heading(
+            &mut out,
+            "NFTs",
+            nfts.len(),
+            portfolio.scanners.get("nfts"),
+            options.details,
+        )? {
+            let mut headers = vec!["Name".into(), "Type".into()];
+            if options.show_mint {
+                headers.push("Asset ID".into());
+            }
+            if options.details {
+                headers.extend(
+                    ["Collection", "Metadata URI", "Accounts", "Lamports"].map(str::to_owned),
+                );
+            }
+            let rows = nfts
+                .iter()
+                .map(|nft| {
+                    let mut row = vec![name(nft.name), nft.kind.into()];
+                    if options.show_mint {
+                        row.push(nft.asset_id.into());
+                    }
+                    if options.details {
+                        let collection = nft
+                            .collection
+                            .map(|collection| {
+                                format!(
+                                    "{}{}",
+                                    collection.address,
+                                    if collection.verified {
+                                        ""
+                                    } else {
+                                        " (unverified)"
+                                    }
+                                )
+                            })
+                            .unwrap_or_else(|| "-".into());
+                        row.extend([
+                            collection,
+                            label(nft.uri.unwrap_or("-")),
+                            nft.accounts.join(","),
+                            nft.lamports.to_string(),
+                        ]);
+                    }
+                    row
+                })
+                .collect();
+            table(&mut out, headers, rows)?;
+        }
     }
-    writeln!(
-        out,
-        "\nPORTFOLIO\n  Known USD value: {}\n  {}",
-        money(portfolio.known_value_usd),
-        portfolio.valuation_scope
-    )?;
-    for limitation in &portfolio.limitations {
-        writeln!(out, "  Note: {limitation}")?;
+    if portfolio.selected.cnfts {
+        writeln!(out, "\ncNFTs: unavailable (requires historical index)")?;
+    }
+    if let Some(scan) = portfolio.scanners.get("prices") {
+        match scan {
+            ScanStatus::Skipped(reason) if reason.contains("JUPITER_API_KEY") => {
+                writeln!(out, "\nPrices: unavailable (set JUPITER_API_KEY)")?
+            }
+            ScanStatus::Failed(_) => {
+                writeln!(out, "\nPrices: unavailable (provider request failed)")?
+            }
+            _ => {}
+        }
+        if options.details && !scan.is_complete() {
+            writeln!(out, "  Pricing: {}", label(&status(scan)))?;
+        }
     }
     Ok(())
 }

@@ -1,3 +1,5 @@
+mod options;
+pub use options::*;
 mod scan;
 pub use scan::*;
 use serde::Serialize;
@@ -75,6 +77,7 @@ pub struct TokenMetadata {
     pub image_uri: Option<String>,
     pub token_standard: Option<String>,
     pub source: Option<String>,
+    pub collection: Option<CollectionInfo>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -141,31 +144,8 @@ pub struct CoreAsset {
     pub lamports: u64,
     pub data_len: usize,
     pub update_authority: String,
+    pub collection: Option<CollectionInfo>,
     pub plugins_status: ScanStatus,
-}
-
-#[derive(Debug, Serialize)]
-pub struct StakePosition {
-    pub address: String,
-    pub lamports: u64,
-    pub stake_authority: String,
-    pub withdraw_authority: String,
-    pub wallet_can_withdraw: bool,
-    pub delegated_lamports: Option<u64>,
-    pub validator_vote_account: Option<String>,
-    pub activation_epoch: Option<String>,
-    pub deactivation_epoch: Option<String>,
-    pub activation_status: ScanStatus,
-    pub lockup: Value,
-}
-
-#[derive(Debug, Serialize)]
-pub struct AssociatedAccount {
-    pub address: String,
-    pub program_id: String,
-    pub lamports: u64,
-    pub kind: String,
-    pub details: Value,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -203,8 +183,9 @@ pub struct AccountSummary {
     pub closure_review_accounts: usize,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct Portfolio {
+    pub selected: ScanSelection,
     pub owner: String,
     pub commitment: String,
     pub native_sol: Option<NativeBalance>,
@@ -213,14 +194,9 @@ pub struct Portfolio {
     pub mints: Vec<MintInfo>,
     pub classic_nfts: Vec<NftAsset>,
     pub core_assets: Vec<CoreAsset>,
-    pub stake_accounts: Vec<StakePosition>,
-    pub associated_accounts: Vec<AssociatedAccount>,
     pub unknown_assets: Vec<UnknownAsset>,
     pub scanners: BTreeMap<String, ScanStatus>,
     pub account_summary: AccountSummary,
-    pub known_value_usd: Option<f64>,
-    pub valuation_scope: String,
-    pub limitations: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -228,4 +204,21 @@ pub struct MetadataRecord {
     pub mint: String,
     pub metadata: TokenMetadata,
     pub nft: Option<NftAsset>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CollectionInfo {
+    pub address: String,
+    pub verified: bool,
+}
+
+impl Portfolio {
+    /// Unavailable-only scans exit unsuccessfully, while partial results remain useful.
+    pub fn has_usable_results(&self) -> bool {
+        ["native_sol", "tokens", "nfts"].iter().any(|category| {
+            self.scanners.get(*category).is_some_and(|status| {
+                matches!(status, ScanStatus::Complete | ScanStatus::Partial(_))
+            })
+        })
+    }
 }

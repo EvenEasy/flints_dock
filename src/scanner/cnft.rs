@@ -8,3 +8,9 @@ pub fn support() -> ScanStatus {
     // tree events, including transfers and burns; a short history scan is unsafe.
     ScanStatus::Unsupported("Compressed NFTs are not fully enumerable using standard RPC without an indexer. Bubblegum tree hashes cannot be searched by wallet owner; no DAS or history heuristic was used.".into())
 }
+
+/// An explicit capability result, not a fabricated empty asset collection.
+/// See docs/cnfts.md for the archive, event replay and persistent index requirements.
+pub fn get_compressed_nfts(_owner: &solana_pubkey::Pubkey) -> ScanStatus {
+    support()
+}
