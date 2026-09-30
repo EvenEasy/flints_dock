@@ -23,8 +23,9 @@ pub async fn price_portfolio<P: PriceProvider>(
     let mut mints: Vec<_> = portfolio
         .tokens
         .iter()
+        .chain(&portfolio.all_tokens)
         .filter(|token| {
-            token.kind == AssetKind::Fungible
+            token.kind.is_fungible()
                 && token.total_raw_amount > 0
                 && !special_units(portfolio, &token.mint)
         })
@@ -51,9 +52,9 @@ pub async fn price_portfolio<P: PriceProvider>(
         native.price = Some(quote.clone());
         native.value_usd = approximate_value(native.lamports.into(), 9, quote.usd);
     }
-    for token in &mut portfolio.tokens {
+    for token in portfolio.tokens.iter_mut().chain(&mut portfolio.all_tokens) {
         // A provider must not accidentally value excluded units or NFT mints.
-        if !mints.contains(&token.mint) || token.kind != AssetKind::Fungible {
+        if !mints.contains(&token.mint) || !token.kind.is_fungible() {
             continue;
         }
         if let Some(quote) = report.quotes.get(&token.mint) {

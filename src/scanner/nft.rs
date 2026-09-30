@@ -1,4 +1,4 @@
-use crate::{models::*, rpc};
+use crate::{classification::standard_kind, models::*, rpc};
 use anyhow::{Result, ensure};
 use mpl_token_metadata::{
     accounts::{Edition, MasterEdition, Metadata},
@@ -46,16 +46,6 @@ pub fn edition_evidence(account: &Account) -> Option<bool> {
         return Some(false);
     }
     None
-}
-
-pub fn standard_kind(standard: &TokenStandard) -> AssetKind {
-    match standard {
-        TokenStandard::NonFungible | TokenStandard::NonFungibleEdition => AssetKind::NonFungible,
-        TokenStandard::ProgrammableNonFungible | TokenStandard::ProgrammableNonFungibleEdition => {
-            AssetKind::ProgrammableNonFungible
-        }
-        TokenStandard::Fungible | TokenStandard::FungibleAsset => AssetKind::Fungible,
-    }
 }
 
 pub async fn get_metadata(
@@ -126,22 +116,15 @@ pub async fn get_metadata(
         let mut nft = None;
         if candidate(&mint) {
             let verified = match &data.token_standard {
-                Some(standard)
-                    if matches!(
-                        standard_kind(standard),
-                        AssetKind::NonFungible | AssetKind::ProgrammableNonFungible
-                    ) =>
-                {
-                    Some((
-                        standard_kind(standard) == AssetKind::ProgrammableNonFungible,
-                        matches!(
-                            standard,
-                            TokenStandard::NonFungibleEdition
-                                | TokenStandard::ProgrammableNonFungibleEdition
-                        ),
-                        "metaplex_token_standard",
-                    ))
-                }
+                Some(standard) if standard_kind(standard).is_nft() => Some((
+                    standard_kind(standard).is_programmable(),
+                    matches!(
+                        standard,
+                        TokenStandard::NonFungibleEdition
+                            | TokenStandard::ProgrammableNonFungibleEdition
+                    ),
+                    "metaplex_token_standard",
+                )),
                 None => match editions
                     .get(&mint)
                     .and_then(|pda| edition_accounts.get(pda))
@@ -175,14 +158,13 @@ pub async fn get_metadata(
                     evidence: evidence.into(),
                 });
             }
-        } else if data.token_standard.as_ref().is_some_and(|standard| {
-            matches!(
-                standard_kind(standard),
-                AssetKind::NonFungible | AssetKind::ProgrammableNonFungible
-            )
-        }) && tokens
-            .iter()
-            .any(|token| token.mint == mint.to_string() && token.raw_amount > 0)
+        } else if data
+            .token_standard
+            .as_ref()
+            .is_some_and(|standard| standard_kind(standard).is_nft())
+            && tokens
+                .iter()
+                .any(|token| token.mint == mint.to_string() && token.raw_amount > 0)
         {
             result.issue(format!(
                 "{mint}: NFT metadata but mint supply/decimals/holding unavailable or inconsistent"

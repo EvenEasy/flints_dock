@@ -1,6 +1,6 @@
 use crate::{
     models::*,
-    output::{OutputOptions, nft_rows, token_name, visible_tokens},
+    output::{OutputOptions, nft_rows, token_name, visible_token_assets},
     portfolio::aggregate::exact_amount,
 };
 use std::io::{self, Write};
@@ -71,7 +71,6 @@ fn heading(
     title: &str,
     count: usize,
     scan: Option<&ScanStatus>,
-    details: bool,
 ) -> io::Result<bool> {
     match scan {
         Some(ScanStatus::Complete) => {
@@ -87,12 +86,6 @@ fn heading(
         _ => {
             writeln!(out, "\n{title}: unavailable")?;
         }
-    }
-    if details
-        && let Some(scan) = scan
-        && !scan.is_complete()
-    {
-        writeln!(out, "  {}", label(&status(scan)))?;
     }
     Ok(count > 0)
 }
@@ -132,34 +125,51 @@ pub fn write_portfolio(
                 writeln!(out, "  Lamports: {}", native.lamports)?;
             }
         } else {
-            heading(
-                &mut out,
-                "SOL",
-                0,
-                portfolio.scanners.get("native_sol"),
-                options.details,
-            )?;
+            heading(&mut out, "SOL", 0, portfolio.scanners.get("native_sol"))?;
         }
     }
-    if portfolio.selected.tokens {
-        let tokens = visible_tokens(portfolio, options);
-        if heading(
-            &mut out,
+    for (selected, key, title, assets) in [
+        (
+            portfolio.selected.tokens,
+            "tokens",
             "TOKENS",
-            tokens.len(),
-            portfolio.scanners.get("tokens"),
-            options.details,
-        )? {
-            let mut headers = vec!["Token".into(), "Balance".into(), "Value".into()];
+            &portfolio.tokens,
+        ),
+        (
+            portfolio.selected.all_tokens,
+            "all_tokens",
+            "ALL TOKEN ASSETS",
+            &portfolio.all_tokens,
+        ),
+    ] {
+        if !selected {
+            continue;
+        }
+        let tokens = visible_token_assets(assets, options);
+        if heading(&mut out, title, tokens.len(), portfolio.scanners.get(key))? {
+            let mut headers = vec![
+                "Token".into(),
+                "Balance".into(),
+                "Type".into(),
+                "Value".into(),
+            ];
             if options.show_price {
                 headers.push("Price".into());
             }
-            if options.show_mint {
+            if options.show_mint || options.details {
                 headers.push("Mint".into());
             }
             if options.details {
                 headers.extend(
-                    ["Raw", "Decimals", "Accounts", "Lamports", "Metadata URI"].map(str::to_owned),
+                    [
+                        "Raw",
+                        "Decimals",
+                        "Program",
+                        "Accounts",
+                        "Lamports",
+                        "Metadata URI",
+                    ]
+                    .map(str::to_owned),
                 );
             }
             let rows = tokens
@@ -168,12 +178,13 @@ pub fn write_portfolio(
                     let mut row = vec![
                         name(token_name(token)),
                         token.balance.clone().unwrap_or_else(|| "-".into()),
+                        token.kind.label().into(),
                         money(token.value_usd),
                     ];
                     if options.show_price {
                         row.push(money(token.price.as_ref().map(|price| price.usd)));
                     }
-                    if options.show_mint {
+                    if options.show_mint || options.details {
                         row.push(token.mint.clone());
                     }
                     if options.details {
@@ -189,6 +200,7 @@ pub fn write_portfolio(
                                 .decimals
                                 .map(|decimals| decimals.to_string())
                                 .unwrap_or_else(|| "-".into()),
+                            format!("{:?}", token.program),
                             token.accounts.join(","),
                             lamports.to_string(),
                             label(token.metadata.uri.as_deref().unwrap_or("-")),
@@ -202,13 +214,7 @@ pub fn write_portfolio(
     }
     if portfolio.selected.nfts {
         let nfts = nft_rows(portfolio);
-        if heading(
-            &mut out,
-            "NFTs",
-            nfts.len(),
-            portfolio.scanners.get("nfts"),
-            options.details,
-        )? {
+        if heading(&mut out, "NFTs", nfts.len(), portfolio.scanners.get("nfts"))? {
             let mut headers = vec!["Name".into(), "Type".into()];
             if options.show_mint {
                 headers.push("Asset ID".into());
@@ -265,9 +271,6 @@ pub fn write_portfolio(
                 writeln!(out, "\nPrices: unavailable (provider request failed)")?
             }
             _ => {}
-        }
-        if options.details && !scan.is_complete() {
-            writeln!(out, "  Pricing: {}", label(&status(scan)))?;
         }
     }
     Ok(())

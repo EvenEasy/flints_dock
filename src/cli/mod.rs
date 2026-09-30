@@ -28,13 +28,16 @@ pub struct Cli {
     /// Fungible SPL / Token-2022 assets and unclassified tokens
     #[arg(long)]
     pub tokens: bool,
+    /// Every token account, including NFTs and unknown assets (unaggregated)
+    #[arg(long)]
+    pub all_tokens: bool,
     /// Classic, programmable and MPL Core NFTs
     #[arg(long)]
     pub nfts: bool,
     /// Compressed NFTs (requires a historical owner index)
     #[arg(long)]
     pub cnfts: bool,
-    /// All categories; also the default when no category flags are given
+    /// All asset categories (raw --all-tokens view remains opt-in); also the default
     #[arg(long)]
     pub all: bool,
     /// Disable external price requests; otherwise uses JUPITER_API_KEY
@@ -66,12 +69,16 @@ impl Cli {
         let selection = ScanSelection {
             balance: self.balance,
             tokens: self.tokens,
+            all_tokens: self.all_tokens,
             nfts: self.nfts,
             cnfts: self.cnfts,
         };
         ScanOptions {
             selection: if self.all || selection.is_empty() {
-                ScanSelection::ALL
+                ScanSelection {
+                    all_tokens: self.all_tokens,
+                    ..ScanSelection::ALL
+                }
             } else {
                 selection
             },

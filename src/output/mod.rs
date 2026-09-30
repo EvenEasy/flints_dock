@@ -14,8 +14,14 @@ pub fn visible_tokens<'a>(
     portfolio: &'a Portfolio,
     options: &OutputOptions,
 ) -> Vec<&'a TokenAsset> {
-    let mut tokens: Vec<_> = portfolio
-        .tokens
+    visible_token_assets(&portfolio.tokens, options)
+}
+
+pub fn visible_token_assets<'a>(
+    assets: &'a [TokenAsset],
+    options: &OutputOptions,
+) -> Vec<&'a TokenAsset> {
+    let mut tokens: Vec<_> = assets
         .iter()
         .filter(|token| options.include_empty || token.total_raw_amount > 0)
         .collect();
@@ -64,10 +70,11 @@ pub fn nft_rows(portfolio: &Portfolio) -> Vec<NftRow<'_>> {
         .iter()
         .map(|nft| NftRow {
             name: nft.metadata.name.as_deref().unwrap_or("Unnamed NFT"),
-            kind: if nft.programmable {
-                "Programmable"
-            } else {
-                "Classic"
+            kind: match (nft.programmable, nft.edition) {
+                (true, true) => "Programmable edition",
+                (true, false) => "Programmable",
+                (false, true) => "Classic edition",
+                (false, false) => "Classic",
             },
             asset_id: &nft.mint,
             collection: nft.metadata.collection.as_ref(),

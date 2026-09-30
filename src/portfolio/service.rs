@@ -1,4 +1,5 @@
 use crate::{
+    classification::classify_token_accounts,
     models::*,
     portfolio::aggregate::*,
     pricing::{PriceProvider, jupiter::Jupiter},
@@ -64,7 +65,15 @@ pub async fn scan_wallet_with_provider<P: PriceProvider>(
         },
         async {
             if selected.needs_token_accounts() {
-                Some(scan_tokens(rpc, owner, !selected.tokens, options.verbose).await)
+                Some(
+                    scan_tokens(
+                        rpc,
+                        owner,
+                        !(selected.tokens || selected.all_tokens),
+                        options.verbose,
+                    )
+                    .await,
+                )
             } else {
                 None
             }
@@ -84,6 +93,7 @@ pub async fn scan_wallet_with_provider<P: PriceProvider>(
         native_sol: None,
         token_accounts: Vec::new(),
         tokens: Vec::new(),
+        all_tokens: Vec::new(),
         mints: Vec::new(),
         classic_nfts: Vec::new(),
         core_assets: Vec::new(),
@@ -111,7 +121,8 @@ pub async fn scan_wallet_with_provider<P: PriceProvider>(
         }
     }
     if let Some(scan) = token_scan {
-        let assets = aggregate_tokens(&scan.classification_accounts, &scan.mints, &scan.records);
+        let assets =
+            classify_token_accounts(&scan.classification_accounts, &scan.mints, &scan.records);
         for asset in &assets {
             if asset.kind == AssetKind::Unknown || asset.metadata.name.is_none() {
                 portfolio.unknown_assets.push(UnknownAsset {
@@ -129,13 +140,16 @@ pub async fn scan_wallet_with_provider<P: PriceProvider>(
             }
         }
         if selected.tokens {
-            portfolio.tokens = assets
-                .into_iter()
-                .filter(|asset| matches!(asset.kind, AssetKind::Fungible | AssetKind::Unknown))
-                .collect();
+            portfolio.tokens = aggregate_tokens(&assets);
             portfolio
                 .scanners
                 .insert("tokens".into(), scan.status.clone());
+        }
+        if selected.all_tokens {
+            portfolio.all_tokens = assets;
+            portfolio
+                .scanners
+                .insert("all_tokens".into(), scan.status.clone());
         }
         if selected.nfts {
             portfolio.classic_nfts = scan

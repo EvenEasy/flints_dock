@@ -98,12 +98,47 @@ pub struct MintInfo {
 #[serde(rename_all = "snake_case")]
 pub enum AssetKind {
     Fungible,
+    FungibleAsset,
     NonFungible,
+    NonFungibleEdition,
     ProgrammableNonFungible,
+    ProgrammableNonFungibleEdition,
     Unknown,
 }
 
-#[derive(Debug, Serialize)]
+impl AssetKind {
+    pub fn is_fungible(self) -> bool {
+        matches!(self, Self::Fungible | Self::FungibleAsset)
+    }
+    pub fn is_nft(self) -> bool {
+        matches!(
+            self,
+            Self::NonFungible
+                | Self::NonFungibleEdition
+                | Self::ProgrammableNonFungible
+                | Self::ProgrammableNonFungibleEdition
+        )
+    }
+    pub fn is_programmable(self) -> bool {
+        matches!(
+            self,
+            Self::ProgrammableNonFungible | Self::ProgrammableNonFungibleEdition
+        )
+    }
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Fungible => "Fungible",
+            Self::FungibleAsset => "FungibleAsset",
+            Self::NonFungible => "NFT",
+            Self::NonFungibleEdition => "NFT edition",
+            Self::ProgrammableNonFungible => "Programmable",
+            Self::ProgrammableNonFungibleEdition => "Programmable edition",
+            Self::Unknown => "Unknown",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct TokenAsset {
     pub mint: String,
     pub program: TokenProgram,
@@ -191,6 +226,7 @@ pub struct Portfolio {
     pub native_sol: Option<NativeBalance>,
     pub token_accounts: Vec<TokenAccount>,
     pub tokens: Vec<TokenAsset>,
+    pub all_tokens: Vec<TokenAsset>,
     pub mints: Vec<MintInfo>,
     pub classic_nfts: Vec<NftAsset>,
     pub core_assets: Vec<CoreAsset>,
@@ -215,10 +251,12 @@ pub struct CollectionInfo {
 impl Portfolio {
     /// Unavailable-only scans exit unsuccessfully, while partial results remain useful.
     pub fn has_usable_results(&self) -> bool {
-        ["native_sol", "tokens", "nfts"].iter().any(|category| {
-            self.scanners.get(*category).is_some_and(|status| {
-                matches!(status, ScanStatus::Complete | ScanStatus::Partial(_))
+        ["native_sol", "tokens", "all_tokens", "nfts"]
+            .iter()
+            .any(|category| {
+                self.scanners.get(*category).is_some_and(|status| {
+                    matches!(status, ScanStatus::Complete | ScanStatus::Partial(_))
+                })
             })
-        })
     }
 }

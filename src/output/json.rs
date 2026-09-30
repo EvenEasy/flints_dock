@@ -1,6 +1,6 @@
 use crate::{
     models::*,
-    output::{OutputOptions, nft_rows, visible_tokens},
+    output::{OutputOptions, nft_rows, visible_token_assets},
     portfolio::aggregate::exact_amount,
 };
 use serde_json::{Map, Value, json};
@@ -32,9 +32,19 @@ pub fn portfolio_json(portfolio: &Portfolio, options: &OutputOptions) -> Value {
         sol.insert("pricing".into(), json!(portfolio.scanners.get("prices")));
         output.insert("sol".into(), Value::Object(sol));
     }
-    if portfolio.selected.tokens {
-        let mut tokens = category(portfolio.scanners.get("tokens"));
-        tokens.insert("items".into(), json!(visible_tokens(portfolio, options)));
+    for (selected, key, assets) in [
+        (portfolio.selected.tokens, "tokens", &portfolio.tokens),
+        (
+            portfolio.selected.all_tokens,
+            "all_tokens",
+            &portfolio.all_tokens,
+        ),
+    ] {
+        if !selected {
+            continue;
+        }
+        let mut tokens = category(portfolio.scanners.get(key));
+        tokens.insert("items".into(), json!(visible_token_assets(assets, options)));
         tokens.insert("pricing".into(), json!(portfolio.scanners.get("prices")));
         tokens.insert(
             "unknown".into(),
@@ -56,7 +66,7 @@ pub fn portfolio_json(portfolio: &Portfolio, options: &OutputOptions) -> Value {
             tokens.insert("mints".into(), json!(portfolio.mints));
             tokens.insert("account_summary".into(), json!(portfolio.account_summary));
         }
-        output.insert("tokens".into(), Value::Object(tokens));
+        output.insert(key.into(), Value::Object(tokens));
     }
     if portfolio.selected.nfts {
         let mut nfts = category(portfolio.scanners.get("nfts"));

@@ -17,73 +17,31 @@ pub fn exact_amount(raw: u128, decimals: u8) -> String {
     }
 }
 
-pub fn aggregate_tokens(
-    accounts: &[TokenAccount],
-    mints: &[MintInfo],
-    records: &[MetadataRecord],
-) -> Vec<TokenAsset> {
+/// Combine only positively classified fungibles. Unknown accounts remain separate;
+/// NFT accounts belong to the NFT category and the unaggregated all-token view.
+pub fn aggregate_tokens(classified: &[TokenAsset]) -> Vec<TokenAsset> {
     let mut assets: BTreeMap<(String, TokenProgram), TokenAsset> = BTreeMap::new();
-    for account in accounts {
-        let asset = assets
-            .entry((account.mint.clone(), account.program))
-            .or_insert_with(|| {
-                let mint = mints
-                    .iter()
-                    .find(|mint| mint.mint == account.mint && mint.program == account.program);
-                let record = records.iter().find(|record| record.mint == account.mint);
-                let mut metadata = record
-                    .map(|record| record.metadata.clone())
-                    .or_else(|| mint.map(|mint| mint.metadata.clone()))
-                    .unwrap_or_default();
-                if metadata.image_uri.is_none() {
-                    metadata.image_uri = mint.and_then(|mint| mint.metadata.image_uri.clone());
+    let mut unknown = Vec::new();
+    for token in classified {
+        if token.kind == AssetKind::Unknown {
+            unknown.push(token.clone());
+        } else if token.kind.is_fungible() {
+            let key = (token.mint.clone(), token.program);
+            if let Some(asset) = assets.get_mut(&key) {
+                asset.total_raw_amount += token.total_raw_amount;
+                asset.accounts.extend(token.accounts.iter().cloned());
+                if asset.decimals != token.decimals {
+                    asset.decimals = None;
                 }
-                let kind = if let Some(nft) = record.and_then(|record| record.nft.as_ref()) {
-                    if nft.programmable {
-                        AssetKind::ProgrammableNonFungible
-                    } else {
-                        AssetKind::NonFungible
-                    }
-                } else if metadata
-                    .token_standard
-                    .as_deref()
-                    .is_some_and(|standard| matches!(standard, "Fungible" | "FungibleAsset"))
-                    || (metadata.token_standard.is_none()
-                        && mint.is_some_and(|mint| mint.decimals > 0))
-                {
-                    AssetKind::Fungible
-                } else {
-                    AssetKind::Unknown
-                };
-                TokenAsset {
-                    mint: account.mint.clone(),
-                    program: account.program,
-                    total_raw_amount: 0,
-                    decimals: account.decimals,
-                    balance: None,
-                    accounts: Vec::new(),
-                    kind,
-                    metadata,
-                    price: None,
-                    value_usd: None,
-                }
-            });
-        // Each amount is u64; u128 comfortably holds a wallet's account sum.
-        asset.total_raw_amount += u128::from(account.raw_amount);
-        if asset.decimals != account.decimals {
-            asset.decimals = None;
+                asset.balance = asset
+                    .decimals
+                    .map(|decimals| exact_amount(asset.total_raw_amount, decimals));
+            } else {
+                assets.insert(key, token.clone());
+            }
         }
-        asset.accounts.push(account.address.clone());
     }
-    assets
-        .into_values()
-        .map(|mut asset| {
-            asset.balance = asset
-                .decimals
-                .map(|decimals| exact_amount(asset.total_raw_amount, decimals));
-            asset
-        })
-        .collect()
+    assets.into_values().chain(unknown).collect()
 }
 
 pub fn summarize_accounts(accounts: &[TokenAccount]) -> AccountSummary {

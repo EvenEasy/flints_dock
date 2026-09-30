@@ -1,83 +1,45 @@
 # Validation
 
-Validated on 2026-09-24.
-
-All required checks passed:
+Validated on 2026-09-30 after the shared classification refactor.
 
 ```text
-cargo fmt --check                         PASS
-cargo check                              PASS
-cargo test                               PASS — 17 offline tests
+cargo fmt                               PASS
+cargo check                             PASS
+cargo test                              PASS — 28 offline integration tests
 cargo clippy --all-targets --all-features PASS — no warnings
 ```
 
-Tests exercise exact integer formatting (including u128/255-decimal boundaries), mint/program aggregation, zero balances and conservative closure assessment, Token-2022 variable lengths and embedded metadata, pubkey conversions, Metaplex discriminators and legacy/programmable editions, contradictory NFT evidence, Core variable-sized assets, stake authority offsets, pricing parsing/math, scanner states, partial-failure orchestration, total outages, RPC batching/deduplication and clean JSON/terminal output.
+Regression coverage includes UI balance exactly 1 for fungible 6/9-decimal mints; all four NFT TokenStandard variants; legacy MasterEdition and Edition proof; missing or contradictory metadata; empty NFT accounts; multiple fungible accounts aggregated with backing addresses retained; Unknown accounts kept separately; raw account visibility; NFT exclusion from fungible output/pricing; and combined classic/programmable/Core presentation. All 31 nonempty category combinations check actual RPC calls and JSON category selection. A mixed inventory verifies no category loss and a single deduplicated pricing request. Existing decoder, precision, batching, partial-failure and cNFT capability tests remain covered.
 
-## Mainnet CLI run
+## Live mainnet comparison
+
+Wallet: `EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj`.
+
+Ran each category independently against `https://api.mainnet.solana.com`:
 
 ```bash
-cargo run -- --pubkey EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj \
-  --rpc-url https://api.mainnet.solana.com \
-  --no-prices --format json --verbose --timeout-seconds 20
+cargo run -- -p EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj --all-tokens --no-prices --format json --details --include-empty --timeout-seconds 20
+cargo run -- -p EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj --tokens --no-prices --format json --details --include-empty --timeout-seconds 20
+cargo run -- -p EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj --nfts --no-prices --format json --details --include-empty --timeout-seconds 20
 ```
 
-The executable completed successfully against the official mainnet endpoint. The first restricted-network attempt could not reach RPC; rerunning with network access succeeded. Standard JSON-RPC only was used.
+All three scans exited 0 with complete category status.
 
-Observed values (a point-in-time result, not hardcoded expectations):
-
-| Item | Result |
+| Observation | Result |
 | --- | ---: |
-| Native SOL | 856,157,308 lamports = 0.856157308 SOL |
-| Legacy token accounts | 109 |
-| Token-2022 accounts | 30 |
-| Total token accounts / mint-program groups | 139 / 139 |
-| Empty public token balances | 20 |
-| Actual token-account lamports | 285,689,513 = 0.285689513 SOL |
-| Potentially reclaimable lamports | 14,414,160 = 0.014414160 SOL across 7 accounts |
-| Accounts needing closure-extension review | 13 |
-| Metaplex metadata records | 107 |
-| Embedded Token-2022 metadata records | 30 |
-| Tokens lacking recognized on-chain metadata | 2 |
-| Verified classic/programmable NFTs | 0 |
-| Uncompressed Core AssetV1 assets | 0 |
-| Stake authority accounts | 0 |
-| Durable nonce authority accounts | 0 |
+| Legacy / Token-2022 accounts | 110 / 30 |
+| Total raw accounts | 140 |
+| Empty / nonempty token accounts | 20 / 120 |
+| All-token rows with `--include-empty` | 140 |
+| Fungible rows with `--include-empty` | 140 |
+| Unknown classifications | 0 |
+| Verified classic / programmable NFTs | 0 |
+| Core AssetV1 assets | 0 |
 
-SOL, both token programs, mint enrichment, Metaplex metadata/NFT checks, Core AssetV1, stake discovery and nonce discovery reported **complete**. Compressed NFTs and hashed Core assets reported **unsupported**. Generic other-account coverage reported **partial**. Prices reported **skipped** because `--no-prices` was set. No USD total was fabricated.
+The broad view preserves every discovered token account: compared each row's backing account address against the complete raw inventory, with exactly one row per account. Fungible and raw views match by mint, raw amount and classification for this wallet, which currently has one account per mint. All mints have positive decimals (5, 6, 8 or 9). Normal output hides the 20 empty accounts. No verified NFT appears in the fungible category.
 
-This validates the prior many-token-account behavior and both programs. The zero NFT/Core/stake results do not establish live positive-case coverage; positive-case decoding is exercised by offline fixtures. No authenticated Jupiter price request was possible without a provided API key; quote parsing, missing-price behavior and valuation arithmetic are tested offline.
+These are point-in-time results. The earlier documented scan found 139 accounts; the current scan finds 140. Zero live classic/Core results do not provide positive NFT coverage; binary fixtures exercise NFT standards and legacy editions. NFTs shown by another wallet UI may include compressed assets; this run does not enumerate those or validate that UI's inventory.
 
-## Example output excerpt
+cNFTs remain unavailable without indexed Bubblegum history. The CLI reports `items: null` / `historical_index_required`, and a cNFT-only invocation exits 2 without making unrelated RPC calls. It never reports a successful empty cNFT list.
 
-Human-readable representation of the observed scan, with individual token rows omitted:
-
-```text
-Wallet: EibQ2VYpzj18qSdEBkmxWVzde7FzamTxVG9rZyY689Yj
-
-SOL
-  Balance: 0.856157308 SOL (856157308 lamports)
-  USD: unavailable
-
-NFT: 0 discovered (0 programmable)
-MPL CORE: 0 discovered AssetV1
-STAKE: 0 authority-associated accounts
-NONCE ACCOUNTS: 0 discovered
-
-TOKEN ACCOUNTS
-  Total decoded: 139
-  Empty public balances: 20
-  Lamports stored: 285689513 (0.285689513 SOL)
-  Potentially reclaimable from empty accounts: 14414160 lamports
-  Closure needs extension review: 13
-
-SCAN STATUS
-  compressed_nfts: Unsupported: not fully enumerable using standard RPC without an indexer
-  legacy_tokens: Complete
-  token_2022: Complete
-  prices: Skipped: Disabled by --no-prices
-
-PORTFOLIO
-  Known USD value: unavailable
-```
-
-Actual output also includes every aggregate token, unknown assets, all scanner statuses, valuation scope and limitations. JSON includes every underlying token account, raw amounts, metadata and extension details.
+Live pricing was intentionally disabled. Offline provider tests verify deduplication, selected-category pricing, missing/error handling and exclusion of NFT/Unknown assets. No authenticated Jupiter result is claimed.

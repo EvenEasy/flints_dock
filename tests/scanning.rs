@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use borsh::BorshSerialize;
-use flints_station::{
+use dock_flints::{
     models::*,
     portfolio::{aggregate::*, service::scan_wallet},
     pricing::jupiter::parse_quote,
@@ -31,6 +31,16 @@ use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex},
 };
+
+fn aggregate_tokens(
+    accounts: &[TokenAccount],
+    mints: &[MintInfo],
+    records: &[MetadataRecord],
+) -> Vec<TokenAsset> {
+    dock_flints::portfolio::aggregate::aggregate_tokens(
+        &dock_flints::classification::classify_token_accounts(accounts, mints, records),
+    )
+}
 
 fn key(byte: u8) -> Pubkey {
     Pubkey::new_from_array([byte; 32])
@@ -145,7 +155,11 @@ fn aggregation_preserves_accounts_zeros_and_program_boundaries() {
         serde_json::to_value(&assets[0]).unwrap()["total_raw_amount"],
         "3000001"
     );
-    let assets = aggregate_tokens(&[token(u64::MAX), token(u64::MAX)], &[], &[]);
+    let assets = aggregate_tokens(
+        &[token(u64::MAX), token(u64::MAX)],
+        &[mint_info(6, u64::MAX)],
+        &[],
+    );
     assert_eq!(assets[0].total_raw_amount, u128::from(u64::MAX) * 2);
 }
 
@@ -280,7 +294,7 @@ fn scan_status_distinguishes_empty_from_failed() {
         matches!(scan.status, ScanStatus::Partial(message) if message.contains("mint unavailable"))
     );
     assert!(matches!(
-        flints_station::scanner::cnft::support(),
+        dock_flints::scanner::cnft::support(),
         ScanStatus::Unsupported(_)
     ));
 }
@@ -295,6 +309,7 @@ struct FixtureRpc {
     fail_all: bool,
     token_amount: Option<u64>,
     include_empty: bool,
+    extra_tokens: Vec<Value>,
 }
 #[async_trait]
 impl RpcSender for FixtureRpc {
@@ -333,6 +348,7 @@ impl RpcSender for FixtureRpc {
                         2_039_280
                     )
                 })];
+                accounts.extend(self.extra_tokens.clone());
                 if self.include_empty {
                     accounts.push(json!(RpcKeyedAccount {
                         pubkey: key(5).to_string(),
@@ -436,13 +452,13 @@ async fn portfolio_keeps_successes_unknowns_and_clean_json_on_partial_failures()
     assert!(portfolio.tokens[0].value_usd.is_none());
     portfolio.tokens[0].metadata.symbol = Some("untrusted\u{1b}[2J".into());
     let mut console = Vec::new();
-    flints_station::output::console::write_portfolio(&mut console, &portfolio, &Default::default())
+    dock_flints::output::console::write_portfolio(&mut console, &portfolio, &Default::default())
         .unwrap();
     assert!(!console.contains(&0x1b));
     let console = String::from_utf8(console).unwrap();
     assert!(console.contains("cNFTs: unavailable (requires historical index)"));
     assert!(!console.contains("PORTFOLIO"));
-    let value = flints_station::output::json::portfolio_json(&portfolio, &Default::default());
+    let value = dock_flints::output::json::portfolio_json(&portfolio, &Default::default());
     assert_eq!(value["cnfts"]["status"], "unsupported");
     assert_eq!(
         calls
@@ -471,7 +487,7 @@ async fn complete_rpc_outage_is_fatal() {
     )
     .await;
     assert!(!portfolio.has_usable_results());
-    let value = flints_station::output::json::portfolio_json(&portfolio, &Default::default());
+    let value = dock_flints::output::json::portfolio_json(&portfolio, &Default::default());
     for category in ["sol", "tokens", "nfts"] {
         assert_eq!(value[category]["status"], "failed");
     }
@@ -606,7 +622,7 @@ fn master_edition_v1_allows_absent_max_supply_but_requires_printing_keys() {
 }
 
 use clap::Parser;
-use flints_station::{
+use dock_flints::{
     cli::Cli,
     output::{OutputOptions, console::write_portfolio, json::portfolio_json},
     portfolio::service::scan_wallet_with_provider,
@@ -642,7 +658,7 @@ fn text_output(portfolio: &Portfolio, options: &OutputOptions) -> String {
 fn category_flags_default_to_all_and_combine_in_any_order() {
     let parse = |flags: &[&str]| {
         let wallet = key(1).to_string();
-        let args = ["flints", "-p", wallet.as_str()]
+        let args = ["dock_flints", "-p", wallet.as_str()]
             .into_iter()
             .chain(flags.iter().copied());
         Cli::try_parse_from(args).unwrap().scan_options().selection
@@ -662,6 +678,20 @@ fn category_flags_default_to_all_and_combine_in_any_order() {
             ..Default::default()
         }
     );
+    assert_eq!(
+        parse(&["--all-tokens"]),
+        ScanSelection {
+            all_tokens: true,
+            ..Default::default()
+        }
+    );
+    assert_eq!(
+        parse(&["--all", "--all-tokens"]),
+        ScanSelection {
+            all_tokens: true,
+            ..ScanSelection::ALL
+        }
+    );
     // Presentation flags alone must not alter category selection.
     assert_eq!(
         parse(&[
@@ -676,12 +706,13 @@ fn category_flags_default_to_all_and_combine_in_any_order() {
 
 #[tokio::test]
 async fn every_category_combination_avoids_unrelated_rpc_and_json_categories() {
-    for bits in 1..16 {
+    for bits in 1..32 {
         let selected = ScanSelection {
             balance: bits & 1 != 0,
             tokens: bits & 2 != 0,
             nfts: bits & 4 != 0,
             cnfts: bits & 8 != 0,
+            all_tokens: bits & 16 != 0,
         };
         let fixture = fixture();
         let calls = fixture.calls.clone();
@@ -709,12 +740,17 @@ async fn every_category_combination_avoids_unrelated_rpc_and_json_categories() {
         // This fixture has no raw=1 NFT candidates: NFT-only needs no mint/metadata batches.
         assert_eq!(
             count(RpcRequest::GetMultipleAccounts),
-            if selected.tokens { 2 } else { 0 }
+            if selected.tokens || selected.all_tokens {
+                2
+            } else {
+                0
+            }
         );
         let json = portfolio_json(&portfolio, &Default::default());
         for (category, wanted) in [
             ("sol", selected.balance),
             ("tokens", selected.tokens),
+            ("all_tokens", selected.all_tokens),
             ("nfts", selected.nfts),
             ("cnfts", selected.cnfts),
         ] {
@@ -838,6 +874,15 @@ async fn prices_follow_selection_and_no_prices_prevents_provider_calls() {
             ..Default::default()
         },
         ScanSelection {
+            all_tokens: true,
+            ..Default::default()
+        },
+        ScanSelection {
+            all_tokens: true,
+            tokens: true,
+            ..Default::default()
+        },
+        ScanSelection {
             nfts: true,
             ..Default::default()
         },
@@ -867,6 +912,10 @@ async fn prices_follow_selection_and_no_prices_prevents_provider_calls() {
             if selected.balance && !no_prices {
                 assert_eq!(calls[0], vec![WRAPPED_SOL.to_string()]);
                 assert!(portfolio.native_sol.unwrap().value_usd.is_some());
+            }
+            if selected.all_tokens && !no_prices {
+                assert_eq!(calls[0], vec![key(2).to_string()]);
+                assert_eq!(portfolio.all_tokens[0].value_usd, Some(2.0));
             }
             if selected.tokens && !no_prices {
                 assert_eq!(calls[0], vec![key(2).to_string()]);
@@ -1004,7 +1053,7 @@ async fn compact_output_sorts_values_formats_tiny_prices_and_combines_nft_types(
 #[test]
 fn cnft_only_cli_returns_error_and_clean_machine_readable_status_without_rpc() {
     let wallet = key(1).to_string();
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_flints_station"))
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_dock_flints"))
         .args([
             "-p",
             &wallet,
@@ -1023,7 +1072,7 @@ fn cnft_only_cli_returns_error_and_clean_machine_readable_status_without_rpc() {
     assert_eq!(json["cnfts"]["code"], "historical_index_required");
     assert_eq!(json["cnfts"]["status"], "unsupported");
     assert!(json["cnfts"]["items"].is_null());
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_flints_station"))
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_dock_flints"))
         .args(["-p", &wallet, "--cnfts", "--rpc-url", "http://127.0.0.1:1"])
         .output()
         .unwrap();
@@ -1039,87 +1088,404 @@ fn cnft_only_cli_returns_error_and_clean_machine_readable_status_without_rpc() {
 
 #[tokio::test]
 async fn nft_only_verifies_candidates_and_combined_scans_do_not_duplicate_accounts() {
-    for selected in [
-        ScanSelection {
-            nfts: true,
-            ..Default::default()
-        },
-        ScanSelection {
-            tokens: true,
-            nfts: true,
-            ..Default::default()
-        },
-        ScanSelection {
-            tokens: true,
-            ..Default::default()
-        },
+    for (standard, expected) in [
+        (TokenStandard::NonFungible, AssetKind::NonFungible),
+        (
+            TokenStandard::NonFungibleEdition,
+            AssetKind::NonFungibleEdition,
+        ),
+        (
+            TokenStandard::ProgrammableNonFungible,
+            AssetKind::ProgrammableNonFungible,
+        ),
+        (
+            TokenStandard::ProgrammableNonFungibleEdition,
+            AssetKind::ProgrammableNonFungibleEdition,
+        ),
     ] {
+        for selected in [
+            ScanSelection {
+                all_tokens: true,
+                ..Default::default()
+            },
+            ScanSelection {
+                all_tokens: true,
+                tokens: true,
+                nfts: true,
+                ..Default::default()
+            },
+            ScanSelection {
+                nfts: true,
+                ..Default::default()
+            },
+            ScanSelection {
+                tokens: true,
+                nfts: true,
+                ..Default::default()
+            },
+            ScanSelection {
+                tokens: true,
+                ..Default::default()
+            },
+        ] {
+            let mut fixture = fixture();
+            fixture.token_amount = Some(1);
+            fixture.accounts.insert(
+                key(2).to_string(),
+                ui(raw_mint(0, 1), TokenProgram::Legacy.id(), 1),
+            );
+            let mut nft_metadata = metadata(Some(standard));
+            nft_metadata.collection = Some(mpl_token_metadata::types::Collection {
+                verified: true,
+                key: rpc::to_metaplex(key(44)),
+            });
+            fixture.accounts.insert(
+                Metadata::find_pda(&rpc::to_metaplex(key(2))).0.to_string(),
+                ui(
+                    nft_metadata.try_to_vec().unwrap(),
+                    rpc::to_rpc(mpl_token_metadata::ID),
+                    1,
+                ),
+            );
+            let calls = fixture.calls.clone();
+            let provider = FixturePrices::default();
+            let portfolio = scan_wallet_with_provider(
+                &client(fixture),
+                &key(1),
+                &ScanOptions {
+                    selection: selected,
+                    ..Default::default()
+                },
+                Some(&provider),
+            )
+            .await;
+            assert_eq!(portfolio.classic_nfts.len(), usize::from(selected.nfts));
+            assert!(
+                portfolio.tokens.is_empty(),
+                "NFT must not appear as a fungible asset"
+            );
+            assert!(
+                provider.calls.lock().unwrap().is_empty(),
+                "NFTs must not be priced as fungible tokens"
+            );
+            if selected.all_tokens {
+                assert_eq!(portfolio.all_tokens.len(), 1);
+                assert_eq!(portfolio.all_tokens[0].kind, expected);
+                assert!(portfolio.all_tokens[0].price.is_none());
+                let json = portfolio_json(
+                    &portfolio,
+                    &OutputOptions {
+                        details: true,
+                        ..Default::default()
+                    },
+                );
+                assert_eq!(
+                    json["all_tokens"]["items"][0]["accounts"][0],
+                    key(3).to_string()
+                );
+                assert_eq!(
+                    json["all_tokens"]["discovered_accounts"][0]["raw_amount"],
+                    "1"
+                );
+                let text = text_output(
+                    &portfolio,
+                    &OutputOptions {
+                        details: true,
+                        ..Default::default()
+                    },
+                );
+                assert!(text.contains("ALL TOKEN ASSETS (1)"));
+                for field in [
+                    "Mint",
+                    "Raw",
+                    "Decimals",
+                    "Program",
+                    "Accounts",
+                    "Lamports",
+                    "Metadata URI",
+                ] {
+                    assert!(text.contains(field));
+                }
+            }
+            if selected.nfts {
+                assert_eq!(
+                    portfolio.classic_nfts[0].programmable,
+                    expected.is_programmable()
+                );
+                assert_eq!(
+                    portfolio.classic_nfts[0]
+                        .metadata
+                        .collection
+                        .as_ref()
+                        .unwrap()
+                        .address,
+                    key(44).to_string()
+                );
+            }
+            let calls = calls.lock().unwrap();
+            assert_eq!(
+                calls
+                    .iter()
+                    .filter(|(request, _)| *request == RpcRequest::GetTokenAccountsByOwner)
+                    .count(),
+                2
+            );
+            assert_eq!(
+                calls
+                    .iter()
+                    .filter(|(request, _)| *request == RpcRequest::GetMultipleAccounts)
+                    .count(),
+                2
+            );
+        }
+    }
+}
+
+#[test]
+fn classifier_uses_mint_semantics_not_ui_one_or_metadata_labels() {
+    use dock_flints::classification::{classify, classify_token_accounts};
+    for decimals in [6, 9] {
+        let mut account = token(10_u64.pow(decimals.into()));
+        account.decimals = Some(decimals);
+        let mint = mint_info(decimals, account.raw_amount);
+        let classified = classify_token_accounts(
+            std::slice::from_ref(&account),
+            std::slice::from_ref(&mint),
+            &[],
+        );
+        assert_eq!(classified[0].balance.as_deref(), Some("1"));
+        assert_eq!(classify(&account, Some(&mint), None), AssetKind::Fungible);
+    }
+    let mut account = token(1);
+    account.decimals = Some(0);
+    let mut mint = mint_info(0, 1);
+    mint.metadata.name = Some("Looks like an NFT".into());
+    mint.extension_types = vec!["TokenMetadata".into(), "NonTransferable".into()];
+    assert_eq!(classify(&account, Some(&mint), None), AssetKind::Unknown);
+    let record = MetadataRecord {
+        mint: key(2).to_string(),
+        metadata: TokenMetadata {
+            token_standard: Some("FungibleAsset".into()),
+            ..Default::default()
+        },
+        nft: None,
+    };
+    assert_eq!(
+        classify(&account, Some(&mint), Some(&record)),
+        AssetKind::FungibleAsset
+    );
+    let mut second = account.clone();
+    second.address = key(4).to_string();
+    let unknown = classify_token_accounts(&[account, second], &[mint], &[]);
+    assert_eq!(
+        dock_flints::portfolio::aggregate::aggregate_tokens(&unknown).len(),
+        2,
+        "Unknown accounts must not be aggregated as fungibles"
+    );
+}
+
+#[tokio::test]
+async fn mixed_inventory_is_partitioned_without_loss_and_prices_only_fungibles() {
+    let mut fixture = fixture();
+    for (mint, address, decimals, amount, standard) in [
+        (2, 7, Some(6), 2_000_000, None), // second fungible account
+        (8, 9, Some(0), 1, Some(TokenStandard::NonFungible)),
+        (10, 11, Some(0), 1, None), // ambiguous zero-decimal mint
+        (12, 13, None, 42, None),   // missing mint must survive
+    ] {
+        fixture.extra_tokens.push(json!(RpcKeyedAccount {
+            pubkey: key(address).to_string(),
+            account: ui(
+                raw_token(key(mint), key(1), amount),
+                TokenProgram::Legacy.id(),
+                2_039_280
+            ),
+        }));
+        if let Some(decimals) = decimals {
+            fixture.accounts.insert(
+                key(mint).to_string(),
+                ui(raw_mint(decimals, amount), TokenProgram::Legacy.id(), 1),
+            );
+        }
+        if let Some(standard) = standard {
+            let mut data = metadata(Some(standard));
+            data.mint = rpc::to_metaplex(key(mint));
+            fixture.accounts.insert(
+                Metadata::find_pda(&data.mint).0.to_string(),
+                ui(
+                    data.try_to_vec().unwrap(),
+                    rpc::to_rpc(mpl_token_metadata::ID),
+                    1,
+                ),
+            );
+        }
+    }
+    let calls = fixture.calls.clone();
+    let provider = FixturePrices::default();
+    let portfolio = scan_wallet_with_provider(
+        &client(fixture),
+        &key(1),
+        &ScanOptions {
+            selection: ScanSelection {
+                tokens: true,
+                all_tokens: true,
+                nfts: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        Some(&provider),
+    )
+    .await;
+    assert_eq!(portfolio.all_tokens.len(), 5);
+    assert_eq!(portfolio.tokens.len(), 3);
+    assert_eq!(portfolio.classic_nfts.len(), 1);
+    let fungible = portfolio
+        .tokens
+        .iter()
+        .find(|token| token.kind.is_fungible())
+        .unwrap();
+    assert_eq!(fungible.balance.as_deref(), Some("3"));
+    assert_eq!(fungible.accounts.len(), 2);
+    assert_eq!(fungible.value_usd, Some(6.0));
+    assert_eq!(
+        portfolio
+            .tokens
+            .iter()
+            .filter(|token| token.kind == AssetKind::Unknown)
+            .count(),
+        2
+    );
+    assert!(portfolio.tokens.iter().all(|token| !token.kind.is_nft()));
+    assert!(
+        portfolio
+            .all_tokens
+            .iter()
+            .filter(|token| !token.kind.is_fungible())
+            .all(|token| token.price.is_none())
+    );
+    assert_eq!(
+        *provider.calls.lock().unwrap(),
+        vec![vec![key(2).to_string()]]
+    );
+    let calls = calls.lock().unwrap();
+    assert_eq!(
+        calls
+            .iter()
+            .filter(|(request, _)| *request == RpcRequest::GetTokenAccountsByOwner)
+            .count(),
+        2
+    );
+    assert_eq!(
+        calls
+            .iter()
+            .filter(|(request, _)| *request == RpcRequest::GetMultipleAccounts)
+            .count(),
+        2
+    );
+    let text = text_output(&portfolio, &Default::default());
+    assert!(text.contains("Unknown"));
+    assert!(text.contains("ALL TOKEN ASSETS (5 found; incomplete)"));
+    let json = portfolio_json(&portfolio, &Default::default());
+    assert_eq!(json["tokens"]["items"].as_array().unwrap().len(), 3);
+    assert_eq!(json["nfts"]["items"].as_array().unwrap().len(), 1);
+    assert_eq!(json["all_tokens"]["items"].as_array().unwrap().len(), 5);
+}
+
+#[test]
+fn empty_verified_nft_accounts_stay_out_of_fungible_categories() {
+    use dock_flints::classification::classify_token_accounts;
+    let mut account = token(0);
+    account.decimals = Some(0);
+    let record = MetadataRecord {
+        mint: account.mint.clone(),
+        metadata: TokenMetadata {
+            token_standard: Some("NonFungible".into()),
+            ..Default::default()
+        },
+        nft: None,
+    };
+    let raw = classify_token_accounts(&[account], &[mint_info(0, 1)], &[record]);
+    assert_eq!(raw[0].kind, AssetKind::NonFungible);
+    assert!(dock_flints::portfolio::aggregate::aggregate_tokens(&raw).is_empty());
+    assert_eq!(raw.len(), 1);
+}
+
+#[tokio::test]
+async fn legacy_edition_evidence_drives_all_categories_and_unknown_fallback() {
+    use mpl_token_metadata::accounts::Edition;
+    for edition in [None, Some(false), Some(true)] {
         let mut fixture = fixture();
         fixture.token_amount = Some(1);
         fixture.accounts.insert(
             key(2).to_string(),
             ui(raw_mint(0, 1), TokenProgram::Legacy.id(), 1),
         );
-        let mut nft_metadata = metadata(Some(TokenStandard::ProgrammableNonFungible));
-        nft_metadata.collection = Some(mpl_token_metadata::types::Collection {
-            verified: true,
-            key: rpc::to_metaplex(key(44)),
-        });
         fixture.accounts.insert(
             Metadata::find_pda(&rpc::to_metaplex(key(2))).0.to_string(),
             ui(
-                nft_metadata.try_to_vec().unwrap(),
+                metadata(None).try_to_vec().unwrap(),
                 rpc::to_rpc(mpl_token_metadata::ID),
                 1,
             ),
         );
-        let calls = fixture.calls.clone();
-        let provider = FixturePrices::default();
-        let portfolio = scan_wallet_with_provider(
-            &client(fixture),
-            &key(1),
-            &ScanOptions {
-                selection: selected,
-                ..Default::default()
-            },
-            Some(&provider),
-        )
-        .await;
-        assert_eq!(portfolio.classic_nfts.len(), usize::from(selected.nfts));
-        assert!(
-            portfolio.tokens.is_empty(),
-            "NFT must not appear as a fungible asset"
-        );
-        assert!(
-            provider.calls.lock().unwrap().is_empty(),
-            "NFTs must not be priced as fungible tokens"
-        );
-        if selected.nfts {
-            assert!(portfolio.classic_nfts[0].programmable);
-            assert_eq!(
-                portfolio.classic_nfts[0]
-                    .metadata
-                    .collection
-                    .as_ref()
-                    .unwrap()
-                    .address,
-                key(44).to_string()
+        if let Some(printed) = edition {
+            let data = if printed {
+                Edition {
+                    key: Key::EditionV1,
+                    parent: rpc::to_metaplex(key(88)),
+                    edition: 1,
+                }
+                .try_to_vec()
+                .unwrap()
+            } else {
+                MasterEdition {
+                    key: Key::MasterEditionV2,
+                    supply: 0,
+                    max_supply: Some(0),
+                }
+                .try_to_vec()
+                .unwrap()
+            };
+            fixture.accounts.insert(
+                MasterEdition::find_pda(&rpc::to_metaplex(key(2)))
+                    .0
+                    .to_string(),
+                ui(data, rpc::to_rpc(mpl_token_metadata::ID), 1),
             );
         }
-        let calls = calls.lock().unwrap();
+        let calls = fixture.calls.clone();
+        let portfolio = scan_wallet(
+            &client(fixture),
+            &key(1),
+            &options(ScanSelection {
+                tokens: true,
+                all_tokens: true,
+                nfts: true,
+                ..Default::default()
+            }),
+            None,
+        )
+        .await;
+        assert_eq!(portfolio.all_tokens.len(), 1);
         assert_eq!(
-            calls
-                .iter()
-                .filter(|(request, _)| *request == RpcRequest::GetTokenAccountsByOwner)
-                .count(),
-            2
+            portfolio.all_tokens[0].kind,
+            match edition {
+                None => AssetKind::Unknown,
+                Some(false) => AssetKind::NonFungible,
+                Some(true) => AssetKind::NonFungibleEdition,
+            }
         );
+        assert_eq!(portfolio.classic_nfts.len(), usize::from(edition.is_some()));
+        assert_eq!(portfolio.tokens.len(), usize::from(edition.is_none()));
         assert_eq!(
             calls
+                .lock()
+                .unwrap()
                 .iter()
                 .filter(|(request, _)| *request == RpcRequest::GetMultipleAccounts)
                 .count(),
-            2
+            3
         );
     }
 }
