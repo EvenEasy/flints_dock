@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use flints_station::{
+use dock_flints::{
     cli::{Cli, OutputFormat},
     output::{console, json::portfolio_json},
     portfolio::service::scan_wallet,

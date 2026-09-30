@@ -1,4 +1,4 @@
-# flints_station
+# Dock Flint
 
 A read-only Rust CLI for SOL, SPL/Token-2022 assets, classic/programmable NFTs, Core NFTs and explicit cNFT capability reporting. No signing, burning, closing accounts, DeFi adapters, stake scans or nonce scans.
 
