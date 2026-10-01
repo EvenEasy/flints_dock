@@ -5,27 +5,23 @@ use dock_flints::{
     output::{console, json::portfolio_json},
     portfolio::service::scan_wallet,
 };
-use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_commitment_config::CommitmentConfig;
 use std::{
     io::{self, Write},
     process::ExitCode,
-    time::Duration,
 };
 
 #[tokio::main]
 async fn main() -> Result<ExitCode> {
     let args = Cli::parse();
+    if let Some(command) = args.command {
+        return dock_flints::cli::swap::run(command).await;
+    }
     let options = args.scan_options();
     let output_options = args.output_options();
-    let rpc = RpcClient::new_with_timeout_and_commitment(
-        args.rpc_url,
-        Duration::from_secs(args.timeout_seconds),
-        CommitmentConfig::confirmed(),
-    );
+    let rpc = dock_flints::rpc::client(args.rpc_url, args.timeout_seconds);
     let portfolio = scan_wallet(
         &rpc,
-        &args.pubkey,
+        &args.pubkey.expect("clap requires a wallet for scans"),
         &options,
         std::env::var("JUPITER_API_KEY").ok(),
     )

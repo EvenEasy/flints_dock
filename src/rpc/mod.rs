@@ -1,3 +1,4 @@
+pub mod swap;
 use serde_json::json;
 use solana_account::Account;
 use solana_account_decoder::{UiAccount, UiAccountEncoding};
@@ -90,4 +91,16 @@ pub async fn multiple_accounts(rpc: &RpcClient, keys: &[Pubkey]) -> AccountBatch
         }
     }
     output
+}
+
+/// Shared confirmed RPC configuration for scanners and transaction execution.
+pub fn client(
+    url: String,
+    timeout_seconds: u64,
+) -> solana_client::nonblocking::rpc_client::RpcClient {
+    solana_client::nonblocking::rpc_client::RpcClient::new_with_timeout_and_commitment(
+        url,
+        std::time::Duration::from_secs(timeout_seconds),
+        solana_commitment_config::CommitmentConfig::confirmed(),
+    )
 }

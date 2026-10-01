@@ -1,3 +1,4 @@
+pub mod swap;
 use crate::{
     models::{ScanOptions, ScanSelection},
     output::OutputOptions,
@@ -14,12 +15,16 @@ pub enum OutputFormat {
 #[derive(Parser)]
 #[command(
     version,
-    about = "Scan selected Solana wallet assets (defaults to --all)"
+    subcommand_negates_reqs = true,
+    args_conflicts_with_subcommands = true,
+    about = "Scan Solana wallet assets (default --all) or swap one token to native SOL"
 )]
 pub struct Cli {
+    #[command(subcommand)]
+    pub command: Option<swap::SwapCommand>,
     /// Wallet public key; no signing is needed
-    #[arg(short, long)]
-    pub pubkey: Pubkey,
+    #[arg(short, long, required = true)]
+    pub pubkey: Option<Pubkey>,
     #[arg(short, long, default_value = "https://api.mainnet.solana.com")]
     pub rpc_url: String,
     /// Native SOL balance

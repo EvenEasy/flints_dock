@@ -1,6 +1,6 @@
 # dock_flints
 
-A read-only Rust CLI for SOL, SPL/Token-2022 assets, classic/programmable NFTs, Core NFTs and explicit cNFT capability reporting. No signing, burning, closing accounts, DeFi adapters, stake scans or nonce scans.
+A Rust CLI for Solana wallet scanning and explicit single-token swaps to native SOL through Jupiter. Scans remain read-only. Swap execution uses a local keypair and confirmation; batch swaps, NFT liquidation and token-account cleanup are excluded.
 
 ## Usage
 
@@ -35,6 +35,15 @@ No category flags means `--all`. Category flags combine in any order. `--all` se
 | `--timeout-seconds` | Per-request timeout, default 30; RPC retries can extend total time |
 
 Default tables have one row per asset, hide zero balances, sort available USD values descending, then list unpriced assets. Unknown prices appear as `-`; very small positive amounts use additional precision/scientific notation. There is no global portfolio valuation or technical status dump. Failed/partial selected categories get short notices; requested empty NFT/token categories get a single “none” line.
+
+## TOKEN → native SOL swaps
+
+```bash
+cargo run -- quote -p <WALLET> --mint <TOKEN_MINT> --raw-amount <INTEGER>
+cargo run -- swap --keypair /path/to/wallet.json --mint <TOKEN_MINT> --raw-amount <INTEGER>
+```
+
+`quote` gets a real Jupiter Swap V2 route independently of Price V3. `swap` shows a preview, asks for confirmation, obtains a fresh route, simulates, signs locally, submits through Solana RPC and waits for confirmed status. Set `JUPITER_API_KEY` for authenticated access; Swap V2 also supports limited keyless access. See [swap options, execution guarantees and limitations](docs/swaps.md).
 
 ## Classification
 
@@ -98,13 +107,15 @@ See [cNFT investigation and infrastructure requirements](docs/cnfts.md). Uncompr
 
 ```text
 src/
-├── cli/mod.rs
+├── cli/{mod.rs,swap.rs}
 ├── models/{mod.rs,options.rs,scan.rs}
 ├── classification/mod.rs
-├── rpc/mod.rs
+├── rpc/{mod.rs,swap.rs}
 ├── scanner/{mod.rs,sol.rs,tokens.rs,metadata.rs,nft.rs,core.rs,cnft.rs}
 ├── portfolio/{mod.rs,aggregate.rs,service.rs}
 ├── pricing/{mod.rs,jupiter.rs}
+├── jupiter/{mod.rs,price.rs,swap.rs,tests.rs}
+├── swap/mod.rs
 ├── output/{mod.rs,console.rs,json.rs}
 ├── lib.rs
 └── main.rs
