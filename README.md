@@ -1,6 +1,18 @@
 # dock_flints
 
-A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair and confirmation; NFT/cNFT liquidation, parallel cleanup and multi-swap transaction batching are excluded.
+A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair or seed and confirmation; NFT/cNFT liquidation, parallel cleanup and multi-swap transaction batching are excluded.
+
+## Wallet identity
+
+Every command requires **exactly one** of `--pubkey` (`-p`), `--keypair` or `--seed`.
+`--pubkey` is read-only. Keypair and seed also work for reading, with the address derived locally. `--seed` accepts base64 of exactly 32 raw Ed25519 seed bytes, not a mnemonic or 64-byte keypair. Secret arguments can enter shell history/process listings; prefer a local keypair file for routine use. Secrets are never sent to RPC/Jupiter or included in output.
+
+```bash
+cargo run -- scan --keypair /path/to/wallet.json --tokens --no-prices
+cargo run -- scan --seed "$WALLET_SEED_BASE64" --balance --no-prices
+```
+
+`scan` is explicit; the original `dock_flints -p WALLET ...` shorthand remains supported. Execution requires a signer and explicit confirmation. Do not pass `--pubkey` alongside `--keypair` anymore.
 
 ## Usage
 
@@ -49,10 +61,11 @@ cargo run -- swap --keypair /path/to/wallet.json --mint <TOKEN_MINT> --raw-amoun
 
 ```bash
 cargo run -- cleanup -p <WALLET> --dry-run
-cargo run -- cleanup -p <WALLET> --execute --keypair /path/to/wallet.json
+cargo run -- cleanup --keypair /path/to/wallet.json --execute \
+  --ignore-mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 ```
 
-Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; `--format json` provides per-account results. See [cleanup behavior, options and limitations](docs/cleanup.md).
+Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; repeatable `--ignore-mint <MINT>` protects every account of a mint from swap, burn and close (the example preserves USDC); `--format json` provides per-account results. See [cleanup behavior, options and limitations](docs/cleanup.md).
 
 ## Classification
 
@@ -116,22 +129,15 @@ See [cNFT investigation and infrastructure requirements](docs/cnfts.md). Uncompr
 
 ```text
 src/
-├── cli/{mod.rs,swap.rs,cleanup.rs}
-├── models/{mod.rs,options.rs,scan.rs}
-├── classification/mod.rs
-├── rpc/{mod.rs,swap.rs,cleanup.rs,transactions.rs}
-├── scanner/{mod.rs,sol.rs,tokens.rs,metadata.rs,nft.rs,core.rs,cnft.rs}
-├── portfolio/{mod.rs,aggregate.rs,service.rs}
-├── pricing/{mod.rs,jupiter.rs}
-├── jupiter/{mod.rs,price.rs,swap.rs,tests.rs}
-├── swap/mod.rs
-├── cleanup/{mod.rs,plan.rs,service.rs}
-├── output/{mod.rs,console.rs,json.rs,cleanup.rs}
+├── core/   # assets, wallet snapshot, swap/cleanup types and pure rules
+├── app/    # scan, pricing, swap and cleanup use cases
+├── infra/  # Solana RPC/transactions, Jupiter HTTP, local wallet loading
+├── cli/    # argument groups, commands, confirmations, table/JSON output
 ├── lib.rs
 └── main.rs
-tests/scanning.rs
-docs/{research.md,cnfts.md,validation.md}
 ```
+
+See [architecture audit and maintenance guide](docs/architecture.md) for module ownership, provider replacement and dependency decisions. Library imports now use `core`, `app`, `infra`, `cli`; the old flat module paths were intentionally removed.
 
 ```bash
 cargo fmt --check

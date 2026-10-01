@@ -26,7 +26,7 @@ cargo run -- swap \
   --rpc-url https://api.mainnet.solana.com
 ```
 
-Execution derives the wallet public key from that keypair. It displays a preview and asks for `y`/`yes`; any other answer cancels. `--yes` explicitly approves the preview minimum for noninteractive use. With `--format json`, preview and confirmation prompts go to stderr, and stdout contains one final JSON result. Scanner flags remain separate and continue working as before.
+Every command accepts exactly one wallet identity: `--pubkey`, `--keypair` or `--seed`. Quotes can use all three; execution requires keypair or a base64 32-byte Ed25519 seed. Execution derives the wallet public key locally. It displays a preview and asks for `y`/`yes`; any other answer cancels. `--yes` explicitly approves the preview minimum for noninteractive use. With `--format json`, preview and confirmation prompts go to stderr, and stdout contains one final JSON result. Scanner flags remain separate and continue working as before.
 
 The shared client uses `JUPITER_API_KEY` when set. Swap V2 keyless access is also supported, subject to Jupiter's rate limits; authentication/rate-limit errors remain explicit. Files such as `.env` are not loaded automatically. Existing Price V3 configuration remains unchanged. No price lookup is required to obtain a swap quote: an unpriced token may have a valid route.
 

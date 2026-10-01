@@ -1,11 +1,5 @@
-pub mod classification;
-pub mod cleanup;
+//! Wallet inspection and sequential token cleanup. See docs/architecture.md.
+pub mod app;
 pub mod cli;
-pub mod jupiter;
-pub mod models;
-pub mod output;
-pub mod portfolio;
-pub mod pricing;
-pub mod rpc;
-pub mod scanner;
-pub mod swap;
+pub mod core;
+pub mod infra;

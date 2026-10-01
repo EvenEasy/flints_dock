@@ -1,16 +1,12 @@
 use dock_flints::{
-    cleanup::{
-        plan::{build_plan, unsupported_reason},
-        service::execute_plan,
-        *,
-    },
-    jupiter::swap::BuildResponse,
-    models::*,
-    rpc::cleanup::{
+    app::cleanup::{execute::execute_plan, plan::build_plan, *},
+    app::swap::*,
+    core::*,
+    infra::jupiter::swap::BuildResponse,
+    infra::solana::cleanup::{
         associated_address, burn_instruction, close_instruction, source_instructions,
         transaction_accounting,
     },
-    swap::*,
 };
 use serde_json::{Value, json};
 use solana_keypair::Keypair;
@@ -109,7 +105,7 @@ impl SwapProvider for Provider {
                 Ok(PreparedSwap {
                     request: request.clone(),
                     quote: build.quote(request).unwrap(),
-                    build,
+                    build: build.try_into().unwrap(),
                     requested_at: Instant::now(),
                 })
             }
@@ -271,7 +267,7 @@ async fn preview_categories_use_real_route_checks_not_price_or_error_fallbacks()
         [10, 20, 30, 30, 40]
     );
     let mut output = vec![];
-    dock_flints::output::cleanup::write_plan(&mut output, &plan).unwrap();
+    dock_flints::cli::output::cleanup::write_plan(&mut output, &plan).unwrap();
     let output = String::from_utf8(output).unwrap();
     for action in [
         "SWAP -> CLOSE",
@@ -536,7 +532,7 @@ fn receipt_accounting_uses_confirmed_metadata_including_loaded_addresses_not_quo
     );
 }
 #[test]
-fn cli_defaults_to_preview_and_requires_explicit_execution_for_keypair_and_yes() {
+fn cli_defaults_to_preview_and_requires_signer_for_execution() {
     use clap::Parser;
     use dock_flints::cli::{Cli, Command};
     let wallet = key(9).to_string();
@@ -556,8 +552,6 @@ fn cli_defaults_to_preview_and_requires_explicit_execution_for_keypair_and_yes()
         Cli::try_parse_from([
             "dock_flints",
             "cleanup",
-            "-p",
-            &wallet,
             "--execute",
             "--keypair",
             "key.json",
@@ -569,7 +563,7 @@ fn cli_defaults_to_preview_and_requires_explicit_execution_for_keypair_and_yes()
 
 #[test]
 fn endpoint_authentication_and_unsupported_api_errors_cannot_authorize_burn() {
-    use dock_flints::jupiter::swap::api_error;
+    use dock_flints::infra::jupiter::swap::api_error;
     for (status, body) in [
         (401, json!({"error":"No routes found"})),
         (429, json!({"error":"No routes found"})),
@@ -589,17 +583,17 @@ fn auxiliary_transfer_and_swap_are_compiled_into_one_atomic_transaction() {
     let mut build: BuildResponse =
         serde_json::from_str(include_str!("fixtures/jupiter_build.json")).unwrap();
     let request =
-        dock_flints::cleanup::plan::request(&asset, &signer.pubkey(), &options()).unwrap();
+        dock_flints::app::cleanup::plan::request(&asset, &signer.pubkey(), &options()).unwrap();
     build.input_mint = request.mint.to_string();
     build.in_amount = request.raw_amount.to_string();
     let prepared = PreparedSwap {
         quote: build.quote(&request).unwrap(),
         request,
-        build,
+        build: build.try_into().unwrap(),
         requested_at: Instant::now(),
     };
     let (prefix, suffix) = source_instructions(&asset, &signer.pubkey(), false).unwrap();
-    let tx = dock_flints::rpc::swap::signed_transaction_with_extras(
+    let tx = dock_flints::infra::solana::swap::signed_transaction_with_extras(
         &prepared,
         &signer,
         400000,
@@ -625,19 +619,19 @@ fn auxiliary_transfer_and_swap_are_compiled_into_one_atomic_transaction() {
 
 #[derive(Clone)]
 struct TransactionRpc {
-    methods: std::sync::Arc<Mutex<Vec<solana_client::rpc_request::RpcRequest>>>,
+    methods: std::sync::Arc<Mutex<Vec<solana_rpc_client_api::request::RpcRequest>>>,
     amount: std::sync::Arc<Mutex<Option<u64>>>,
     simulation_fails: bool,
 }
 #[async_trait::async_trait]
-impl solana_client::rpc_sender::RpcSender for TransactionRpc {
+impl solana_rpc_client::rpc_sender::RpcSender for TransactionRpc {
     async fn send(
         &self,
-        method: solana_client::rpc_request::RpcRequest,
+        method: solana_rpc_client_api::request::RpcRequest,
         params: Value,
-    ) -> solana_client::client_error::Result<Value> {
+    ) -> solana_rpc_client_api::client_error::Result<Value> {
         use base64::Engine;
-        use solana_client::rpc_request::RpcRequest;
+        use solana_rpc_client_api::request::RpcRequest;
         self.methods.lock().unwrap().push(method);
         match method {
             RpcRequest::GetLatestBlockhash => Ok(
@@ -688,7 +682,7 @@ impl solana_client::rpc_sender::RpcSender for TransactionRpc {
             _ => panic!("Unexpected RPC request {method}"),
         }
     }
-    fn get_transport_stats(&self) -> solana_client::rpc_sender::RpcTransportStats {
+    fn get_transport_stats(&self) -> solana_rpc_client::rpc_sender::RpcTransportStats {
         Default::default()
     }
     fn url(&self) -> String {
@@ -698,7 +692,8 @@ impl solana_client::rpc_sender::RpcSender for TransactionRpc {
 #[tokio::test]
 async fn real_rpc_adapter_simulates_and_confirms_burn_and_close_without_sending_after_simulation_failure()
  {
-    use solana_client::{nonblocking::rpc_client::RpcClient, rpc_request::RpcRequest};
+    use solana_rpc_client::nonblocking::rpc_client::RpcClient;
+    use solana_rpc_client_api::request::RpcRequest;
     for fail in [false, true] {
         let signer = Keypair::new();
         let mut asset = asset(signer.pubkey(), 1, 7);
@@ -712,7 +707,7 @@ async fn real_rpc_adapter_simulates_and_confirms_burn_and_close_without_sending_
             },
             Default::default(),
         );
-        let result = dock_flints::rpc::transactions::send_instructions(
+        let result = dock_flints::infra::solana::transactions::send_instructions(
             &rpc,
             &signer,
             &[burn_instruction(&asset, &signer.pubkey()).unwrap()],
@@ -733,7 +728,7 @@ async fn real_rpc_adapter_simulates_and_confirms_burn_and_close_without_sending_
             assert_eq!(*amount.lock().unwrap(), Some(0));
             asset.account.raw_amount = 0;
             assert!(
-                dock_flints::rpc::transactions::send_instructions(
+                dock_flints::infra::solana::transactions::send_instructions(
                     &rpc,
                     &signer,
                     &[close_instruction(&asset, &signer.pubkey()).unwrap()],
@@ -754,4 +749,82 @@ async fn real_rpc_adapter_simulates_and_confirms_burn_and_close_without_sending_
             );
         }
     }
+}
+
+#[tokio::test]
+async fn ignored_mints_protect_all_backing_accounts_even_empty_without_quotes_or_mutations() {
+    let signer = Keypair::new();
+    let assets = vec![
+        asset(signer.pubkey(), 20, 50),
+        asset(signer.pubkey(), 21, 0),
+    ];
+    let provider = Provider::new(vec![]); // Any quote is an error: ignore happens first.
+    let executor = Executor::new(&assets);
+    let mut opts = options();
+    opts.selection
+        .ignored_mints
+        .insert(assets[0].account.mint.clone());
+    let plan = build_plan(
+        &signer.pubkey(),
+        assets,
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &opts,
+    )
+    .await;
+    assert_eq!(plan.summary.accounts_to_close, 0);
+    assert_eq!(plan.summary.unsupported, 2);
+    assert!(
+        plan.entries
+            .iter()
+            .all(|entry| entry.reason.contains("protected"))
+    );
+    // Saved exclusions survive even if a caller supplies default execution options.
+    let report = execute_plan(&plan, &provider, &executor, &signer, &options())
+        .await
+        .unwrap();
+    assert_eq!(report.skipped, 2);
+    assert!(executor.events.lock().unwrap().is_empty());
+    assert!(provider.requests.lock().unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn execution_can_add_protection_and_ignored_wsol_blocks_implicit_unwrap() {
+    let signer = Keypair::new();
+    let assets = vec![asset(signer.pubkey(), 22, 50)];
+    let provider = Provider::new(vec![Answer::Route]);
+    let executor = Executor::new(&assets);
+    let plan = build_plan(
+        &signer.pubkey(),
+        assets.clone(),
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options(),
+    )
+    .await;
+    let mut opts = options();
+    opts.selection
+        .ignored_mints
+        .insert(assets[0].account.mint.clone());
+    let report = execute_plan(&plan, &provider, &executor, &signer, &opts)
+        .await
+        .unwrap();
+    assert_eq!(report.skipped, 1);
+    assert!(executor.events.lock().unwrap().is_empty());
+    opts.selection.ignored_mints.clear();
+    opts.selection.ignored_mints.insert(WRAPPED_SOL.into());
+    let provider = Provider::new(vec![Answer::Route]);
+    let plan = build_plan(
+        &signer.pubkey(),
+        assets,
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &opts,
+    )
+    .await;
+    assert_eq!(plan.entries[0].category, CleanupCategory::Unsupported);
+    assert!(plan.entries[0].reason.contains("WSOL"));
 }

@@ -4,7 +4,7 @@ Cleanup works per token account, identified by **account address and mint**, rat
 
 ## Preview and execution
 
-Preview is the default and does not read a keypair, sign or submit transactions:
+Preview is the default and does not sign or submit transactions. A supplied keypair/seed is read locally only to derive the public address:
 
 ```bash
 cargo run -- cleanup -p <WALLET> --dry-run
@@ -14,10 +14,12 @@ cargo run -- cleanup -p <WALLET> --format json
 Execute the displayed plan with the wallet's local Solana JSON keypair:
 
 ```bash
-cargo run -- cleanup -p <WALLET> --execute --keypair /path/to/wallet.json
+cargo run -- cleanup --execute --keypair /path/to/wallet.json --ignore-mint <KEEP_MINT>
 ```
 
-The CLI shows the complete action list and asks you to type `cleanup`, explicitly including irreversible burns. For unattended execution, `--execute --keypair ... --yes` explicitly approves that displayed plan. `--dry-run` conflicts with `--execute`; passing `--keypair` or `--yes` without `--execute` is rejected.
+The CLI shows the complete action list and asks you to type `cleanup`, explicitly including irreversible burns. For unattended execution, `--execute --keypair ... --yes` explicitly approves that displayed plan. `--dry-run` conflicts with `--execute`; `--yes` without `--execute` is rejected. `--keypair` and `--seed` also support previews. Choose exactly one wallet identity; `--pubkey` cannot execute.
+
+Repeat `--ignore-mint <MINT>` to preserve selected tokens (for example USDC). All accounts of a protected mint, including empty ones, remain untouched; there are no quotes, burns or closes for them. They appear as skipped/Unsupported with a protection reason. Protection overrides `--account` and is saved in the approved plan. Execution rechecks it. Protecting WSOL also skips swaps that might unwrap that output account.
 
 Use repeatable `--account <TOKEN_ACCOUNT>` to restrict the plan to selected accounts. An address not discovered for the wallet is an error. `--format json` keeps stdout machine-readable; execution previews/prompts go to stderr. `--rpc-url`, request/confirmation timeouts, slippage, price-impact and priority-fee limits remain configurable. `--verbose` enables scanner diagnostics.
 

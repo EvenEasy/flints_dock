@@ -2,11 +2,11 @@ use async_trait::async_trait;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use borsh::BorshSerialize;
 use dock_flints::{
-    models::*,
-    portfolio::{aggregate::*, service::scan_wallet},
-    pricing::jupiter::parse_quote,
-    rpc,
-    scanner::{
+    core::amount::*,
+    core::*,
+    infra::jupiter::parse_quote,
+    infra::solana as rpc,
+    infra::solana::scan::{
         core::parse_asset,
         metadata::parse_mint,
         nft::{decode_metadata, edition_evidence, get_metadata},
@@ -20,13 +20,12 @@ use mpl_token_metadata::{
 use serde_json::{Value, json};
 use solana_account::Account;
 use solana_account_decoder::{UiAccount, UiAccountData, UiAccountEncoding};
-use solana_client::{
+use solana_pubkey::Pubkey;
+use solana_rpc_client::{
     nonblocking::rpc_client::RpcClient,
-    rpc_request::RpcRequest,
-    rpc_response::RpcKeyedAccount,
     rpc_sender::{RpcSender, RpcTransportStats},
 };
-use solana_pubkey::Pubkey;
+use solana_rpc_client_api::{request::RpcRequest, response::RpcKeyedAccount};
 use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex},
@@ -37,8 +36,8 @@ fn aggregate_tokens(
     mints: &[MintInfo],
     records: &[MetadataRecord],
 ) -> Vec<TokenAsset> {
-    dock_flints::portfolio::aggregate::aggregate_tokens(
-        &dock_flints::classification::classify_token_accounts(accounts, mints, records),
+    dock_flints::core::amount::aggregate_tokens(
+        &dock_flints::core::classification::classify_token_accounts(accounts, mints, records),
     )
 }
 
@@ -294,7 +293,7 @@ fn scan_status_distinguishes_empty_from_failed() {
         matches!(scan.status, ScanStatus::Partial(message) if message.contains("mint unavailable"))
     );
     assert!(matches!(
-        dock_flints::scanner::cnft::support(),
+        dock_flints::infra::solana::scan::cnft::support(),
         ScanStatus::Unsupported(_)
     ));
 }
@@ -317,10 +316,10 @@ impl RpcSender for FixtureRpc {
         &self,
         request: RpcRequest,
         params: Value,
-    ) -> solana_client::client_error::Result<Value> {
+    ) -> solana_rpc_client_api::client_error::Result<Value> {
         self.calls.lock().unwrap().push((request, params.clone()));
         let fail = || {
-            solana_client::client_error::ClientError::from(std::io::Error::other(
+            solana_rpc_client_api::client_error::Error::from(std::io::Error::other(
                 "fixture RPC unavailable",
             ))
         };
@@ -421,7 +420,7 @@ async fn portfolio_keeps_successes_unknowns_and_clean_json_on_partial_failures()
             no_prices: true,
             ..Default::default()
         },
-        None,
+        None::<&()>,
     )
     .await;
     assert_eq!(portfolio.tokens[0].balance.as_deref(), Some("1"));
@@ -452,13 +451,17 @@ async fn portfolio_keeps_successes_unknowns_and_clean_json_on_partial_failures()
     assert!(portfolio.tokens[0].value_usd.is_none());
     portfolio.tokens[0].metadata.symbol = Some("untrusted\u{1b}[2J".into());
     let mut console = Vec::new();
-    dock_flints::output::console::write_portfolio(&mut console, &portfolio, &Default::default())
-        .unwrap();
+    dock_flints::cli::output::console::write_portfolio(
+        &mut console,
+        &portfolio,
+        &Default::default(),
+    )
+    .unwrap();
     assert!(!console.contains(&0x1b));
     let console = String::from_utf8(console).unwrap();
     assert!(console.contains("cNFTs: unavailable (requires historical index)"));
     assert!(!console.contains("PORTFOLIO"));
-    let value = dock_flints::output::json::portfolio_json(&portfolio, &Default::default());
+    let value = dock_flints::cli::output::json::portfolio_json(&portfolio, &Default::default());
     assert_eq!(value["cnfts"]["status"], "unsupported");
     assert_eq!(
         calls
@@ -483,11 +486,11 @@ async fn complete_rpc_outage_is_fatal() {
             no_prices: true,
             ..Default::default()
         },
-        None,
+        None::<&()>,
     )
     .await;
     assert!(!portfolio.has_usable_results());
-    let value = dock_flints::output::json::portfolio_json(&portfolio, &Default::default());
+    let value = dock_flints::cli::output::json::portfolio_json(&portfolio, &Default::default());
     for category in ["sol", "tokens", "nfts"] {
         assert_eq!(value[category]["status"], "failed");
     }
@@ -623,17 +626,17 @@ fn master_edition_v1_allows_absent_max_supply_but_requires_printing_keys() {
 
 use clap::Parser;
 use dock_flints::{
+    app::pricing::PriceProvider,
+    app::scan_wallet::scan_wallet,
     cli::Cli,
-    output::{OutputOptions, console::write_portfolio, json::portfolio_json},
-    portfolio::service::scan_wallet_with_provider,
-    pricing::{PriceProvider, jupiter::WRAPPED_SOL},
+    cli::output::{OutputOptions, console::write_portfolio, json::portfolio_json},
+    core::asset::WRAPPED_SOL,
 };
 
 fn options(selection: ScanSelection) -> ScanOptions {
     ScanOptions {
         selection,
         no_prices: true,
-        verbose: false,
     }
 }
 fn fixture() -> FixtureRpc {
@@ -648,7 +651,7 @@ fn fixture() -> FixtureRpc {
     );
     fixture
 }
-fn text_output(portfolio: &Portfolio, options: &OutputOptions) -> String {
+fn text_output(portfolio: &WalletSnapshot, options: &OutputOptions) -> String {
     let mut out = Vec::new();
     write_portfolio(&mut out, portfolio, options).unwrap();
     String::from_utf8(out).unwrap()
@@ -716,7 +719,8 @@ async fn every_category_combination_avoids_unrelated_rpc_and_json_categories() {
         };
         let fixture = fixture();
         let calls = fixture.calls.clone();
-        let portfolio = scan_wallet(&client(fixture), &key(1), &options(selected), None).await;
+        let portfolio =
+            scan_wallet(&client(fixture), &key(1), &options(selected), None::<&()>).await;
         let calls = calls.lock().unwrap();
         let count = |wanted| {
             calls
@@ -773,7 +777,7 @@ async fn include_empty_and_details_are_output_choices_that_preserve_raw_accounts
             tokens: true,
             ..Default::default()
         }),
-        None,
+        None::<&()>,
     )
     .await;
     assert_eq!(portfolio.token_accounts.len(), 2);
@@ -893,13 +897,12 @@ async fn prices_follow_selection_and_no_prices_prevents_provider_calls() {
     ] {
         for no_prices in [false, true] {
             let provider = FixturePrices::default();
-            let portfolio = scan_wallet_with_provider(
+            let portfolio = scan_wallet(
                 &client(fixture()),
                 &key(1),
                 &ScanOptions {
                     selection: selected,
                     no_prices,
-                    verbose: false,
                 },
                 Some(&provider),
             )
@@ -931,7 +934,7 @@ async fn pricing_failure_keeps_blockchain_results() {
         fail: true,
         ..Default::default()
     };
-    let portfolio = scan_wallet_with_provider(
+    let portfolio = scan_wallet(
         &client(fixture()),
         &key(1),
         &ScanOptions {
@@ -964,7 +967,7 @@ async fn compact_output_sorts_values_formats_tiny_prices_and_combines_nft_types(
         &client(fixture()),
         &key(1),
         &options(ScanSelection::ALL),
-        None,
+        None::<&()>,
     )
     .await;
     portfolio.tokens.clear();
@@ -1149,7 +1152,7 @@ async fn nft_only_verifies_candidates_and_combined_scans_do_not_duplicate_accoun
             );
             let calls = fixture.calls.clone();
             let provider = FixturePrices::default();
-            let portfolio = scan_wallet_with_provider(
+            let portfolio = scan_wallet(
                 &client(fixture),
                 &key(1),
                 &ScanOptions {
@@ -1243,7 +1246,7 @@ async fn nft_only_verifies_candidates_and_combined_scans_do_not_duplicate_accoun
 
 #[test]
 fn classifier_uses_mint_semantics_not_ui_one_or_metadata_labels() {
-    use dock_flints::classification::{classify, classify_token_accounts};
+    use dock_flints::core::classification::{classify, classify_token_accounts};
     for decimals in [6, 9] {
         let mut account = token(10_u64.pow(decimals.into()));
         account.decimals = Some(decimals);
@@ -1278,7 +1281,7 @@ fn classifier_uses_mint_semantics_not_ui_one_or_metadata_labels() {
     second.address = key(4).to_string();
     let unknown = classify_token_accounts(&[account, second], &[mint], &[]);
     assert_eq!(
-        dock_flints::portfolio::aggregate::aggregate_tokens(&unknown).len(),
+        dock_flints::core::amount::aggregate_tokens(&unknown).len(),
         2,
         "Unknown accounts must not be aggregated as fungibles"
     );
@@ -1322,7 +1325,7 @@ async fn mixed_inventory_is_partitioned_without_loss_and_prices_only_fungibles()
     }
     let calls = fixture.calls.clone();
     let provider = FixturePrices::default();
-    let portfolio = scan_wallet_with_provider(
+    let portfolio = scan_wallet(
         &client(fixture),
         &key(1),
         &ScanOptions {
@@ -1394,7 +1397,7 @@ async fn mixed_inventory_is_partitioned_without_loss_and_prices_only_fungibles()
 
 #[test]
 fn empty_verified_nft_accounts_stay_out_of_fungible_categories() {
-    use dock_flints::classification::classify_token_accounts;
+    use dock_flints::core::classification::classify_token_accounts;
     let mut account = token(0);
     account.decimals = Some(0);
     let record = MetadataRecord {
@@ -1407,7 +1410,7 @@ fn empty_verified_nft_accounts_stay_out_of_fungible_categories() {
     };
     let raw = classify_token_accounts(&[account], &[mint_info(0, 1)], &[record]);
     assert_eq!(raw[0].kind, AssetKind::NonFungible);
-    assert!(dock_flints::portfolio::aggregate::aggregate_tokens(&raw).is_empty());
+    assert!(dock_flints::core::amount::aggregate_tokens(&raw).is_empty());
     assert_eq!(raw.len(), 1);
 }
 
@@ -1464,7 +1467,7 @@ async fn legacy_edition_evidence_drives_all_categories_and_unknown_fallback() {
                 nfts: true,
                 ..Default::default()
             }),
-            None,
+            None::<&()>,
         )
         .await;
         assert_eq!(portfolio.all_tokens.len(), 1);

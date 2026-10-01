@@ -8,7 +8,9 @@ anyhow = "1.0.104"
 clap = { version = "4.0", features = ["derive"] }
 mpl-token-metadata = "5.1.1"
 solana-account-decoder = "4.3.0"
-solana-client = "4.3.0"
+# HTTP RPC only: no TPU, QUIC, pubsub, connection cache or validator networking.
+solana-rpc-client = { version = "=4.3.0", default-features = false }
+solana-rpc-client-api = "=4.3.0"
 solana-commitment-config = "3.1.1"
 solana-pubkey = "4.4.0"
 solana-pubkey-v2 = {

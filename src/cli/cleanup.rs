@@ -1,133 +1,75 @@
 use crate::{
-    cleanup::{self, *},
-    cli::OutputFormat,
-    jupiter::Jupiter,
-    models::*,
-    output::cleanup::{write_plan, write_report},
-    portfolio::service::scan_wallet,
+    app::cleanup::{self, *},
+    cli::{
+        OutputFormat,
+        args::{ExecutionArgs, QuoteArgs, RpcArgs, WalletArgs},
+        output::cleanup::{write_plan, write_report},
+    },
 };
 use clap::Args;
 use solana_pubkey::Pubkey;
-use solana_signer::Signer;
 use std::{
     io::{self, IsTerminal, Write},
-    path::PathBuf,
     process::ExitCode,
     time::Duration,
 };
-
 #[derive(Args)]
 pub struct CleanupArgs {
-    #[arg(short, long)]
-    pub pubkey: Pubkey,
-    /// Explicitly execute the displayed swaps, burns and closes; default is preview
-    #[arg(long, requires = "keypair", conflicts_with = "dry_run")]
+    #[command(flatten)]
+    pub wallet: WalletArgs,
+    /// Execute the displayed plan, including irreversible burns
+    #[arg(long, requires = "signer", conflicts_with = "dry_run")]
     pub execute: bool,
+    /// Explicit preview; never signs or submits transactions
     #[arg(long)]
     pub dry_run: bool,
-    #[arg(long, requires = "execute")]
-    pub keypair: Option<PathBuf>,
     /// Approve the displayed cleanup, including irreversible burns
     #[arg(long, requires = "execute")]
     pub yes: bool,
-    /// Limit cleanup to these token account addresses; repeat to select several
-    #[arg(long)]
+    /// Restrict cleanup to these account addresses; repeat to select several
+    #[arg(long, help_heading = "Selection")]
     pub account: Vec<Pubkey>,
-    #[arg(short, long, default_value = "https://api.mainnet.solana.com")]
-    pub rpc_url: String,
-    #[arg(long, default_value_t = 30, value_parser = clap::value_parser!(u64).range(1..=300))]
-    pub timeout_seconds: u64,
-    #[arg(long, default_value_t = 90, value_parser = clap::value_parser!(u64).range(1..=600))]
-    pub confirmation_timeout_seconds: u64,
-    #[arg(long, default_value_t = 50, value_parser = clap::value_parser!(u16).range(1..=10000))]
-    pub slippage_bps: u16,
-    #[arg(long, default_value_t = 100, value_parser = clap::value_parser!(u16).range(1..=10000))]
-    pub max_price_impact_bps: u16,
-    #[arg(long, default_value_t = 1_000_000)]
-    pub max_priority_fee_lamports: u64,
-    /// Delay between quote attempts; default accommodates keyless Jupiter access
-    #[arg(long, default_value_t = 2100, value_parser = clap::value_parser!(u64).range(0..=60000))]
+    /// Protect every account of this mint from swap, burn and close; repeatable
+    #[arg(long, help_heading = "Selection")]
+    pub ignore_mint: Vec<Pubkey>,
+    #[command(flatten)]
+    pub rpc: RpcArgs,
+    #[command(flatten)]
+    pub quote: QuoteArgs,
+    #[command(flatten)]
+    pub execution: ExecutionArgs,
+    /// Delay between quote attempts, including keyless provider throttling
+    #[arg(long, default_value_t = 2100, value_parser = clap::value_parser!(u64).range(0..=60000), help_heading = "Quote policy")]
     pub quote_interval_ms: u64,
     #[arg(long, value_enum, default_value = "table")]
     pub format: OutputFormat,
+    /// Print discovery diagnostics on stderr
     #[arg(short, long)]
     pub verbose: bool,
 }
 async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
-    let signer = if args.execute {
-        let signer =
-            solana_keypair::read_keypair_file(args.keypair.as_ref().expect("clap keypair"))
-                .map_err(|_| anyhow::anyhow!("cannot read a valid local Solana JSON keypair"))?;
-        anyhow::ensure!(
-            signer.pubkey() == args.pubkey,
-            "keypair does not match --pubkey"
-        );
-        Some(signer)
-    } else {
-        None
-    };
-    let rpc = crate::rpc::client(args.rpc_url, args.timeout_seconds);
-    let provider = Jupiter::new(std::env::var("JUPITER_API_KEY").unwrap_or_default())?;
+    let wallet = args.wallet.resolve()?;
+    if args.execute {
+        wallet.signer()?;
+    }
+    let rpc = args.rpc.client();
+    let provider = super::args::swap_provider()?;
     let options = CleanupOptions {
-        slippage_bps: args.slippage_bps,
+        slippage_bps: args.quote.slippage_bps,
         quote_interval: Duration::from_millis(args.quote_interval_ms),
-        swap_limits: crate::swap::SwapLimits {
-            max_price_impact_bps: args.max_price_impact_bps,
-            max_priority_fee_lamports: args.max_priority_fee_lamports,
-            confirmation_timeout: Duration::from_secs(args.confirmation_timeout_seconds),
-            ..Default::default()
+        swap_limits: args.execution.limits(&args.quote),
+        selection: CleanupSelection {
+            accounts: args.account.iter().map(ToString::to_string).collect(),
+            ignored_mints: args.ignore_mint.iter().map(ToString::to_string).collect(),
         },
         ..Default::default()
     };
     eprintln!("Scanning token accounts and building cleanup plan (sequential quotes)...");
-    let portfolio = scan_wallet(
-        &rpc,
-        &args.pubkey,
-        &ScanOptions {
-            selection: ScanSelection {
-                all_tokens: true,
-                ..Default::default()
-            },
-            no_prices: true,
-            verbose: args.verbose,
-        },
-        None,
-    )
-    .await;
-    let selected = |address: &str| {
-        args.account.is_empty() || args.account.iter().any(|key| key.to_string() == address)
-    };
-    let assets = plan::assets_from_portfolio(&portfolio)
-        .into_iter()
-        .filter(|asset| selected(&asset.account.address))
-        .collect();
-    let unknown: Vec<_> = portfolio
-        .unknown_assets
-        .iter()
-        .filter(|asset| {
-            asset.data.is_some() && asset.lamports.is_some() && selected(&asset.address)
-        })
-        .cloned()
-        .collect();
-    for requested in &args.account {
-        anyhow::ensure!(
-            portfolio
-                .token_accounts
-                .iter()
-                .any(|account| account.address == requested.to_string())
-                || unknown
-                    .iter()
-                    .any(|account| account.address == requested.to_string()),
-            "requested account {requested} was not discovered for this wallet"
-        );
+    let plan = cleanup::plan_wallet(&rpc, &wallet.address, &provider, &options).await?;
+    let usable = !matches!(plan.discovery_status, crate::core::ScanStatus::Failed(_));
+    if args.verbose {
+        eprintln!("Discovery: {:?}", plan.discovery_status);
     }
-    let status = portfolio
-        .scanners
-        .get("all_tokens")
-        .cloned()
-        .unwrap_or(ScanStatus::Failed("discovery did not run".into()));
-    let usable = !matches!(status, ScanStatus::Failed(_));
-    let plan = plan::build_plan(&args.pubkey, assets, status, unknown, &provider, &options).await;
     if args.execute {
         write_plan(io::stderr().lock(), &plan)?;
     } else {
@@ -168,14 +110,8 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
             return Ok(ExitCode::SUCCESS);
         }
     }
-    let report = cleanup::service::execute_plan(
-        &plan,
-        &provider,
-        &rpc,
-        signer.as_ref().expect("execution signer"),
-        &options,
-    )
-    .await?;
+    let report =
+        cleanup::execute::execute_plan(&plan, &provider, &rpc, wallet.signer()?, &options).await?;
     let failed = report.failed > 0;
     match args.format {
         OutputFormat::Table => write_report(io::stdout().lock(), &report)?,

@@ -1,39 +1,32 @@
-use super::OutputFormat;
-use crate::{
-    jupiter::Jupiter,
-    swap::{self, SwapError, SwapLimits, SwapRequest},
+use super::{
+    OutputFormat,
+    args::{ExecutionArgs, QuoteArgs as QuotePolicy, RpcArgs, WalletArgs},
 };
+use crate::app::swap::{self, SwapError, SwapRequest};
 use clap::{Args, Subcommand};
 use solana_pubkey::Pubkey;
 use solana_signer::Signer;
 use std::{
     io::{self, IsTerminal, Write},
-    path::PathBuf,
     process::ExitCode,
-    time::Duration,
 };
-
 #[derive(Subcommand)]
 pub enum SwapCommand {
-    /// Preview a real TOKEN/native SOL route; does not require a keypair
+    /// Preview a real token/native SOL route
     Quote(QuoteArgs),
-    /// Preview, confirm, fetch a fresh route, then sign and submit one swap
+    /// Preview, approve, rebuild and execute one swap
     Swap(ExecuteArgs),
 }
 #[derive(Args)]
 pub struct SwapArgs {
-    /// Exact input token mint address (never a symbol)
+    /// Exact mint address, never a symbol
     #[arg(long)]
     pub mint: Pubkey,
     /// Integer token base units, before decimals
     #[arg(long, value_parser = clap::value_parser!(u64).range(1..))]
     pub raw_amount: u64,
-    /// Maximum slippage in basis points (50 = 0.5%)
-    #[arg(long, default_value_t = 50, value_parser = clap::value_parser!(u16).range(1..=10000))]
-    pub slippage_bps: u16,
-    /// Maximum absolute route price impact (100 = 1%)
-    #[arg(long, default_value_t = 100, value_parser = clap::value_parser!(u16).range(1..=10000))]
-    pub max_price_impact_bps: u16,
+    #[command(flatten)]
+    pub quote: QuotePolicy,
     #[arg(long, value_enum, default_value = "table")]
     pub format: OutputFormat,
 }
@@ -41,37 +34,30 @@ pub struct SwapArgs {
 pub struct QuoteArgs {
     #[command(flatten)]
     pub swap: SwapArgs,
-    /// Taker public key required by Jupiter /build; no private key is read
-    #[arg(short, long)]
-    pub pubkey: Pubkey,
+    #[command(flatten)]
+    pub wallet: WalletArgs,
 }
 #[derive(Args)]
+#[command(group(clap::ArgGroup::new("execution_identity").args(["keypair", "seed"]).required(true)))]
 pub struct ExecuteArgs {
     #[command(flatten)]
     pub swap: SwapArgs,
-    /// Local Solana CLI JSON keypair file; never sent to Jupiter or RPC
-    #[arg(long)]
-    pub keypair: PathBuf,
-    #[arg(short, long, default_value = "https://api.mainnet.solana.com")]
-    pub rpc_url: String,
-    #[arg(long, default_value_t = 30, value_parser = clap::value_parser!(u64).range(1..=300))]
-    pub timeout_seconds: u64,
-    #[arg(long, default_value_t = 90, value_parser = clap::value_parser!(u64).range(1..=600))]
-    pub confirmation_timeout_seconds: u64,
-    /// Cap the transaction's priority fee, separate from base fees/account rent
-    #[arg(long, default_value_t = 1_000_000)]
-    pub max_priority_fee_lamports: u64,
-    /// Approve the displayed preview minimum without an interactive prompt
+    #[command(flatten)]
+    pub wallet: WalletArgs,
+    #[command(flatten)]
+    pub rpc: RpcArgs,
+    #[command(flatten)]
+    pub execution: ExecutionArgs,
+    /// Approve the displayed minimum without an interactive prompt
     #[arg(long)]
     pub yes: bool,
 }
-
 fn request(args: &SwapArgs, wallet: Pubkey) -> SwapRequest {
     SwapRequest {
         mint: args.mint,
         raw_amount: args.raw_amount,
         wallet,
-        slippage_bps: args.slippage_bps,
+        slippage_bps: args.quote.slippage_bps,
     }
 }
 fn write_quote(mut out: impl Write, quote: &swap::SwapQuote) -> io::Result<()> {
@@ -85,21 +71,17 @@ fn write_quote(mut out: impl Write, quote: &swap::SwapQuote) -> io::Result<()> {
         quote.price_impact_pct
     )
 }
-fn provider() -> swap::Result<Jupiter> {
-    // Swap V2 supports limited keyless access; reuse the configured key when present.
-    let key = std::env::var("JUPITER_API_KEY").unwrap_or_default();
-    Jupiter::new(key).map_err(|e| SwapError::Api(e.to_string()))
-}
 async fn run_inner(command: SwapCommand) -> swap::Result<serde_json::Value> {
-    let provider = provider()?;
+    let provider = super::args::swap_provider().map_err(|e| SwapError::Api(e.to_string()))?;
     match command {
         SwapCommand::Quote(args) => {
-            let limits = SwapLimits {
-                max_price_impact_bps: args.swap.max_price_impact_bps,
-                ..Default::default()
-            };
+            let wallet = args
+                .wallet
+                .resolve()
+                .map_err(|e| SwapError::InvalidRequest(e.to_string()))?;
+            let limits = args.swap.quote.limits();
             let preview =
-                swap::preview(&provider, &request(&args.swap, args.pubkey), &limits).await?;
+                swap::preview(&provider, &request(&args.swap, wallet.address), &limits).await?;
             if matches!(args.swap.format, OutputFormat::Table) {
                 write_quote(io::stdout().lock(), &preview.quote)
                     .map_err(|e| SwapError::InvalidRequest(e.to_string()))?;
@@ -107,19 +89,16 @@ async fn run_inner(command: SwapCommand) -> swap::Result<serde_json::Value> {
             Ok(serde_json::json!({"status":"quoted", "quote":preview.quote}))
         }
         SwapCommand::Swap(args) => {
-            let signer = solana_keypair::read_keypair_file(&args.keypair).map_err(|_| {
-                SwapError::InvalidRequest(
-                    "cannot read a valid Solana JSON keypair from --keypair".into(),
-                )
-            })?;
-            let request = request(&args.swap, signer.pubkey());
-            let limits = SwapLimits {
-                max_price_impact_bps: args.swap.max_price_impact_bps,
-                max_priority_fee_lamports: args.max_priority_fee_lamports,
-                confirmation_timeout: Duration::from_secs(args.confirmation_timeout_seconds),
-                ..Default::default()
-            };
-            let rpc = crate::rpc::client(args.rpc_url, args.timeout_seconds);
+            let wallet = args
+                .wallet
+                .resolve()
+                .map_err(|e| SwapError::InvalidRequest(e.to_string()))?;
+            let signer = wallet
+                .signer()
+                .map_err(|e| SwapError::InvalidRequest(e.to_string()))?;
+            let request = request(&args.swap, wallet.address);
+            let limits = args.execution.limits(&args.swap.quote);
+            let rpc = args.rpc.client();
             let preview = swap::preview(&provider, &request, &limits).await?;
             // Preview/prompt are on stderr: stdout remains one JSON result when requested.
             write_quote(io::stderr().lock(), &preview.quote)
@@ -144,7 +123,7 @@ async fn run_inner(command: SwapCommand) -> swap::Result<serde_json::Value> {
                     return Ok(serde_json::json!({"status":"cancelled"}));
                 }
             }
-            let receipt = swap::execute(&provider, &rpc, &preview, &signer, &limits).await?;
+            let receipt = swap::execute(&provider, &rpc, &preview, signer, &limits).await?;
             if matches!(args.swap.format, OutputFormat::Table) {
                 println!(
                     "Confirmed native SOL swap: {}\nFresh quote: {} SOL; minimum {} SOL (before fees)",

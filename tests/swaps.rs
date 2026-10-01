@@ -2,22 +2,22 @@ use async_trait::async_trait;
 use base64::{Engine, engine::general_purpose::STANDARD};
 use clap::Parser;
 use dock_flints::{
+    app::swap::*,
     cli::Cli,
-    jupiter::{
+    infra::jupiter::{
         WRAPPED_SOL,
         swap::{ApiAccount, ApiInstruction, BuildResponse, api_error},
     },
-    rpc::swap::signed_transaction,
-    swap::*,
+    infra::solana::swap::signed_transaction,
 };
 use serde_json::{Value, json};
-use solana_client::{
-    nonblocking::rpc_client::RpcClient,
-    rpc_request::RpcRequest,
-    rpc_sender::{RpcSender, RpcTransportStats},
-};
 use solana_keypair::Keypair;
 use solana_pubkey::Pubkey;
+use solana_rpc_client::{
+    nonblocking::rpc_client::RpcClient,
+    rpc_sender::{RpcSender, RpcTransportStats},
+};
+use solana_rpc_client_api::request::RpcRequest;
 use solana_signer::Signer;
 use solana_transaction::versioned::VersionedTransaction;
 use std::{
@@ -42,7 +42,7 @@ fn prepared(request: &SwapRequest, build: BuildResponse) -> PreparedSwap {
     PreparedSwap {
         request: request.clone(),
         quote: build.quote(request).unwrap(),
-        build,
+        build: build.try_into().unwrap(),
         requested_at: Instant::now(),
     }
 }
@@ -157,7 +157,10 @@ impl SwapExecutor for Executor {
         }
     }
     async fn submit(&self, fresh: PreparedSwap, _: &Keypair, _: &SwapLimits) -> Result<String> {
-        self.submitted.lock().unwrap().push(fresh.build.out_amount);
+        self.submitted
+            .lock()
+            .unwrap()
+            .push(fresh.quote.expected_out_lamports.to_string());
         Ok("fixture-confirmed-signature".into())
     }
 }
@@ -256,7 +259,7 @@ impl RpcSender for RpcFixture {
         &self,
         method: RpcRequest,
         params: Value,
-    ) -> solana_client::client_error::Result<Value> {
+    ) -> solana_rpc_client_api::client_error::Result<Value> {
         self.calls.lock().unwrap().push((method, params.clone()));
         match method {
             RpcRequest::GetBlockHeight => Ok(json!(if self.expired { 1001 } else { 100 })),
@@ -514,7 +517,7 @@ impl RpcSender for InputRpc {
         &self,
         method: RpcRequest,
         params: Value,
-    ) -> solana_client::client_error::Result<Value> {
+    ) -> solana_rpc_client_api::client_error::Result<Value> {
         use borsh::BorshSerialize;
         use mpl_token_metadata::{
             accounts::Metadata,
@@ -550,8 +553,10 @@ impl RpcSender for InputRpc {
                         } else if self.nft {
                             let metadata = Metadata {
                                 key: Key::MetadataV1,
-                                update_authority: dock_flints::rpc::to_metaplex(self.wallet),
-                                mint: dock_flints::rpc::to_metaplex(mint),
+                                update_authority: dock_flints::infra::solana::to_metaplex(
+                                    self.wallet,
+                                ),
+                                mint: dock_flints::infra::solana::to_metaplex(mint),
                                 name: "NFT fixture".into(),
                                 symbol: "NFT".into(),
                                 uri: "https://example.invalid".into(),
