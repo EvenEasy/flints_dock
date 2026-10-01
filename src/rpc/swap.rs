@@ -8,11 +8,9 @@ use crate::{
 use base64::{Engine, engine::general_purpose::STANDARD};
 use solana_client::{
     nonblocking::rpc_client::RpcClient,
-    rpc_config::{RpcSendTransactionConfig, RpcSimulateTransactionConfig},
     rpc_request::RpcRequest,
     rpc_response::{Response, RpcKeyedAccount},
 };
-use solana_commitment_config::CommitmentConfig;
 use solana_hash::Hash;
 use solana_instruction::{AccountMeta, Instruction};
 use solana_keypair::Keypair;
@@ -20,7 +18,7 @@ use solana_message::{AddressLookupTableAccount, VersionedMessage, v0};
 use solana_pubkey::Pubkey;
 use solana_signer::Signer;
 use solana_transaction::versioned::VersionedTransaction;
-use std::{str::FromStr, time::Duration};
+use std::str::FromStr;
 
 const COMPUTE_BUDGET: &str = "ComputeBudget111111111111111111111111111111";
 const MAX_COMPUTE_UNITS: u32 = 1_400_000;
@@ -50,7 +48,7 @@ fn instruction(api: &ApiInstruction) -> Result<Instruction> {
         data: STANDARD.decode(&api.data).map_err(invalid)?,
     })
 }
-fn compute_limit(units: u32) -> Instruction {
+pub(crate) fn compute_limit(units: u32) -> Instruction {
     let mut data = vec![2];
     data.extend_from_slice(&units.to_le_bytes());
     Instruction {
@@ -67,6 +65,17 @@ pub fn signed_transaction(
     signer: &Keypair,
     units: u32,
     limits: &SwapLimits,
+) -> Result<VersionedTransaction> {
+    signed_transaction_with_extras(fresh, signer, units, limits, &[], &[])
+}
+
+pub fn signed_transaction_with_extras(
+    fresh: &PreparedSwap,
+    signer: &Keypair,
+    units: u32,
+    limits: &SwapLimits,
+    prefix: &[Instruction],
+    suffix: &[Instruction],
 ) -> Result<VersionedTransaction> {
     if signer.pubkey() != fresh.request.wallet {
         return Err(SwapError::InvalidRequest("keypair/wallet mismatch".into()));
@@ -100,6 +109,7 @@ pub fn signed_transaction(
         }
         instructions.push(ix);
     }
+    instructions.extend_from_slice(prefix);
     for api in build
         .setup_instructions
         .iter()
@@ -120,6 +130,7 @@ pub fn signed_transaction(
         }
         instructions.push(ix);
     }
+    instructions.extend_from_slice(suffix);
     let mut tables = Vec::new();
     if let Some(mapping) = &build.addresses_by_lookup_table_address {
         for (key, addresses) in mapping {
@@ -206,94 +217,31 @@ impl SwapExecutor for RpcClient {
         signer: &Keypair,
         limits: &SwapLimits,
     ) -> Result<String> {
-        fresh.ensure_fresh(limits)?;
-        let expiry = fresh.build.blockhash_with_metadata.last_valid_block_height;
-        if self.get_block_height().await.map_err(rpc_error)? > expiry {
-            return Err(SwapError::Expired);
-        }
-        let initial = signed_transaction(&fresh, signer, MAX_COMPUTE_UNITS, limits)?;
-        let simulation = self
-            .simulate_transaction_with_config(
-                &initial,
-                RpcSimulateTransactionConfig {
-                    sig_verify: true,
-                    commitment: Some(CommitmentConfig::confirmed()),
-                    ..Default::default()
-                },
-            )
-            .await
-            .map_err(|e| SwapError::Simulation(e.to_string()))?
-            .value;
-        if let Some(error) = simulation.err {
-            return Err(SwapError::Simulation(error.to_string()));
-        }
-        let units = simulation
-            .units_consumed
-            .map(|units| {
-                units
-                    .saturating_mul(120)
-                    .div_ceil(100)
-                    .clamp(1, u64::from(MAX_COMPUTE_UNITS)) as u32
-            })
-            .unwrap_or(MAX_COMPUTE_UNITS);
-        let transaction = signed_transaction(&fresh, signer, units, limits)?;
-        if self.get_block_height().await.map_err(rpc_error)? > expiry {
-            return Err(SwapError::Expired);
-        }
-        fresh.ensure_fresh(limits)?;
-        // Keep our locally computed signature even if an RPC timeout obscures send success.
-        let signature = transaction.signatures[0];
-        let uncertain = |reason: String| SwapError::Uncertain {
-            signature: signature.to_string(),
-            reason,
-        };
-        let sent = self
-            .send_transaction_with_config(
-                &transaction,
-                RpcSendTransactionConfig {
-                    skip_preflight: false,
-                    preflight_commitment: Some(CommitmentConfig::confirmed().commitment),
-                    max_retries: Some(2),
-                    ..Default::default()
-                },
-            )
-            .await
-            .map_err(|e| uncertain(e.to_string()))?;
-        if sent != signature {
-            return Err(uncertain("RPC returned a different signature".into()));
-        }
-        let confirmation = async {
-            loop {
-                let statuses = self
-                    .get_signature_statuses_with_history(&[signature])
-                    .await
-                    .map_err(|e| uncertain(e.to_string()))?;
-                if let Some(Some(status)) = statuses.value.first()
-                    && status.satisfies_commitment(CommitmentConfig::confirmed())
-                {
-                    if let Some(error) = &status.err {
-                        return Err(SwapError::TransactionFailed {
-                            signature: signature.to_string(),
-                            reason: error.to_string(),
-                        });
-                    }
-                    return Ok(signature.to_string());
-                }
-                if self
-                    .get_block_height()
-                    .await
-                    .map_err(|e| uncertain(e.to_string()))?
-                    > expiry
-                {
-                    return Err(uncertain(
-                        "blockhash expired without observed confirmation".into(),
-                    ));
-                }
-                tokio::time::sleep(Duration::from_millis(500)).await;
-            }
-        };
-        tokio::time::timeout(limits.confirmation_timeout, confirmation)
-            .await
-            .map_err(|_| uncertain("confirmation timeout".into()))?
+        submit_with_instructions(self, fresh, signer, limits, &[], &[]).await
     }
+}
+
+pub async fn submit_with_instructions(
+    rpc: &RpcClient,
+    fresh: PreparedSwap,
+    signer: &Keypair,
+    limits: &SwapLimits,
+    prefix: &[Instruction],
+    suffix: &[Instruction],
+) -> Result<String> {
+    fresh.ensure_fresh(limits)?;
+    let expiry = fresh.build.blockhash_with_metadata.last_valid_block_height;
+    if rpc.get_block_height().await.map_err(rpc_error)? > expiry {
+        return Err(SwapError::Expired);
+    }
+    let initial =
+        signed_transaction_with_extras(&fresh, signer, MAX_COMPUTE_UNITS, limits, prefix, suffix)?;
+    let units = super::transactions::simulate(rpc, &initial).await?;
+    let transaction =
+        signed_transaction_with_extras(&fresh, signer, units, limits, prefix, suffix)?;
+    if rpc.get_block_height().await.map_err(rpc_error)? > expiry {
+        return Err(SwapError::Expired);
+    }
+    fresh.ensure_fresh(limits)?;
+    super::transactions::send_confirm(rpc, &transaction, expiry, limits).await
 }

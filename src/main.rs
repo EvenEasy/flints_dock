@@ -14,7 +14,10 @@ use std::{
 async fn main() -> Result<ExitCode> {
     let args = Cli::parse();
     if let Some(command) = args.command {
-        return dock_flints::cli::swap::run(command).await;
+        return match command {
+            dock_flints::cli::Command::Swap(command) => dock_flints::cli::swap::run(command).await,
+            dock_flints::cli::Command::Cleanup(args) => dock_flints::cli::cleanup::run(args).await,
+        };
     }
     let options = args.scan_options();
     let output_options = args.output_options();

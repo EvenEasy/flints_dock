@@ -1,6 +1,6 @@
 # dock_flints
 
-A Rust CLI for Solana wallet scanning and explicit single-token swaps to native SOL through Jupiter. Scans remain read-only. Swap execution uses a local keypair and confirmation; batch swaps, NFT liquidation and token-account cleanup are excluded.
+A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair and confirmation; NFT/cNFT liquidation, parallel cleanup and multi-swap transaction batching are excluded.
 
 ## Usage
 
@@ -44,6 +44,15 @@ cargo run -- swap --keypair /path/to/wallet.json --mint <TOKEN_MINT> --raw-amoun
 ```
 
 `quote` gets a real Jupiter Swap V2 route independently of Price V3. `swap` shows a preview, asks for confirmation, obtains a fresh route, simulates, signs locally, submits through Solana RPC and waits for confirmed status. Set `JUPITER_API_KEY` for authenticated access; Swap V2 also supports limited keyless access. See [swap options, execution guarantees and limitations](docs/swaps.md).
+
+## Wallet cleanup
+
+```bash
+cargo run -- cleanup -p <WALLET> --dry-run
+cargo run -- cleanup -p <WALLET> --execute --keypair /path/to/wallet.json
+```
+
+Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; `--format json` provides per-account results. See [cleanup behavior, options and limitations](docs/cleanup.md).
 
 ## Classification
 
@@ -107,16 +116,17 @@ See [cNFT investigation and infrastructure requirements](docs/cnfts.md). Uncompr
 
 ```text
 src/
-├── cli/{mod.rs,swap.rs}
+├── cli/{mod.rs,swap.rs,cleanup.rs}
 ├── models/{mod.rs,options.rs,scan.rs}
 ├── classification/mod.rs
-├── rpc/{mod.rs,swap.rs}
+├── rpc/{mod.rs,swap.rs,cleanup.rs,transactions.rs}
 ├── scanner/{mod.rs,sol.rs,tokens.rs,metadata.rs,nft.rs,core.rs,cnft.rs}
 ├── portfolio/{mod.rs,aggregate.rs,service.rs}
 ├── pricing/{mod.rs,jupiter.rs}
 ├── jupiter/{mod.rs,price.rs,swap.rs,tests.rs}
 ├── swap/mod.rs
-├── output/{mod.rs,console.rs,json.rs}
+├── cleanup/{mod.rs,plan.rs,service.rs}
+├── output/{mod.rs,console.rs,json.rs,cleanup.rs}
 ├── lib.rs
 └── main.rs
 tests/scanning.rs

@@ -1,3 +1,4 @@
+pub mod cleanup;
 pub mod swap;
 use crate::{
     models::{ScanOptions, ScanSelection},
@@ -12,16 +13,24 @@ pub enum OutputFormat {
     Json,
 }
 
+#[derive(clap::Subcommand)]
+pub enum Command {
+    #[command(flatten)]
+    Swap(swap::SwapCommand),
+    /// Plan wallet cleanup; only --execute permits swaps, burns and closes
+    Cleanup(cleanup::CleanupArgs),
+}
+
 #[derive(Parser)]
 #[command(
     version,
     subcommand_negates_reqs = true,
     args_conflicts_with_subcommands = true,
-    about = "Scan Solana wallet assets (default --all) or swap one token to native SOL"
+    about = "Scan Solana wallet assets (default --all), swap tokens, or plan wallet cleanup"
 )]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Option<swap::SwapCommand>,
+    pub command: Option<Command>,
     /// Wallet public key; no signing is needed
     #[arg(short, long, required = true)]
     pub pubkey: Option<Pubkey>,

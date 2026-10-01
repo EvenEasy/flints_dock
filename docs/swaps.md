@@ -54,9 +54,9 @@ Quote output includes exact expected/minimum SOL, raw lamport strings, percent p
 | Confirmation timeout | 90 seconds; `--confirmation-timeout-seconds` |
 | RPC request timeout | 30 seconds; `--timeout-seconds` |
 
-These swaps target mainnet liquidity; use a mainnet RPC. The wallet needs native SOL for fees and any required account creation. Jupiter uses its default input token-account selection; this implementation does not consolidate balances from auxiliary token accounts. Simulation can reject an amount even if aggregate wallet holdings are sufficient but the usable input account is short. Token-2022 routes depend on Jupiter/AMM support for that mint's extensions.
+These swaps target mainnet liquidity; use a mainnet RPC. The wallet needs native SOL for fees and any required account creation. Jupiter uses its default input token-account selection; the standalone swap command does not consolidate balances from auxiliary token accounts. Simulation can reject an amount even if aggregate wallet holdings are sufficient but the usable input account is short. Token-2022 routes depend on Jupiter/AMM support for that mint's extensions.
 
-After an uncertain result, check the reported signature before retrying. No automatic new-transaction retry is performed. Batch liquidation, NFT liquidation, custom routing, arbitrary destination accounts and closing unrelated empty token accounts are outside this implementation.
+After an uncertain result, check the reported signature before retrying. No automatic new-transaction retry is performed. This standalone swap command does not perform batch liquidation, NFT liquidation, custom routing or unrelated account cleanup. The separate [cleanup command](cleanup.md) adds sequential account-scoped swaps, approved burns and empty-account closes.
 
 ## Validation (2026-10-01)
 

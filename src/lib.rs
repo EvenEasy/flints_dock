@@ -1,4 +1,5 @@
 pub mod classification;
+pub mod cleanup;
 pub mod cli;
 pub mod jupiter;
 pub mod models;

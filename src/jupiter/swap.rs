@@ -131,12 +131,12 @@ pub fn api_error(status: u16, value: &serde_json::Value) -> SwapError {
         || upper.contains("ROUTE_PLAN_DOES_NOT_CONSUME_ALL_THE_AMOUNT")
     {
         SwapError::InsufficientLiquidity(detail)
-    } else if upper.contains("NO ROUTE")
-        || upper.contains("NO_ROUTES")
-        || upper.contains("TOKEN_NOT_TRADABLE")
-        || upper.contains("NOT TRADABLE")
-        || upper.contains("NOT_TRADABLE")
-        || upper.contains("NOT_SUPPORTED")
+    } else if matches!(status, 400 | 422)
+        && (upper.contains("NO ROUTES FOUND")
+            || upper.contains("NO_ROUTES")
+            || upper.contains("TOKEN_NOT_TRADABLE")
+            || upper.contains("NOT TRADABLE")
+            || upper.contains("NOT_TRADABLE"))
     {
         SwapError::NoRoute(detail)
     } else if upper.contains("INSUFFICIENT FUNDS") || upper.contains("INSUFFICIENT_FUNDS") {
