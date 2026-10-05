@@ -2,3 +2,6 @@
 /dev
 # Tauri generates permission/schema artifacts from the backend manifests.
 /apps/app/src-tauri/gen/
+
+# Secrets
+.env
