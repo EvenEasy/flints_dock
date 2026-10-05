@@ -128,22 +128,25 @@ See [cNFT investigation and infrastructure requirements](docs/cnfts.md). Uncompr
 ## Layout and verification
 
 ```text
-src/
-├── core/   # assets, wallet snapshot, swap/cleanup types and pure rules
-├── app/    # scan, pricing, swap and cleanup use cases
-├── infra/  # Solana RPC/transactions, Jupiter HTTP, local wallet loading
-├── cli/    # argument groups, commands, confirmations, table/JSON output
-├── lib.rs
-└── main.rs
+Cargo.toml                  # workspace; default cargo run/test targets the CLI
+crates/core/src/
+  core/                     # unchanged asset models and pure rules
+  app/                      # unchanged scan/pricing/swap/cleanup use cases
+  infra/                    # unchanged Solana and Jupiter integrations
+apps/cli/src/cli/           # existing commands and terminal output
+apps/cli/tests/             # existing regression suite
+apps/app/src-tauri/         # thin read-only Tauri 2 adapter, state and IPC DTOs
+apps/app/frontend-contract/ # typed TypeScript invoke boundary; no frontend project
+tests/fixtures/             # shared existing fixture data
 ```
 
-See [architecture audit and maintenance guide](docs/architecture.md) for module ownership, provider replacement and dependency decisions. Library imports now use `core`, `app`, `infra`, `cli`; the old flat module paths were intentionally removed.
+Both adapters depend on `dock-flints-core`; core has no CLI or Tauri dependency. Existing CLI library paths remain available through compatibility re-exports. All CLI commands and `cargo run -- ...` examples above keep their existing behavior. See [architecture and maintenance](docs/architecture.md) and [desktop configuration / future React integration](apps/app/README.md).
 
 ```bash
-cargo fmt --check
-cargo check
-cargo test
-cargo clippy --all-targets --all-features
+cargo fmt --all --check
+cargo check --workspace
+cargo test --workspace
+cargo clippy --workspace --all-targets --all-features
 ```
 
 Tests use binary fixtures, a mocked Solana RPC transport and an injected price provider. Category-combination tests assert actual RPC calls and JSON keys; they do not depend on mainnet balances. See [validation](docs/validation.md) for the current mainnet run and [research](docs/research.md) for crate/API boundaries.

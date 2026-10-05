@@ -1,0 +1,27 @@
+[package]
+name = "dock-flints-app"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "dock_flints_app"
+
+[dependencies]
+dock-flints-core.workspace = true
+tauri.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest.workspace = true
+solana-pubkey.workspace = true
+solana-rpc-client.workspace = true
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+[dev-dependencies]
+tokio.workspace = true
+tauri = { workspace = true, features = ["test"] }
+

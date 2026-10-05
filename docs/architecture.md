@@ -1,6 +1,6 @@
 # Архітектура та підтримка
 
-`dock_flints` — бібліотечне ядро й CLI для читання Solana wallet, swap і послідовного cleanup. Один Rust crate, без DI-контейнера, event bus чи repository. gRPC у проєкті немає.
+`dock_flints` — бібліотечне ядро й CLI для читання Solana wallet, swap і послідовного cleanup. Cargo workspace із reusable `dock-flints-core`, незміненим CLI і read-only Tauri 2 adapter, без DI-контейнера, event bus чи repository. Внутрішні `core`, `app`, `infra` перенесено без зміни логіки. gRPC у проєкті немає.
 
 ## Результат аудиту
 
@@ -20,7 +20,7 @@
 ## Де що змінювати
 
 ```text
-src/
+crates/core/src/
   core/                 типи й чисті правила, без HTTP/RPC/CLI
     asset.rs            token accounts, mint, metadata, closure eligibility
     wallet.rs           WalletSnapshot, selection, partial scan statuses
@@ -39,12 +39,19 @@ src/
     jupiter/            HTTP, auth, Price/Swap DTO → core types
     solana/             RPC, instructions, simulation, send/confirm, accounting
       scan/             token/mint/Metaplex/Core decoders, inventory enrichment
-  cli/
+apps/cli/src/cli/
     args.rs             спільні wallet/RPC/quote/execution аргументи
     scan.rs             scan dependency wiring та вивід
     swap.rs             quote/swap commands та підтвердження
     cleanup.rs          cleanup command та підтвердження
     output/             table/JSON presentation
+apps/app/src-tauri/src/
+  commands/wallet.rs    analyze_wallet: validation → use case → DTO
+  state.rs              shared RPC/Jupiter clients initialized once
+  dto/                  camelCase IPC, exact integers as strings
+  error.rs              stable frontend-safe errors
+apps/app/frontend-contract/
+                        TypeScript types and typed invoke boundary
 ```
 
 `core` не імпортує `app`, `infra`, `cli`, HTTP або RPC клієнтів. Solana public keys/instructions/blockhashes у core — дані цільового blockchain, а не transport. DTO Jupiter не виходять із adapter: base64/string fields перетворюються на `SwapTransaction` з native Solana instructions. Компіляція, signing і submission живуть у `infra/solana`.
@@ -54,7 +61,7 @@ src/
 ## Типові зміни
 
 - **Інший swap provider:** реалізувати `app::swap::SwapProvider`, перетворити відповідь на `core::swap::{SwapQuote, SwapTransaction}` в adapter і замінити factory `cli::args::swap_provider`. Quote/build зараз один виклик: Jupiter повертає їх разом; окремий quote-only trait не потрібен.
-- **Політика cleanup:** `core/cleanup.rs`, `app/cleanup/plan.rs`, тести `tests/cleanup.rs`. Burn/no-route не визначаються в CLI чи renderer.
+- **Політика cleanup:** `core/cleanup.rs`, `app/cleanup/plan.rs`, тести `apps/cli/tests/cleanup.rs`. Burn/no-route не визначаються в CLI чи renderer.
 - **Спосіб підписання:** execution boundary і `infra/wallet.rs`. Snapshot/plan містять лише public address. Поточний MVP працює з локальним signer.
 - **Формат виводу:** `cli/output/`, без blockchain-запитів.
 - **CLI параметри:** спочатку перевірити `cli/args.rs`. Wallet/RPC/quote/execution конфігурація визначена один раз і згрупована в `--help`. Scan-specific display flags не потрапляють у swap/cleanup.
@@ -71,10 +78,16 @@ Burn дозволений лише для явно схваленого cleanup,
 ## Перевірки
 
 ```bash
-cargo fmt --check
-cargo check --offline
-cargo test --offline
-cargo clippy --offline --all-targets --all-features -- -D warnings
+cargo fmt --all --check
+cargo check --workspace
+cargo test --workspace
+cargo clippy --workspace --all-targets --all-features -- -D warnings
 ```
 
 Тести використовують binary fixtures, mock HTTP/RPC, локально згенеровані test keys і провайдери. Перевіряють behavior: запити за категоріями, класифікацію, fresh quotes, signing/simulation/confirmation, помилки, mint exclusions та CLI identity. Архітектурний рефакторинг не потребує реальних swap, burn чи close.
+
+## Desktop boundary
+
+CLI і Tauri залежать від `dock-flints-core`; ядро не залежить від adapters. CLI має compatibility re-exports для попередніх library paths. Tauri викликає лише read-only `scan_wallet` і не експортує swap, burn, close чи signing. DTO не використовують terminal JSON або serialization внутрішніх моделей. Повні raw account blobs не є IPC-контрактом. Shared fixture лишається в `tests/fixtures/`.
+
+Налаштування клієнтів, точні TypeScript types, capability для локального main window і кроки підключення майбутнього frontend описано в [apps/app/README.md](../apps/app/README.md). React-проєкт не створено.

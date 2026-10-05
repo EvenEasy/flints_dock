@@ -97,8 +97,10 @@ impl SwapProvider for Provider {
             Answer::Illiquid => Err(SwapError::InsufficientLiquidity("fixture".into())),
             Answer::Expired => Err(SwapError::Expired),
             Answer::Route => {
-                let mut build: BuildResponse =
-                    serde_json::from_str(include_str!("fixtures/jupiter_build.json")).unwrap();
+                let mut build: BuildResponse = serde_json::from_str(include_str!(
+                    "../../../tests/fixtures/jupiter_build.json"
+                ))
+                .unwrap();
                 build.input_mint = request.mint.to_string();
                 build.in_amount = request.raw_amount.to_string();
                 build.slippage_bps = request.slippage_bps;
@@ -581,7 +583,7 @@ fn auxiliary_transfer_and_swap_are_compiled_into_one_atomic_transaction() {
     let signer = Keypair::new();
     let asset = asset(signer.pubkey(), 1, 7);
     let mut build: BuildResponse =
-        serde_json::from_str(include_str!("fixtures/jupiter_build.json")).unwrap();
+        serde_json::from_str(include_str!("../../../tests/fixtures/jupiter_build.json")).unwrap();
     let request =
         dock_flints::app::cleanup::plan::request(&asset, &signer.pubkey(), &options()).unwrap();
     build.input_mint = request.mint.to_string();

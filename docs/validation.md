@@ -1,5 +1,24 @@
 # Validation
 
+## Workspace / read-only desktop adapter — 2026-10-05
+
+```text
+cargo fmt --all                                  PASS
+cargo fmt --all --check                          PASS
+cargo check --workspace                         PASS
+cargo test --workspace                          PASS — 69 tests (61 existing + 8 desktop)
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+                                                PASS — no warnings
+```
+
+All 32 existing `app/core/infra` source files were compared against the pre-migration backup: implementations are unchanged; only the Jupiter test fixture path moved. CLI modules and main are byte-identical. Previous integration tests retain their code with fixture path/formatting fixes. Root/scan/quote/swap/cleanup `--help` output matches the original executable. Existing locked package versions are retained.
+
+Desktop tests cover category defaults and all 31 nonempty combinations, malformed/public-key input errors, exact u64/u128/block/supply/lamport serialization, absent and partial results, bounded diagnostics and backend configuration. Tauri's mock runtime verifies the registered command, managed clients, local-main-window capability and rejection of external origins/unregistered mutation commands. A local mock RPC returns u64::MAX through the existing native balance scanner and actual IPC response. No transactions were submitted. The TypeScript files parse and the wrapper passes the expected command/request to a mocked invoke; a frontend project/type-checking toolchain has not been initialized.
+
+Core, CLI and desktop are the three workspace members. React/Vite/package.json were not created. See [desktop backend and later frontend setup](../apps/app/README.md). The historical mainnet validation below predates this migration and has not been repeated.
+
+## Historical scanner validation
+
 Validated on 2026-09-30 after the shared classification refactor.
 
 ```text

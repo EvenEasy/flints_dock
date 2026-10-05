@@ -60,7 +60,7 @@ async fn unpriced_token_can_have_a_route_and_shared_client_sends_exact_v2_parame
         (200, "{}".into()),
         (
             200,
-            include_str!("../../../tests/fixtures/jupiter_build.json").into(),
+            include_str!("../../../../../tests/fixtures/jupiter_build.json").into(),
         ),
     ]);
     let req = request();
@@ -109,7 +109,7 @@ async fn http_no_route_and_rate_limit_are_not_successful_quotes() {
 async fn keyless_swap_requests_omit_the_authentication_header() {
     let (mut client, calls, server) = server(vec![(
         200,
-        include_str!("../../../tests/fixtures/jupiter_build.json").into(),
+        include_str!("../../../../../tests/fixtures/jupiter_build.json").into(),
     )]);
     client.api_key = reqwest::header::HeaderValue::from_static("");
     assert!(

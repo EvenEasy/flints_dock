@@ -1,0 +1,37 @@
+[package]
+name = "dock_flints"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+dock-flints-core.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+tokio.workspace = true
+serde_json.workspace = true
+solana-pubkey.workspace = true
+solana-rpc-client.workspace = true
+solana-signer.workspace = true
+mpl-core.workspace = true
+
+[dev-dependencies]
+mpl-token-metadata.workspace = true
+solana-account-decoder.workspace = true
+solana-rpc-client-api.workspace = true
+solana-commitment-config.workspace = true
+solana-pubkey-v2.workspace = true
+spl-token-2022-interface.workspace = true
+spl-token-interface.workspace = true
+serde.workspace = true
+reqwest.workspace = true
+solana-account.workspace = true
+solana-keypair.workspace = true
+solana-transaction.workspace = true
+solana-message.workspace = true
+solana-instruction.workspace = true
+solana-hash.workspace = true
+bincode.workspace = true
+thiserror.workspace = true
+base64.workspace = true
+async-trait.workspace = true
+borsh.workspace = true

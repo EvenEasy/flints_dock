@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Dock Flints",
+  "version": "0.1.0",
+  "identifier": "com.dockflints.desktop",
+  "build": {
+    "frontendDist": []
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Dock Flints",
+        "width": 1100,
+        "height": 760
+      }
+    ],
+    "security": {
+      "capabilities": ["wallet-read"],
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "icon": []
+  }
+}
+

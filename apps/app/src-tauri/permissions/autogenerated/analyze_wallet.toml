@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-analyze-wallet"
+description = "Enables the analyze_wallet command without any pre-configured scope."
+commands.allow = ["analyze_wallet"]
+
+[[permission]]
+identifier = "deny-analyze-wallet"
+description = "Denies the analyze_wallet command without any pre-configured scope."
+commands.deny = ["analyze_wallet"]

@@ -36,7 +36,7 @@ fn request(signer: &Keypair) -> SwapRequest {
     }
 }
 fn build() -> BuildResponse {
-    serde_json::from_str(include_str!("fixtures/jupiter_build.json")).unwrap()
+    serde_json::from_str(include_str!("../../../tests/fixtures/jupiter_build.json")).unwrap()
 }
 fn prepared(request: &SwapRequest, build: BuildResponse) -> PreparedSwap {
     PreparedSwap {
