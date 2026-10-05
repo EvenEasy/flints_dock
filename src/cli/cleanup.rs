@@ -17,18 +17,23 @@ use std::{
 pub struct CleanupArgs {
     #[command(flatten)]
     pub wallet: WalletArgs,
+
     /// Execute the displayed plan, including irreversible burns
     #[arg(long, requires = "signer", conflicts_with = "dry_run")]
     pub execute: bool,
+
     /// Explicit preview; never signs or submits transactions
     #[arg(long)]
     pub dry_run: bool,
+
     /// Approve the displayed cleanup, including irreversible burns
     #[arg(long, requires = "execute")]
     pub yes: bool,
+
     /// Restrict cleanup to these account addresses; repeat to select several
     #[arg(long, help_heading = "Selection")]
     pub account: Vec<Pubkey>,
+
     /// Protect every account of this mint from swap, burn and close; repeatable
     #[arg(long, help_heading = "Selection")]
     pub ignore_mint: Vec<Pubkey>,
@@ -38,11 +43,13 @@ pub struct CleanupArgs {
     pub quote: QuoteArgs,
     #[command(flatten)]
     pub execution: ExecutionArgs,
+
     /// Delay between quote attempts, including keyless provider throttling
     #[arg(long, default_value_t = 2100, value_parser = clap::value_parser!(u64).range(0..=60000), help_heading = "Quote policy")]
     pub quote_interval_ms: u64,
     #[arg(long, value_enum, default_value = "table")]
     pub format: OutputFormat,
+
     /// Print discovery diagnostics on stderr
     #[arg(short, long)]
     pub verbose: bool,
@@ -89,6 +96,9 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         });
     }
     anyhow::ensure!(usable, "token discovery failed; nothing executed");
+
+    // The displayed plan is read-only until the user explicitly approves its destructive
+    // operations.
     if !args.yes && plan.summary.accounts_to_close > 0 {
         anyhow::ensure!(
             io::stdin().is_terminal(),
@@ -123,6 +133,8 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         ExitCode::SUCCESS
     })
 }
+
+/// Render cleanup failures in the requested format and return the matching exit code.
 pub async fn run(args: CleanupArgs) -> anyhow::Result<ExitCode> {
     let format = args.format;
     match run_inner(args).await {

@@ -5,6 +5,7 @@ use crate::{
 use serde::Serialize;
 use std::time::Duration;
 
+/// Classify an account into a close, swap, burn or skip path.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum CleanupCategory {
     Empty,
@@ -12,12 +13,16 @@ pub enum CleanupCategory {
     Burnable,
     Unsupported,
 }
+
+/// Keep each backing account together with its verified mint and asset classification.
 #[derive(Debug, Clone, Serialize)]
 pub struct CleanupAsset {
     pub account: TokenAccount,
     pub mint: Option<MintInfo>,
     pub kind: AssetKind,
 }
+
+/// Record the proposed action, explanation and optional quote for one account.
 #[derive(Debug, Clone, Serialize)]
 pub struct CleanupEntry {
     pub asset: CleanupAsset,
@@ -25,6 +30,8 @@ pub struct CleanupEntry {
     pub reason: String,
     pub quote: Option<SwapQuote>,
 }
+
+/// Bind the wallet, selected accounts, action estimates and discovery status to a preview.
 #[derive(Debug, Serialize)]
 pub struct CleanupPlan {
     pub wallet: String,
@@ -34,6 +41,8 @@ pub struct CleanupPlan {
     pub summary: CleanupSummary,
     pub selection: CleanupSelection,
 }
+
+/// Count planned actions and total estimated swap output and recoverable lamports.
 #[derive(Debug, Default, Serialize)]
 pub struct CleanupSummary {
     pub token_accounts: usize,
@@ -47,6 +56,8 @@ pub struct CleanupSummary {
     #[serde(serialize_with = "integer_string")]
     pub estimated_reclaimed_lamports: u128,
 }
+
+/// Configure account selection, quote retries and transaction execution limits.
 #[derive(Debug, Clone)]
 pub struct CleanupOptions {
     pub selection: CleanupSelection,
@@ -66,12 +77,16 @@ impl Default for CleanupOptions {
         }
     }
 }
+
+/// Identify the individual on-chain action recorded in a cleanup receipt.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum CleanupOperation {
     Swap,
     Burn,
     Close,
 }
+
+/// Keep a confirmed signature and optional balance accounting for one operation.
 #[derive(Debug, Clone, Serialize)]
 pub struct OperationReceipt {
     pub operation: CleanupOperation,
@@ -90,6 +105,8 @@ fn optional_integer<T: ToString, S: serde::Serializer>(
         .map(ToString::to_string)
         .serialize(serializer)
 }
+
+/// Preserve the outcome and any completed operations for a single account.
 #[derive(Debug, Serialize)]
 pub struct AccountCleanupResult {
     pub token_account: String,
@@ -100,6 +117,8 @@ pub struct AccountCleanupResult {
     pub operations: Vec<OperationReceipt>,
     pub uncertain_signature: Option<String>,
 }
+
+/// Summarize completed, failed and skipped accounts with observed balance changes.
 #[derive(Debug, Default, Serialize)]
 pub struct CleanupReport {
     pub results: Vec<AccountCleanupResult>,
@@ -113,13 +132,16 @@ pub struct CleanupReport {
     pub accounting_complete: bool,
 }
 
-/// Conservative extension support: no confidential/withheld balances, transfer hooks,
-/// CPI guards, pausing or other mutable extension semantics are guessed.
+/// Return the first reason an account cannot safely follow the supported cleanup flow.
+/// Requires verified fungible semantics, matching decimals and supported extensions.
+/// Frozen nonempty balances and native-backed balances are excluded.
 pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> {
     let account = &asset.account;
     if account.owner != wallet {
         return Some("wallet is not token owner".into());
     }
+
+    // Assess eventual closure authority independently of the current nonzero token balance.
     let mut empty = account.clone();
     empty.raw_amount = 0;
     match crate::core::asset::assess_closure(&empty, wallet) {
@@ -128,6 +150,8 @@ pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> 
             return Some(reason);
         }
     }
+
+    // Exclude NFTs and uncertain classifications from automatic liquidation.
     if !asset.kind.is_fungible() {
         return Some("NFT or unverified classification; cleanup excluded".into());
     }
@@ -140,6 +164,8 @@ pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> 
     {
         return Some("mint/decimals unavailable or inconsistent".into());
     }
+
+    // Allow only extensions whose cleanup semantics are explicitly supported.
     if asset.mint.as_ref().is_some_and(|mint| {
         mint.extension_types.iter().any(|ext| {
             !matches!(
@@ -178,6 +204,9 @@ pub struct CleanupSelection {
     pub ignored_mints: std::collections::BTreeSet<String>,
 }
 impl CleanupSelection {
+    /// Return the selection rule that excludes an account, if any.
+    /// Protected mints take precedence over the optional account allowlist, including for empty
+    /// accounts.
     pub fn skip_reason(&self, account: &TokenAccount) -> Option<&'static str> {
         if self.ignored_mints.contains(&account.mint) {
             Some("mint protected by cleanup exclusion")
@@ -187,6 +216,8 @@ impl CleanupSelection {
             None
         }
     }
+
+    /// Report whether WSOL is protected, preventing swaps that could implicitly unwrap its ATA.
     pub fn protects_output(&self) -> bool {
         self.ignored_mints.contains(WRAPPED_SOL)
     }

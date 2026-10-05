@@ -11,6 +11,8 @@ fn safe(text: &str) -> String {
         })
         .collect()
 }
+
+/// Show action counts, estimates and per-account operations without submitting transactions.
 pub fn write_plan(mut out: impl Write, plan: &CleanupPlan) -> io::Result<()> {
     let s = &plan.summary;
     writeln!(
@@ -71,6 +73,8 @@ pub fn write_plan(mut out: impl Write, plan: &CleanupPlan) -> io::Result<()> {
         "\nEstimates exclude transaction fees. BURN permanently destroys the listed balances.\nNo transactions submitted."
     )
 }
+
+/// Render per-account outcomes, confirmed signatures and known balance accounting.
 pub fn write_report(mut out: impl Write, report: &CleanupReport) -> io::Result<()> {
     let delta = report.known_swap_net_lamports;
     writeln!(

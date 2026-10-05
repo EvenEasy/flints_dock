@@ -23,11 +23,17 @@ impl WalletIdentity {
             signer: Some(signer),
         }
     }
+
+    /// Load a local Solana JSON keypair and return its signing identity.
+    /// Returns a sanitized error if the file cannot be read or decoded.
     pub fn from_keypair(path: &Path) -> anyhow::Result<Self> {
         solana_keypair::read_keypair_file(path)
             .map(Self::signing)
             .map_err(|_| anyhow::anyhow!("cannot read a valid local Solana JSON keypair"))
     }
+
+    /// Return a signing identity from base64-encoded, exactly 32-byte Ed25519 seed data.
+    /// Rejects mnemonics, malformed base64 and 64-byte keypair encodings without echoing secrets.
     pub fn from_seed(encoded: &str) -> anyhow::Result<Self> {
         // Fixed-size decoding prevents accepting truncated seeds or 64-byte keypairs.
         let mut seed = [0u8; 32];
@@ -37,6 +43,8 @@ impl WalletIdentity {
         anyhow::ensure!(length == 32, "--seed must encode exactly 32 seed bytes");
         Ok(Self::signing(Keypair::new_from_array(seed)))
     }
+
+    /// Return the local signer, or an error for an address-only identity.
     pub fn signer(&self) -> anyhow::Result<&Keypair> {
         self.signer.as_ref().ok_or_else(|| {
             anyhow::anyhow!("execution requires --keypair or --seed; --pubkey is read-only")

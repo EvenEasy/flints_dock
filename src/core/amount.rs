@@ -1,6 +1,8 @@
 use crate::core::*;
 use std::collections::BTreeMap;
 
+/// Return an exact decimal representation of `raw` base units using the mint decimals.
+/// Handles the full on-chain `u8` decimal range without floating-point rounding.
 pub fn exact_amount(raw: u128, decimals: u8) -> String {
     // String placement avoids both floating-point rounding and 10^decimals
     // overflow (decimals is an on-chain u8, not constrained to the usual 6/9).
@@ -17,8 +19,8 @@ pub fn exact_amount(raw: u128, decimals: u8) -> String {
     }
 }
 
-/// Combine only positively classified fungibles. Unknown accounts remain separate;
-/// NFT accounts belong to the NFT category and the unaggregated all-token view.
+/// Return fungible holdings aggregated by mint and token program, retaining backing accounts.
+/// Unknown accounts remain separate; verified NFTs are excluded from this view.
 pub fn aggregate_tokens(classified: &[TokenAsset]) -> Vec<TokenAsset> {
     let mut assets: BTreeMap<(String, TokenProgram), TokenAsset> = BTreeMap::new();
     let mut unknown = Vec::new();
@@ -30,6 +32,9 @@ pub fn aggregate_tokens(classified: &[TokenAsset]) -> Vec<TokenAsset> {
             if let Some(asset) = assets.get_mut(&key) {
                 asset.total_raw_amount += token.total_raw_amount;
                 asset.accounts.extend(token.accounts.iter().cloned());
+
+                // Conflicting decimals invalidate the display balance, but raw units and backing
+                // accounts remain available.
                 if asset.decimals != token.decimals {
                     asset.decimals = None;
                 }
@@ -44,6 +49,8 @@ pub fn aggregate_tokens(classified: &[TokenAsset]) -> Vec<TokenAsset> {
     assets.into_values().chain(unknown).collect()
 }
 
+/// Return account counts and actual lamports potentially recoverable through closure.
+/// Recovery is conditional on the stored eligibility assessment, not a fixed rent estimate.
 pub fn summarize_accounts(accounts: &[TokenAccount]) -> AccountSummary {
     AccountSummary {
         token_accounts: accounts.len(),
@@ -52,6 +59,7 @@ pub fn summarize_accounts(accounts: &[TokenAccount]) -> AccountSummary {
             .iter()
             .map(|account| u128::from(account.lamports))
             .sum(),
+
         // Actual lamports, not a fixed rent constant. This is a conditional
         // estimate, not a guarantee that a close instruction would succeed.
         potentially_reclaimable_lamports: accounts
@@ -66,12 +74,16 @@ pub fn summarize_accounts(accounts: &[TokenAccount]) -> AccountSummary {
     }
 }
 
+/// Return an approximate USD value for raw units, or `None` for invalid or overflowing values.
+/// Canonical balances remain integers; `price` is the USD value of one whole token.
 pub fn approximate_value(raw: u128, decimals: u8, price: f64) -> Option<f64> {
     let amount: f64 = exact_amount(raw, decimals).parse().ok()?;
     let value = amount * price;
     (price.is_finite() && price >= 0.0 && value.is_finite()).then_some(value)
 }
 
+/// Return the sum of finite known valuations.
+/// Returns `None` when no usable values exist or the sum overflows.
 pub fn sum_known_values(values: impl IntoIterator<Item = Option<f64>>) -> Option<f64> {
     let mut sum = None;
     for value in values

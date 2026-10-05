@@ -1,7 +1,8 @@
 use crate::{core::amount::exact_amount, core::*};
 
-/// Inputs come from validated mint and Metaplex PDA decoders. A label, URI or
-/// Token-2022 metadata extension alone is never evidence of NFT semantics.
+/// Return the asset kind supported by matching mint data and verified Metaplex evidence.
+/// Insufficient or contradictory evidence yields `Unknown`; labels, URIs and Token-2022 names
+/// alone never establish NFT semantics.
 pub fn classify(
     account: &TokenAccount,
     mint: Option<&MintInfo>,
@@ -45,13 +46,14 @@ pub fn classify(
     }
 }
 
-/// Preserve one row per token account, including unknown and empty accounts.
-/// Aggregation and category selection happen after this shared classification.
+/// Return one classified row per backing account, including empty and unknown accounts.
+/// Verified Metaplex records take precedence over embedded mint labels; aggregation is separate.
 pub fn classify_token_accounts(
     accounts: &[TokenAccount],
     mints: &[MintInfo],
     records: &[MetadataRecord],
 ) -> Vec<TokenAsset> {
+    // Index mint and metadata records to avoid repeated full-list searches.
     let mints: std::collections::BTreeMap<_, _> = mints
         .iter()
         .map(|mint| ((mint.mint.as_str(), mint.program), mint))

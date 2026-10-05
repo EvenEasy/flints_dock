@@ -5,7 +5,10 @@ use crate::{
 use solana_pubkey::Pubkey;
 use std::collections::BTreeMap;
 
-/// Injecting a provider lets tests verify that excluded categories make no pricing calls.
+/// Return a snapshot of the selected wallet categories, sharing token and metadata discovery.
+/// The optional provider enriches USD prices only when enabled. Independent reads do not
+/// form an atomic snapshot; failures are retained per scanner rather than discarding usable
+/// results.
 pub async fn scan_wallet<P: PriceProvider>(
     rpc: &impl WalletReader,
     owner: &Pubkey,
@@ -13,6 +16,8 @@ pub async fn scan_wallet<P: PriceProvider>(
     provider: Option<&P>,
 ) -> WalletSnapshot {
     let selected = options.selection;
+
+    // Run independent selected discovery paths concurrently and share their results.
     let (native, token_scan, core) = tokio::join!(
         async {
             if selected.balance {
@@ -73,6 +78,8 @@ pub async fn scan_wallet<P: PriceProvider>(
             }
         }
     }
+
+    // Classify the shared account inventory before projecting the requested asset views.
     if let Some(scan) = token_scan {
         let assets =
             classify_token_accounts(&scan.classification_accounts, &scan.mints, &scan.records);
@@ -120,6 +127,8 @@ pub async fn scan_wallet<P: PriceProvider>(
         portfolio.scanners.extend(scan.scanners);
         portfolio.account_summary = summarize_accounts(&portfolio.token_accounts);
     }
+
+    // Combine classic and Core discovery while preserving partial NFT results.
     if let Some(core) = core {
         let classic = portfolio
             .scanners
@@ -141,6 +150,8 @@ pub async fn scan_wallet<P: PriceProvider>(
             .scanners
             .insert("compressed_nfts".into(), rpc.compressed_nfts(owner));
     }
+
+    // Enrich priceable categories only after exact blockchain holdings are assembled.
     if selected.needs_prices() {
         let report =
             crate::app::pricing::price_portfolio(&mut portfolio, options.no_prices, provider).await;
@@ -153,18 +164,27 @@ pub async fn scan_wallet<P: PriceProvider>(
 /// partial failures; callers never interpret raw RPC envelopes or transport errors.
 pub trait WalletReader {
     fn commitment(&self) -> String;
+
+    /// Return the wallet lamport balance or a read failure.
     fn native_balance(
         &self,
         owner: &Pubkey,
     ) -> impl std::future::Future<Output = Result<u64, String>> + Send;
+
+    /// Return decoded accounts and enrichment results, preserving partial failures.
+    /// `nfts_only` limits mint and metadata work to potential NFT holdings.
     fn token_inventory(
         &self,
         owner: &Pubkey,
         nfts_only: bool,
     ) -> impl std::future::Future<Output = TokenInventory> + Send;
+
+    /// Return wallet-owned Core assets with per-record decoding status.
     fn core_assets(
         &self,
         owner: &Pubkey,
     ) -> impl std::future::Future<Output = ScanCollection<CoreAsset>> + Send;
+
+    /// Report cNFT discovery capability without substituting an unverified empty inventory.
     fn compressed_nfts(&self, owner: &Pubkey) -> ScanStatus;
 }

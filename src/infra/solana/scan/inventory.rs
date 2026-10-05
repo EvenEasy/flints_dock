@@ -3,6 +3,7 @@ use solana_pubkey::Pubkey;
 use solana_rpc_client::nonblocking::rpc_client::RpcClient;
 use std::collections::BTreeMap;
 async fn scan_tokens(rpc: &RpcClient, owner: &Pubkey, nfts_only: bool) -> TokenInventory {
+    // Discover both token programs independently so one failure does not erase the other.
     let (mut legacy, mut token2022) = tokio::join!(
         super::tokens::get_token_accounts(rpc, owner, TokenProgram::Legacy),
         super::tokens::get_token_accounts(rpc, owner, TokenProgram::Token2022),
@@ -14,6 +15,7 @@ async fn scan_tokens(rpc: &RpcClient, owner: &Pubkey, nfts_only: bool) -> TokenI
     let mut accounts = std::mem::take(&mut legacy.items);
     accounts.append(&mut token2022.items);
     accounts.sort_by(|a, b| a.address.cmp(&b.address));
+
     // NFT-only runs need mint/metadata lookups only for possible NFT holdings.
     // Keep all raw accounts internally, without guessing decimals for unqueried mints.
     let mut candidates: Vec<_> = accounts
@@ -22,6 +24,7 @@ async fn scan_tokens(rpc: &RpcClient, owner: &Pubkey, nfts_only: bool) -> TokenI
         .cloned()
         .collect();
     let mint_scan = super::metadata::get_mints(rpc, &mut candidates).await;
+
     // Reuse a single index for account decimals and NFT candidate selection.
     let mints: BTreeMap<_, _> = mint_scan
         .items
@@ -41,7 +44,11 @@ async fn scan_tokens(rpc: &RpcClient, owner: &Pubkey, nfts_only: bool) -> TokenI
                     .is_some_and(|mint| mint.supply == 1)
         });
     }
+
+    // Enrich classification candidates with shared Metaplex evidence.
     let metadata_scan = super::nft::get_metadata(rpc, &candidates, &mint_scan.items).await;
+
+    // Preserve total discovery failure and otherwise expose incomplete enrichment as partial.
     let status = if matches!(discovery, ScanStatus::Failed(_)) {
         discovery.clone()
     } else {

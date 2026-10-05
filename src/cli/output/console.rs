@@ -90,6 +90,7 @@ fn heading(
     Ok(count > 0)
 }
 
+/// Render only requested wallet categories and their optional detail columns.
 pub fn write_portfolio(
     mut out: impl Write,
     portfolio: &WalletSnapshot,

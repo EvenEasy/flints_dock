@@ -2,6 +2,8 @@ use super::*;
 use crate::app::swap::{SwapError, SwapProvider, SwapRequest};
 pub use crate::core::cleanup::unsupported_reason;
 
+/// Return account-scoped cleanup inputs from the snapshot mint and classification indexes.
+/// Unmatched classifications remain `Unknown`; balances are never aggregated across accounts.
 pub fn assets_from_portfolio(portfolio: &WalletSnapshot) -> Vec<CleanupAsset> {
     let mints: std::collections::BTreeMap<_, _> = portfolio
         .mints
@@ -34,6 +36,9 @@ pub fn assets_from_portfolio(portfolio: &WalletSnapshot) -> Vec<CleanupAsset> {
         .collect()
 }
 
+/// Return a fresh route within the configured impact limit.
+/// Retries API failures and expiry with bounded pacing; no-route and liquidity errors propagate
+/// unchanged.
 pub async fn fresh_route(
     provider: &impl SwapProvider,
     request: &SwapRequest,
@@ -64,6 +69,8 @@ pub async fn fresh_route(
     Err(last)
 }
 
+/// Build an exact-input swap request for the account balance and selected owner.
+/// Returns `InvalidRequest` if the stored mint address cannot be parsed.
 pub fn request(
     asset: &CleanupAsset,
     owner: &Pubkey,
@@ -81,7 +88,9 @@ pub fn request(
     })
 }
 
-/// No keypair, executor, Price API or transaction submission is reachable from planning.
+/// Return a read-only cleanup plan for the supplied backing accounts.
+/// Protection and eligibility checks precede route lookup; only an explicit `NoRoute`
+/// permits a burn classification. Provider failures remain unsupported, never burn fallbacks.
 pub async fn build_plan(
     wallet: &Pubkey,
     assets: Vec<CleanupAsset>,
@@ -105,6 +114,8 @@ pub async fn build_plan(
             reason: String::new(),
             quote: None,
         };
+
+        // Apply user protection before balance checks or provider requests.
         if let Some(reason) = options.selection.skip_reason(&entry.asset.account) {
             entry.reason = reason.into();
         } else if let Some(reason) = unsupported_reason(&entry.asset, &plan.wallet) {
@@ -117,6 +128,8 @@ pub async fn build_plan(
                 Ok(request) => fresh_route(provider, &request, options).await,
                 Err(error) => Err(error),
             };
+
+            // Choose swap or burn only from an explicit semantic route result.
             match result {
                 Ok(_) if options.selection.protects_output() => {
                     entry.reason = "protected WSOL may be unwrapped by a SOL swap; skipped".into();
@@ -138,6 +151,8 @@ pub async fn build_plan(
         }
         plan.entries.push(entry);
     }
+
+    // Compute preview totals from actionable entries and retain unparsed accounts as unsupported.
     let summary = &mut plan.summary;
     summary.token_accounts = plan.entries.len() + plan.unparsed_accounts.len();
     summary.unsupported = plan.unparsed_accounts.len();

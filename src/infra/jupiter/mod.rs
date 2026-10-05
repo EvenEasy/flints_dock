@@ -5,7 +5,8 @@ use std::time::Duration;
 
 pub use crate::core::asset::WRAPPED_SOL;
 
-/// One transport and authentication configuration for Price V3 and Swap V2.
+/// Shared transport and authentication for Jupiter Price V3 and Swap V2.
+/// Changing the Solana RPC URL does not change this adapter's API endpoint or network.
 pub struct Jupiter {
     http: reqwest::Client,
     api_key: reqwest::header::HeaderValue,

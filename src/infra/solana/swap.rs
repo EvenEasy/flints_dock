@@ -23,6 +23,8 @@ fn invalid(reason: impl ToString) -> SwapError {
 fn rpc_error(reason: impl ToString) -> SwapError {
     SwapError::Rpc(reason.to_string())
 }
+
+/// Build the compute-budget instruction for the chosen unit allowance.
 pub(crate) fn compute_limit(units: u32) -> Instruction {
     let mut data = vec![2];
     data.extend_from_slice(&units.to_le_bytes());
@@ -33,8 +35,8 @@ pub(crate) fn compute_limit(units: u32) -> Instruction {
     }
 }
 
-/// Compile API instructions in documented order. Explicitly retain WSOL cleanup.
-/// The only allowed signer and fee payer is the selected local wallet.
+/// Return a locally signed versioned swap transaction without source-account additions.
+/// Enforces signer, compute, fee and packet-size limits and retains native SOL cleanup.
 pub fn signed_transaction(
     fresh: &PreparedSwap,
     signer: &Keypair,
@@ -44,6 +46,9 @@ pub fn signed_transaction(
     signed_transaction_with_extras(fresh, signer, units, limits, &[], &[])
 }
 
+/// Return a signed versioned swap with local `prefix` and `suffix` instructions.
+/// The caller supplies account-scoped preparation and cleanup; provider instructions are
+/// checked for extra signers, unsolicited tips, compute pricing and packet-size limits.
 pub fn signed_transaction_with_extras(
     fresh: &PreparedSwap,
     signer: &Keypair,
@@ -66,6 +71,8 @@ pub fn signed_transaction_with_extras(
     if build.compute_budget_instructions.len() > 1 {
         return Err(invalid("unexpected compute budget instructions"));
     }
+
+    // Validate the compute price instruction and enforce the priority-fee cap.
     for api in &build.compute_budget_instructions {
         let ix = api.clone();
         if ix.program_id.to_string() != COMPUTE_BUDGET
@@ -85,6 +92,8 @@ pub fn signed_transaction_with_extras(
         instructions.push(ix);
     }
     instructions.extend_from_slice(prefix);
+
+    // Preserve setup, swap and native SOL cleanup order while rejecting extra signers.
     for api in build
         .setup_instructions
         .iter()
@@ -115,6 +124,8 @@ pub fn signed_transaction_with_extras(
     .map_err(invalid)?;
     let tx =
         VersionedTransaction::try_new(VersionedMessage::V0(message), &[signer]).map_err(invalid)?;
+
+    // Reject oversized packets before simulation or submission.
     if bincode::serialize(&tx).map_err(invalid)?.len() > 1232 {
         return Err(invalid("swap transaction exceeds Solana packet size"));
     }
@@ -159,6 +170,8 @@ impl SwapExecutor for RpcClient {
                 "wallet does not hold the requested raw amount".into(),
             ));
         }
+
+        // Verify mint and NFT semantics before allowing a fungible swap.
         let mints = scanner::metadata::get_mints(self, &mut accounts).await;
         if !mints.status.is_complete() {
             return Err(rpc_error("cannot verify mint semantics"));
@@ -184,6 +197,9 @@ impl SwapExecutor for RpcClient {
     }
 }
 
+/// Simulate and confirm a fresh swap with atomic source-account instructions.
+/// Returns its signature on confirmation; expiry or simulation errors occur before submission,
+/// while send/confirmation ambiguity preserves the signature in `Uncertain`.
 pub async fn submit_with_instructions(
     rpc: &RpcClient,
     fresh: PreparedSwap,

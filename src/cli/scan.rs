@@ -20,41 +20,53 @@ pub struct ScanArgs {
     pub wallet: WalletArgs,
     #[command(flatten)]
     pub rpc: RpcArgs,
+
     /// Native SOL balance
     #[arg(long)]
     pub balance: bool,
+
     /// Fungible SPL / Token-2022 assets and unclassified tokens
     #[arg(long)]
     pub tokens: bool,
+
     /// Every token account, including NFTs and unknown assets (unaggregated)
     #[arg(long)]
     pub all_tokens: bool,
+
     /// Classic, programmable and MPL Core NFTs
     #[arg(long)]
     pub nfts: bool,
+
     /// Compressed NFTs (requires a historical owner index)
     #[arg(long)]
     pub cnfts: bool,
+
     /// All asset categories (raw --all-tokens view remains opt-in); also the default
     #[arg(long)]
     pub all: bool,
+
     /// Disable external price requests; otherwise uses JUPITER_API_KEY
     #[arg(long)]
     pub no_prices: bool,
+
     /// Display full token mints and NFT asset IDs in tables
     #[arg(long)]
     pub show_mint: bool,
+
     /// Display unit USD prices as well as values in tables
     #[arg(long)]
     pub show_price: bool,
+
     /// Include zero-balance token assets in output
     #[arg(long)]
     pub include_empty: bool,
+
     /// Show raw amounts, accounts, lamports and metadata
     #[arg(long)]
     pub details: bool,
     #[arg(long, value_enum, default_value = "table")]
     pub format: OutputFormat,
+
     /// Scanner diagnostics on stderr; does not expand asset tables
     #[arg(short, long)]
     pub verbose: bool,
@@ -92,6 +104,7 @@ impl ScanArgs {
     }
 }
 
+/// Resolve read-only dependencies, scan selected categories and render the snapshot.
 pub async fn run(args: ScanArgs) -> anyhow::Result<ExitCode> {
     let wallet = args.wallet.resolve()?;
     let options = args.scan_options();

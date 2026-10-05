@@ -3,6 +3,7 @@ use crate::app::swap::{PreparedSwap, Result, SwapError, SwapProvider, SwapQuote,
 use serde::Deserialize;
 use std::{collections::BTreeMap, time::Instant};
 
+/// Decode a Jupiter instruction account address and signer/writable flags.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApiAccount {
@@ -10,6 +11,8 @@ pub struct ApiAccount {
     pub is_signer: bool,
     pub is_writable: bool,
 }
+
+/// Keep Jupiter wire instruction fields inside the provider adapter.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ApiInstruction {
@@ -17,21 +20,29 @@ pub struct ApiInstruction {
     pub accounts: Vec<ApiAccount>,
     pub data: String,
 }
+
+/// Decode the recent blockhash and its last valid block height.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BlockhashMetadata {
     pub blockhash: [u8; 32],
     pub last_valid_block_height: u64,
 }
+
+/// Decode one step of the provider-selected swap route.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteStep {
     pub swap_info: RouteInfo,
 }
+
+/// Retain the optional route label supplied by the provider.
 #[derive(Debug, Clone, Deserialize)]
 pub struct RouteInfo {
     pub label: Option<String>,
 }
+
+/// Deserialize the Jupiter build response before mapping it into core types.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildResponse {
@@ -54,8 +65,13 @@ pub struct BuildResponse {
     pub blockhash_with_metadata: BlockhashMetadata,
 }
 impl BuildResponse {
+    /// Return a normalized quote after validating the provider response against `request`.
+    /// Checks mint identity, exact input, slippage floor and finite impact; returns distinct
+    /// no-route, liquidity and invalid-response errors.
     pub fn quote(&self, request: &SwapRequest) -> Result<SwapQuote> {
         request.validate()?;
+
+        // Reject responses for a different mint, amount, output asset or slippage policy.
         if self.input_mint != request.mint.to_string()
             || self.output_mint != WRAPPED_SOL
             || self.in_amount.parse::<u64>().ok() != Some(request.raw_amount)
@@ -73,6 +89,8 @@ impl BuildResponse {
             text.parse::<u64>()
                 .map_err(|_| SwapError::InvalidResponse("invalid raw output amount".into()))
         };
+
+        // Parse output amounts as exact integers before checking the slippage floor.
         let out = amount(&self.out_amount)?;
         let min = amount(&self.other_amount_threshold)?;
         if out == 0 || min == 0 {
@@ -86,6 +104,8 @@ impl BuildResponse {
                 "minimum output violates requested slippage".into(),
             ));
         }
+
+        // Normalize the provider impact ratio into a finite percentage.
         let impact = self
             .price_impact_pct
             .parse::<f64>()
@@ -117,6 +137,9 @@ impl BuildResponse {
     }
 }
 
+/// Map a Jupiter failure response to an application error.
+/// Only recognized no-route responses on accepted client-error statuses can authorize
+/// a burn plan; authentication, rate limits and general API failures remain separate.
 pub fn api_error(status: u16, value: &serde_json::Value) -> SwapError {
     let code = value["errorCode"].as_str().unwrap_or("");
     let message = value["error"]
@@ -166,6 +189,8 @@ impl SwapProvider for Jupiter {
             .send()
             .await
             .map_err(|e| SwapError::Api(e.without_url().to_string()))?;
+
+        // Decode provider failure details before attempting successful-response conversion.
         let status = response.status();
         let value: serde_json::Value = response
             .json()

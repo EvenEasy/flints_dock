@@ -118,6 +118,7 @@ pub fn portfolio_json(portfolio: &WalletSnapshot, options: &OutputOptions) -> Va
     if portfolio.selected.cnfts {
         let mut cnfts = category(portfolio.scanners.get("compressed_nfts"));
         cnfts.insert("code".into(), json!("historical_index_required"));
+
         // Null explicitly means not enumerated; [] would imply a successful empty result.
         cnfts.insert("items".into(), Value::Null);
         output.insert("cnfts".into(), Value::Object(cnfts));

@@ -25,6 +25,8 @@ async fn run_entry(
         .refresh(&entry.asset.account.address, owner)
         .await?
         .ok_or_else(|| changed("account already absent; no action"))?;
+
+    // Reject identity or balance changes instead of silently expanding the approved operation.
     if !same_account(&entry.asset, &current)
         || current.account.raw_amount != entry.asset.account.raw_amount
     {
@@ -35,6 +37,8 @@ async fn run_entry(
     if let Some(reason) = unsupported_reason(&current, &owner.to_string()) {
         return Err(changed(&reason));
     }
+
+    // Follow the approved category without converting a failed swap into a burn.
     match entry.category {
         CleanupCategory::Swappable => {
             let request = request(&current, owner, options)?;
@@ -63,6 +67,7 @@ async fn run_entry(
                         result.operations.push(receipt);
                         break;
                     }
+
                     // These failures occur before send. Never retry an uncertain submission.
                     Err(SwapError::Expired | SwapError::Simulation(_)) if attempt == 0 => {
                         attempt += 1;
@@ -98,6 +103,7 @@ async fn run_entry(
         CleanupCategory::Empty => {}
         CleanupCategory::Unsupported => return Err(changed("unsupported plan entry")),
     }
+
     // Never assume a swap or burn consumed the particular account's entire balance.
     let empty = executor
         .refresh(&entry.asset.account.address, owner)
@@ -136,6 +142,10 @@ async fn run_entry(
     Ok(())
 }
 
+/// Return per-account outcomes after sequentially executing the approved plan.
+/// Rejects a mismatched signer; individual failures retain receipts and do not stop unrelated
+/// mints.
+/// Uncertain submissions block further actions for that mint, without automatic resubmission.
 pub async fn execute_plan(
     plan: &CleanupPlan,
     provider: &impl SwapProvider,
@@ -151,6 +161,7 @@ pub async fn execute_plan(
         accounting_complete: true,
         ..Default::default()
     };
+
     // One account and one transaction at a time. Partial successes are retained.
     let mut unresolved_mints = std::collections::BTreeSet::new();
     for entry in &plan.entries {
@@ -163,6 +174,7 @@ pub async fn execute_plan(
             operations: vec![],
             uncertain_signature: None,
         };
+
         // Enforce both saved approval and current restrictions before any RPC mutation.
         let protected = plan
             .selection
@@ -179,6 +191,8 @@ pub async fn execute_plan(
             report.results.push(result);
             continue;
         }
+
+        // Avoid another economic action for a mint whose previous submission is unresolved.
         if unresolved_mints.contains(&entry.asset.account.mint) {
             result.reason = "previous transaction for this mint is unresolved; skipped".into();
             report.skipped += 1;
@@ -220,6 +234,8 @@ pub async fn execute_plan(
         } else {
             report.skipped += 1;
         }
+
+        // Sum observed receipts only; estimates never replace missing transaction accounting.
         for receipt in &result.operations {
             if receipt.operation == CleanupOperation::Swap {
                 if let Some(delta) = receipt.wallet_delta_lamports {
@@ -238,6 +254,8 @@ pub async fn execute_plan(
         }
         report.results.push(result);
     }
+
+    // Include undecodable accounts in the final skipped list rather than hiding them.
     for unknown in &plan.unparsed_accounts {
         report.skipped += 1;
         report.results.push(AccountCleanupResult {

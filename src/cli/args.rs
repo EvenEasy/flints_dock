@@ -11,14 +11,18 @@ pub struct WalletArgs {
     /// Read-only wallet address
     #[arg(short, long, help_heading = "Wallet (choose one)")]
     pub pubkey: Option<Pubkey>,
+
     /// Local Solana JSON keypair; also derives the address for read-only commands
     #[arg(long, help_heading = "Wallet (choose one)")]
     pub keypair: Option<PathBuf>,
+
     /// Base64 of exactly 32 Ed25519 seed bytes; never transmitted to providers
     #[arg(long, help_heading = "Wallet (choose one)")]
     pub seed: Option<String>,
 }
 impl WalletArgs {
+    /// Return the wallet identity derived from exactly one configured input source.
+    /// Rejects missing or conflicting sources and propagates sanitized key-loading errors.
     pub fn resolve(&self) -> anyhow::Result<WalletIdentity> {
         // Validate here too so programmatic callers get the same identity contract.
         anyhow::ensure!(
@@ -75,6 +79,7 @@ impl QuoteArgs {
 pub struct ExecutionArgs {
     #[arg(long, default_value_t = 90, value_parser = clap::value_parser!(u64).range(1..=600), help_heading = "Execution policy")]
     pub confirmation_timeout_seconds: u64,
+
     /// Priority fee cap; excludes base fee and rent
     #[arg(long, default_value_t = 1_000_000, help_heading = "Execution policy")]
     pub max_priority_fee_lamports: u64,
@@ -88,6 +93,7 @@ impl ExecutionArgs {
         }
     }
 }
+
 pub fn swap_provider() -> anyhow::Result<crate::infra::jupiter::Jupiter> {
     crate::infra::jupiter::Jupiter::new(std::env::var("JUPITER_API_KEY").unwrap_or_default())
 }

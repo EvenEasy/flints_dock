@@ -1,3 +1,4 @@
+/// Distinguish route and validation failures from submission or confirmation uncertainty.
 #[derive(Debug, thiserror::Error)]
 pub enum SwapError {
     #[error("Invalid swap request: {0}")]
@@ -29,9 +30,13 @@ pub enum SwapError {
     )]
     Uncertain { signature: String, reason: String },
 }
+
+/// Use the shared semantic error type across swap and cleanup operations.
 pub type Result<T> = std::result::Result<T, SwapError>;
 
 use serde::Serialize;
+
+/// Distinguish complete, partial, failed, unsupported and intentionally skipped discovery.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "status", content = "reason", rename_all = "snake_case")]
 pub enum ScanStatus {

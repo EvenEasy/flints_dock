@@ -2,6 +2,8 @@ use super::{amount::exact_amount, error::*};
 use serde::Serialize;
 use solana_pubkey::Pubkey;
 use std::time::{Duration, Instant};
+
+/// Bind an exact input mint and raw amount to a wallet and slippage limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SwapRequest {
     pub mint: Pubkey,
@@ -10,6 +12,8 @@ pub struct SwapRequest {
     pub slippage_bps: u16,
 }
 impl SwapRequest {
+    /// Validate an exact-input token-to-SOL request.
+    /// Returns `InvalidRequest` for zero input, WSOL input or slippage outside 1–10,000 bps.
     pub fn validate(&self) -> Result<()> {
         if self.raw_amount == 0 || self.mint.to_string() == crate::core::asset::WRAPPED_SOL {
             return Err(SwapError::InvalidRequest(
@@ -25,6 +29,7 @@ impl SwapRequest {
     }
 }
 
+/// Keep price impact, quote age, fees and confirmation time within execution limits.
 #[derive(Debug, Clone)]
 pub struct SwapLimits {
     pub max_price_impact_bps: u16,
@@ -43,6 +48,7 @@ impl Default for SwapLimits {
     }
 }
 
+/// Expose provider-independent output estimates, minimum amounts and route information.
 #[derive(Debug, Clone, Serialize)]
 pub struct SwapQuote {
     pub input_mint: String,
@@ -65,6 +71,9 @@ impl SwapQuote {
         self.min_out_sol = exact_amount(self.min_out_lamports.into(), 9);
         self
     }
+
+    /// Return an error when absolute quote impact exceeds `limits.max_price_impact_bps`.
+    /// The quote stores impact as a percentage; the configured limit uses basis points.
     pub fn check_impact(&self, limits: &SwapLimits) -> Result<()> {
         if self.price_impact_pct.abs() > f64::from(limits.max_price_impact_bps) / 100.0 {
             return Err(SwapError::PriceImpact {
@@ -76,6 +85,7 @@ impl SwapQuote {
     }
 }
 
+/// Pair a validated quote with transaction ingredients and its request timestamp.
 pub struct PreparedSwap {
     pub request: SwapRequest,
     pub quote: SwapQuote,
@@ -83,6 +93,7 @@ pub struct PreparedSwap {
     pub requested_at: Instant,
 }
 impl PreparedSwap {
+    /// Return `Expired` when elapsed time since the request reaches the configured maximum age.
     pub fn ensure_fresh(&self, limits: &SwapLimits) -> Result<()> {
         if self.requested_at.elapsed() >= limits.max_quote_age {
             Err(SwapError::Expired)
@@ -97,6 +108,8 @@ pub struct SwapPreview {
     pub(crate) request: SwapRequest,
     pub quote: SwapQuote,
 }
+
+/// Report the confirmed signature and the fresh quote used for execution.
 #[derive(Debug, Serialize)]
 pub struct SwapReceipt {
     pub status: &'static str,

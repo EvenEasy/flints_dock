@@ -27,6 +27,8 @@ fn pubkey(value: &str) -> Result<Pubkey> {
     value.parse().map_err(invalid)
 }
 
+/// Return the wallet ATA PDA for a mint and its token program.
+/// Seeds include the token program so legacy SPL and Token-2022 addresses remain distinct.
 pub fn associated_address(owner: &Pubkey, mint: &Pubkey, program: TokenProgram) -> Pubkey {
     Pubkey::find_program_address(
         &[owner.as_ref(), program.id().as_ref(), mint.as_ref()],
@@ -35,6 +37,9 @@ pub fn associated_address(owner: &Pubkey, mint: &Pubkey, program: TokenProgram) 
     .0
 }
 
+/// Return a full-balance BurnChecked instruction using verified mint decimals.
+/// Rejects ineligible, empty or native-backed accounts; `owner` must satisfy cleanup authority
+/// checks.
 pub fn burn_instruction(asset: &CleanupAsset, owner: &Pubkey) -> Result<Instruction> {
     if let Some(reason) = unsupported_reason(asset, &owner.to_string()) {
         return Err(invalid(reason));
@@ -56,6 +61,9 @@ pub fn burn_instruction(asset: &CleanupAsset, owner: &Pubkey) -> Result<Instruct
     )
     .map_err(invalid)
 }
+
+/// Return a CloseAccount instruction paying the selected owner wallet.
+/// Rejects nonempty or ineligible accounts instead of assuming a prior swap or burn emptied them.
 pub fn close_instruction(asset: &CleanupAsset, owner: &Pubkey) -> Result<Instruction> {
     if let Some(reason) = unsupported_reason(asset, &owner.to_string()) {
         return Err(invalid(reason));
@@ -73,9 +81,10 @@ pub fn close_instruction(asset: &CleanupAsset, owner: &Pubkey) -> Result<Instruc
     .map_err(invalid)
 }
 
-/// Move exactly this auxiliary account's balance into the default Jupiter input ATA.
-/// These instructions and the swap share one atomic transaction, including removal
-/// of a newly created staging ATA. Existing ATA holdings are not added to inAmount.
+/// Return `(prefix, suffix)` instructions for an account-scoped swap through the input ATA.
+/// When `ata_exists` is false, create and later close a staging ATA. Existing ATA balances
+/// are not included in the swap amount. Both lists must surround the swap in one atomic
+/// transaction.
 pub fn source_instructions(
     asset: &CleanupAsset,
     owner: &Pubkey,
@@ -127,8 +136,9 @@ pub fn source_instructions(
     Ok((prefix, suffix))
 }
 
-/// Extract observed wallet movement and actual closed-account lamports from confirmed
-/// metadata. Missing metadata remains unknown; quote estimates never become receipts.
+/// Return `(wallet_delta, reclaimed_lamports)` from successful confirmed transaction metadata.
+/// `closed_account` selects a source whose pre-balance is counted only when its post-balance
+/// is zero. Missing metadata stays `None`; wallet delta includes transaction fees and rent effects.
 pub fn transaction_accounting(
     value: &Value,
     owner: &str,
@@ -142,6 +152,9 @@ pub fn transaction_accounting(
         return (None, None);
     };
     let mut keys: Vec<_> = keys.iter().filter_map(Value::as_str).collect();
+
+    // Versioned transaction balances index static keys first, then loaded writable and readonly
+    // keys.
     for group in ["writable", "readonly"] {
         keys.extend(
             meta["loadedAddresses"][group]
@@ -171,6 +184,7 @@ async fn receipt(
     owner: &Pubkey,
     source: &str,
 ) -> OperationReceipt {
+    // Accounting may lag confirmation; missing metadata must not invalidate a confirmed receipt.
     let value: std::result::Result<Option<Value>, _> = rpc.send(RpcRequest::GetTransaction,
         json!([signature, {"encoding":"json","commitment":"confirmed","maxSupportedTransactionVersion":0}])).await;
     let (wallet_delta_lamports, reclaimed_lamports) = value
@@ -241,6 +255,8 @@ impl CleanupExecutor for RpcClient {
         limits: &SwapLimits,
     ) -> Result<OperationReceipt> {
         let owner = signer.pubkey();
+
+        // Recheck state after quote latency; never transfer or burn a newly changed balance.
         let current = self
             .refresh(&asset.account.address, &owner)
             .await?
@@ -283,6 +299,8 @@ impl CleanupExecutor for RpcClient {
                     return Err(invalid("swap does not match source"));
                 }
                 let ata = associated_address(&owner, &fresh.request.mint, current.account.program);
+
+                // Validate the default input ATA before moving an auxiliary balance into it.
                 let ata_state = if ata.to_string() == current.account.address {
                     Some(current.clone())
                 } else {

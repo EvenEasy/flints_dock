@@ -12,6 +12,9 @@ use spl_token_2022_interface::{
 };
 
 pub use crate::core::asset::assess_closure;
+
+/// Return raw token state with authorities, extensions and conditional closure eligibility.
+/// Validates the selected program and wallet owner; mint decimals remain unset until enrichment.
 pub fn parse_account(
     account: &RpcKeyedAccount,
     program: TokenProgram,
@@ -27,6 +30,7 @@ pub fn parse_account(
         .data
         .decode()
         .context("Cannot decode token account")?;
+
     // StateWithExtensions also accepts the legacy 165-byte base account. Never
     // impose that length on Token-2022 accounts: their TLV tail is variable.
     let state = StateWithExtensions::<Account>::unpack(&data)?;
@@ -39,6 +43,7 @@ pub fn parse_account(
         .iter()
         .map(|kind| format!("{kind:?}"))
         .collect();
+
     // Decimals are unknown until the batched mint lookup. This decoder call is
     // used only for extension details; its UI amount is deliberately discarded.
     let decoded = serde_json::to_value(parse_token_v3(
@@ -70,6 +75,9 @@ pub fn parse_account(
     Ok(result)
 }
 
+/// Return independently decoded accounts from the selected token program.
+/// Unreadable accounts remain in `unknown`; confidential balances are marked incomplete, not
+/// decrypted.
 pub async fn get_token_accounts(
     rpc: &RpcClient,
     owner: &Pubkey,
@@ -80,6 +88,8 @@ pub async fn get_token_accounts(
         Err(error) => return ScanCollection::failed(error.to_string()),
     };
     let mut result = ScanCollection::complete(Vec::new());
+
+    // Decode accounts independently and retain failures with their original addresses.
     for account in accounts {
         match parse_account(&account, program, owner) {
             Ok(account) => {

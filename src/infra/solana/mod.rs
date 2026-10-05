@@ -15,15 +15,20 @@ use solana_rpc_client_api::{
 };
 use std::collections::BTreeMap;
 
+/// Convert a Metaplex SDK public key into the RPC SDK type without changing its bytes.
+/// The SDK versions use distinct Rust types for the same on-chain address.
 pub fn to_rpc(key: solana_pubkey_v2::Pubkey) -> Pubkey {
-    // Token Metadata 5.1.1 uses Pubkey v2; the RPC client uses v4.
-    // Core uses another version and converts its program ID directly by bytes.
     Pubkey::new_from_array(key.to_bytes())
 }
+
+/// Convert an RPC SDK key into the public-key version expected by Metaplex PDA helpers.
 pub fn to_metaplex(key: Pubkey) -> solana_pubkey_v2::Pubkey {
     solana_pubkey_v2::Pubkey::new_from_array(key.to_bytes())
 }
 
+/// Return raw owner token accounts for the specified legacy or Token-2022 program.
+/// Uses base64 and confirmed commitment so unavailable RPC mint parsing cannot hide accounts.
+/// RPC errors propagate; an empty vector means successful discovery with no matches.
 pub async fn token_accounts(
     rpc: &RpcClient,
     owner: &Pubkey,
@@ -48,6 +53,8 @@ pub fn memcmp(offset: usize, bytes: Vec<u8>) -> RpcFilterType {
     RpcFilterType::Memcmp(Memcmp::new_raw_bytes(offset, bytes))
 }
 
+/// Return base64 program accounts matching the supplied byte filters.
+/// Uses the client commitment and propagates RPC failures instead of reporting an empty scan.
 pub async fn program_accounts(
     rpc: &RpcClient,
     program: &Pubkey,
@@ -68,8 +75,11 @@ pub async fn program_accounts(
         .await?)
 }
 
+/// Keep each requested address mapped to an account, absence or retrieval error.
 pub type AccountBatch = BTreeMap<Pubkey, Result<Option<Account>, String>>;
 
+/// Return one result per unique address, fetched in batches of at most 100 accounts.
+/// `Ok(None)` means absent; `Err` means unreadable. A failed batch does not erase other results.
 pub async fn multiple_accounts(rpc: &RpcClient, keys: &[Pubkey]) -> AccountBatch {
     let keys: Vec<_> = keys
         .iter()
@@ -78,6 +88,7 @@ pub async fn multiple_accounts(rpc: &RpcClient, keys: &[Pubkey]) -> AccountBatch
         .into_iter()
         .collect();
     let mut output = BTreeMap::new();
+
     // Standard getMultipleAccounts accepts at most 100 addresses. A failed batch
     // must not discard successful batches or turn unavailable data into absence.
     for chunk in keys.chunks(100) {

@@ -2,6 +2,9 @@ use super::Jupiter;
 use crate::{app::pricing::PriceProvider, core::*};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
+
+/// Return a Jupiter unit price only when USD is finite, nonnegative and decimals fit `u8`.
+/// Malformed or missing price fields return `None` rather than a fabricated zero.
 pub fn parse_quote(value: &Value) -> Option<Price> {
     let usd = value["usdPrice"].as_f64()?;
     if !usd.is_finite() || usd < 0.0 {
@@ -26,6 +29,7 @@ impl PriceProvider for Jupiter {
         let mut quotes = BTreeMap::new();
         let mut errors = Vec::new();
         let mut successes = 0;
+
         // Price V3 takes at most 50 IDs; each mint is requested once per run.
         for batch in unique.chunks(50) {
             let response = async {
@@ -51,6 +55,8 @@ impl PriceProvider for Jupiter {
                 Err(error) => errors.push(error.without_url().to_string()),
             }
         }
+
+        // Distinguish provider outage from partial coverage; unquoted mints remain unvalued.
         let status = if !errors.is_empty() && successes == 0 {
             ScanStatus::Failed(errors.join("; "))
         } else if !errors.is_empty() || quotes.len() < unique.len() {

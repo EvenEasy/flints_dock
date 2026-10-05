@@ -12,6 +12,7 @@ pub fn integer_string<T: ToString, S: serde::Serializer>(
     serializer.serialize_str(&value.to_string())
 }
 
+/// Distinguish legacy SPL accounts from Token-2022 accounts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TokenProgram {
@@ -28,6 +29,7 @@ impl TokenProgram {
     }
 }
 
+/// Retain raw balance, authorities, extensions and closure eligibility for one account.
 #[derive(Debug, Clone, Serialize)]
 pub struct TokenAccount {
     pub address: String,
@@ -37,6 +39,7 @@ pub struct TokenAccount {
     pub owner: String,
     #[serde(serialize_with = "integer_string")]
     pub raw_amount: u64,
+
     // A missing/undecodable mint must never manufacture a decimal count.
     pub decimals: Option<u8>,
     pub lamports: u64,
@@ -58,6 +61,7 @@ impl TokenAccount {
     }
 }
 
+/// Explain whether the wallet can potentially reclaim an account balance.
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "status", content = "reason", rename_all = "snake_case")]
 pub enum ClosureAssessment {
@@ -66,6 +70,7 @@ pub enum ClosureAssessment {
     NeedsReview(String),
 }
 
+/// Store optional labels and collection information without using them as asset identity.
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct TokenMetadata {
     pub name: Option<String>,
@@ -77,6 +82,7 @@ pub struct TokenMetadata {
     pub collection: Option<CollectionInfo>,
 }
 
+/// Keep verified mint decimals, supply, authorities and extension information.
 #[derive(Debug, Clone, Serialize)]
 pub struct MintInfo {
     pub mint: String,
@@ -91,6 +97,7 @@ pub struct MintInfo {
     pub extension_types: Vec<String>,
 }
 
+/// Describe fungible and NFT semantics established by on-chain classification.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AssetKind {
@@ -135,6 +142,7 @@ impl AssetKind {
     }
 }
 
+/// Represent a classified token holding while retaining its backing account addresses.
 #[derive(Debug, Clone, Serialize)]
 pub struct TokenAsset {
     pub mint: String,
@@ -150,6 +158,7 @@ pub struct TokenAsset {
     pub value_usd: Option<f64>,
 }
 
+/// Keep native SOL holdings separate from optional USD estimates.
 #[derive(Debug, Serialize)]
 pub struct NativeBalance {
     pub lamports: u64,
@@ -157,6 +166,7 @@ pub struct NativeBalance {
     pub value_usd: Option<f64>,
 }
 
+/// Describe a verified classic or programmable NFT and its backing accounts.
 #[derive(Debug, Clone, Serialize)]
 pub struct NftAsset {
     pub mint: String,
@@ -167,6 +177,7 @@ pub struct NftAsset {
     pub evidence: String,
 }
 
+/// Retain the decoded MPL Core asset and its collection and plugin discovery status.
 #[derive(Debug, Serialize)]
 pub struct CoreAsset {
     pub address: String,
@@ -180,6 +191,7 @@ pub struct CoreAsset {
     pub plugins_status: ScanStatus,
 }
 
+/// Preserve unrecognized or undecodable data with an explicit explanation.
 #[derive(Debug, Clone, Serialize)]
 pub struct UnknownAsset {
     pub address: String,
@@ -189,6 +201,7 @@ pub struct UnknownAsset {
     pub data: Option<Value>,
 }
 
+/// Represent an approximate unit price with its source and expected token decimals.
 #[derive(Debug, Clone, Serialize)]
 pub struct Price {
     // Prices and valuations are approximate; canonical holdings remain integers.
@@ -198,12 +211,14 @@ pub struct Price {
     pub decimals: u8,
 }
 
+/// Return available mint prices alongside the provider lookup status.
 #[derive(Debug, Serialize)]
 pub struct PriceReport {
     pub status: ScanStatus,
     pub quotes: BTreeMap<String, Price>,
 }
 
+/// Expose raw account counts and conditional lamport recovery estimates.
 #[derive(Debug, Serialize)]
 pub struct AccountSummary {
     pub token_accounts: usize,
@@ -215,6 +230,7 @@ pub struct AccountSummary {
     pub closure_review_accounts: usize,
 }
 
+/// Associate verified mint metadata with optional NFT evidence.
 #[derive(Debug, Serialize)]
 pub struct MetadataRecord {
     pub mint: String,
@@ -222,6 +238,7 @@ pub struct MetadataRecord {
     pub nft: Option<NftAsset>,
 }
 
+/// Preserve the collection address and whether its relationship was verified.
 #[derive(Debug, Clone, Serialize)]
 pub struct CollectionInfo {
     pub address: String,
@@ -229,6 +246,10 @@ pub struct CollectionInfo {
 }
 
 pub const WRAPPED_SOL: &str = "So11111111111111111111111111111111111111112";
+
+/// Return whether the wallet may reclaim an empty account under supported token rules.
+/// Checks effective close authority and extensions; nonempty WSOL is not counted as recoverable
+/// rent.
 pub fn assess_closure(account: &TokenAccount, wallet: &str) -> ClosureAssessment {
     if account.close_authority.as_deref().unwrap_or(&account.owner) != wallet {
         return ClosureAssessment::NotReclaimable("Wallet is not the close authority".into());

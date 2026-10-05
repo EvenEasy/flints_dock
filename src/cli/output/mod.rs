@@ -3,6 +3,7 @@ pub mod console;
 pub mod json;
 use crate::core::*;
 
+/// Control presentation details without altering discovery or cleanup eligibility.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct OutputOptions {
     pub show_mint: bool,
@@ -18,6 +19,7 @@ pub fn visible_tokens<'a>(
     visible_token_assets(&portfolio.tokens, options)
 }
 
+/// Filter empty rows and sort priced holdings without modifying the snapshot.
 pub fn visible_token_assets<'a>(
     assets: &'a [TokenAsset],
     options: &OutputOptions,
@@ -55,6 +57,7 @@ pub fn token_name(token: &TokenAsset) -> &str {
         .unwrap_or("Unknown token")
 }
 
+/// Provide a shared presentation view over classic and Core NFT records.
 pub struct NftRow<'a> {
     pub name: &'a str,
     pub kind: &'static str,
@@ -65,6 +68,7 @@ pub struct NftRow<'a> {
     pub lamports: u128,
 }
 
+/// Combine supported NFT kinds into stable rows with their backing account lamports.
 pub fn nft_rows(portfolio: &WalletSnapshot) -> Vec<NftRow<'_>> {
     let mut rows: Vec<_> = portfolio
         .classic_nfts

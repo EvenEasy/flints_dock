@@ -2,7 +2,11 @@ use crate::core::PriceReport;
 
 // Static dispatch keeps the single optional provider simple, while allowing
 // deterministic providers in consumers/tests without an object-safe async layer.
+
+/// Define the replaceable boundary for optional mint-based USD pricing.
 pub trait PriceProvider {
+    /// Return available mint prices together with lookup completeness.
+    /// Missing quotes remain unvalued; provider failures must not be converted to zero prices.
     fn get_prices(&self, mints: &[String])
     -> impl std::future::Future<Output = PriceReport> + Send;
 }
@@ -10,6 +14,8 @@ pub trait PriceProvider {
 use crate::core::asset::WRAPPED_SOL;
 use crate::{core::amount::approximate_value, core::*};
 
+/// Attach compatible USD quotes to the snapshot and return the pricing status.
+/// Excludes NFT, unknown and extension-scaled units; missing prices never alter raw holdings.
 pub async fn price_portfolio<P: PriceProvider>(
     portfolio: &mut WalletSnapshot,
     no_prices: bool,
@@ -18,6 +24,8 @@ pub async fn price_portfolio<P: PriceProvider>(
     if no_prices {
         return ScanStatus::Skipped("Disabled by --no-prices".into());
     }
+
+    // Exclude extension-dependent units that cannot safely use ordinary decimal pricing.
     let special_mints: std::collections::BTreeSet<_> = portfolio
         .mints
         .iter()
@@ -28,6 +36,7 @@ pub async fn price_portfolio<P: PriceProvider>(
         })
         .map(|info| info.mint.as_str())
         .collect();
+
     // Only quote balances that can actually be valued in the selected categories.
     let mut mints: Vec<_> = portfolio
         .tokens
@@ -52,6 +61,8 @@ pub async fn price_portfolio<P: PriceProvider>(
         return ScanStatus::Skipped("No price provider configured".into());
     };
     let mut report = provider.get_prices(&mints).await;
+
+    // Value native SOL only when the provider quote has the expected decimals.
     if let Some(native) = &mut portfolio.native_sol
         && let Some(quote) = report
             .quotes

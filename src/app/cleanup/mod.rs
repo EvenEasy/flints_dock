@@ -6,13 +6,20 @@ use crate::{app::swap::*, core::*};
 use solana_keypair::Keypair;
 use solana_pubkey::Pubkey;
 use std::time::Duration;
+
 /// Application-facing chain boundary. Planning never receives this executor.
 pub trait CleanupExecutor {
+    /// Return current, enriched account state, or `None` if the account is absent.
+    /// Unreadable state must be an error, not absence.
     fn refresh(
         &self,
         address: &str,
         owner: &Pubkey,
     ) -> impl std::future::Future<Output = Result<Option<CleanupAsset>>> + Send;
+
+    /// Execute one operation and return its confirmed receipt.
+    /// Swap requires matching fresh route data; each operation must revalidate the source
+    /// and preserve a submitted signature when confirmation is uncertain.
     fn perform(
         &self,
         operation: CleanupOperation,
@@ -23,8 +30,9 @@ pub trait CleanupExecutor {
     ) -> impl std::future::Future<Output = Result<OperationReceipt>> + Send;
 }
 
-/// Complete read-only scenario: discover backing accounts, restrict selection,
-/// enrich/classify and quote. No signer or transaction executor is accepted.
+/// Discover backing accounts and return a read-only, account-scoped cleanup plan.
+/// `options.selection` restricts accounts and protects mints. A requested account not found
+/// in discovery is an error; partial discovery remains explicit in the returned plan.
 pub async fn plan_wallet(
     reader: &impl crate::app::scan_wallet::WalletReader,
     owner: &Pubkey,
@@ -51,6 +59,9 @@ pub async fn plan_wallet(
         .into_iter()
         .filter(|asset| selected(&asset.account.address))
         .collect();
+
+    // Keep undecodable backing accounts visible without treating metadata-only audit records as
+    // accounts.
     let unknown: Vec<_> = portfolio
         .unknown_assets
         .iter()
@@ -59,6 +70,8 @@ pub async fn plan_wallet(
         })
         .cloned()
         .collect();
+
+    // Fail an explicit selection if discovery cannot establish that the wallet owns it.
     for address in &options.selection.accounts {
         if !portfolio
             .token_accounts

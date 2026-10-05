@@ -9,6 +9,9 @@ use solana_signer::Signer;
 use solana_transaction::versioned::VersionedTransaction;
 use std::time::Duration;
 
+/// Submit the signed transaction and return its confirmed signature.
+/// `expiry` is the last valid block height. A timeout, transport failure or unobserved
+/// expiry returns `Uncertain` with the original signature; no new transaction is built.
 pub async fn send_confirm(
     rpc: &RpcClient,
     transaction: &VersionedTransaction,
@@ -21,6 +24,8 @@ pub async fn send_confirm(
         signature: signature.to_string(),
         reason,
     };
+
+    // Submit the existing signed transaction with preflight enabled and bounded RPC retries.
     let sent = rpc
         .send_transaction_with_config(
             transaction,
@@ -36,12 +41,16 @@ pub async fn send_confirm(
     if sent != signature {
         return Err(uncertain("RPC returned a different signature".into()));
     }
+
+    // Poll the original signature until confirmed success, confirmed failure or expiry.
     let confirmation = async {
         loop {
             let statuses = rpc
                 .get_signature_statuses_with_history(&[signature])
                 .await
                 .map_err(|e| uncertain(e.to_string()))?;
+
+            // Accept a result only at the requested commitment level.
             if let Some(Some(status)) = statuses.value.first()
                 && status.satisfies_commitment(CommitmentConfig::confirmed())
             {
@@ -53,6 +62,8 @@ pub async fn send_confirm(
                 }
                 return Ok(signature.to_string());
             }
+
+            // Stop polling when the blockhash expires without observed confirmation.
             if rpc
                 .get_block_height()
                 .await
@@ -71,6 +82,9 @@ pub async fn send_confirm(
         .map_err(|_| uncertain("confirmation timeout".into()))?
 }
 
+/// Simulate a signed transaction and return a compute-unit limit with a 20% margin.
+/// Caps the result at 1,400,000 units and uses that cap when consumption is unavailable.
+/// RPC or execution failures return `Simulation` before any submission.
 pub async fn simulate(rpc: &RpcClient, transaction: &VersionedTransaction) -> Result<u32> {
     let result = rpc
         .simulate_transaction_with_config(
@@ -93,7 +107,9 @@ pub async fn simulate(rpc: &RpcClient, transaction: &VersionedTransaction) -> Re
         .unwrap_or(1_400_000))
 }
 
-/// Burn and close use the same simulation, preflight and confirmation rules as swaps.
+/// Build, sign, simulate and confirm local burn or close instructions.
+/// Returns the confirmed signature and applies the same preflight, expiry and uncertainty
+/// rules as swaps. Instruction eligibility must be checked by the caller.
 pub async fn send_instructions(
     rpc: &RpcClient,
     signer: &Keypair,
@@ -112,6 +128,8 @@ pub async fn send_instructions(
         VersionedTransaction::try_new(VersionedMessage::V0(message), &[signer])
             .map_err(|e| SwapError::InvalidRequest(e.to_string()))
     };
+
+    // Use simulation consumption to rebuild the same operation with an appropriate compute limit.
     let initial = compile(1_400_000)?;
     let units = simulate(rpc, &initial).await?;
     let transaction = compile(units)?;

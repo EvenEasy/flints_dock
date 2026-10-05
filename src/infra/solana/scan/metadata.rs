@@ -10,6 +10,8 @@ use spl_token_2022_interface::{
 };
 use std::collections::BTreeMap;
 
+/// Return verified mint supply, decimals, authorities and embedded Token-2022 metadata.
+/// Rejects wrong program owners or invalid layouts; external metadata pointers are not fetched.
 pub fn parse_mint(key: &Pubkey, account: &Account, program: TokenProgram) -> Result<MintInfo> {
     ensure!(
         account.owner == program.id(),
@@ -60,11 +62,16 @@ pub fn parse_mint(key: &Pubkey, account: &Account, program: TokenProgram) -> Res
     })
 }
 
+/// Fetch unique mint records and update account decimals only from verified matches.
+/// Returns partial status for failed or invalid mints while preserving successfully decoded
+/// records.
 pub async fn get_mints(rpc: &RpcClient, accounts: &mut [TokenAccount]) -> ScanCollection<MintInfo> {
     let keys: BTreeMap<Pubkey, TokenProgram> = accounts
         .iter()
         .filter_map(|account| account.mint.parse().ok().map(|key| (key, account.program)))
         .collect();
+
+    // Deduplicate mint reads while preserving absence separately from failed RPC batches.
     let fetched =
         crate::infra::solana::multiple_accounts(rpc, &keys.keys().copied().collect::<Vec<_>>())
             .await;

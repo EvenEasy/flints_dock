@@ -9,6 +9,8 @@ use solana_pubkey::Pubkey;
 use solana_rpc_client::nonblocking::rpc_client::RpcClient;
 use std::collections::BTreeMap;
 
+/// Return decoded Metaplex metadata after validating its program, discriminator and mint.
+/// The caller resolves the expected PDA; mismatched or malformed account data is an error.
 pub fn decode_metadata(account: &Account, mint: &Pubkey) -> Result<Metadata> {
     ensure!(
         account.owner == crate::infra::solana::to_rpc(mpl_token_metadata::ID),
@@ -26,20 +28,23 @@ pub fn decode_metadata(account: &Account, mint: &Pubkey) -> Result<Metadata> {
     Ok(metadata)
 }
 
+/// Return `Some(true)` for an edition and `Some(false)` for a valid master edition.
+/// Returns `None` for wrong owners, discriminators or incomplete legacy V1 layouts.
 pub fn edition_evidence(account: &Account) -> Option<bool> {
     if account.owner != crate::infra::solana::to_rpc(mpl_token_metadata::ID) {
         return None;
     }
+
     // Generated Borsh decoders don't validate discriminators: check them explicitly.
     if let Ok(edition) = Edition::from_bytes(&account.data)
         && edition.key == Key::EditionV1
     {
         return Some(true);
     }
+    // V1 appends two printing mint keys after the common prefix; optional max_supply
+    // shifts that prefix by eight bytes, so a decoded prefix alone is insufficient.
     if let Ok(master) = MasterEdition::from_bytes(&account.data)
         && matches!(master.key, Key::MasterEditionV1 | Key::MasterEditionV2)
-        // V1 appends two printing mint keys after the common prefix. Its
-        // optional max_supply changes that prefix length by eight bytes.
         && (master.key != Key::MasterEditionV1
             || account.data.len() >= 74 + usize::from(master.max_supply.is_some()) * 8)
     {
@@ -48,6 +53,9 @@ pub fn edition_evidence(account: &Account) -> Option<bool> {
     None
 }
 
+/// Return verified Metaplex records for token mints using batched PDA reads.
+/// Legacy NFT candidates without TokenStandard require valid edition evidence. Missing metadata
+/// is allowed; RPC and decoding failures produce partial status rather than NFT assumptions.
 pub async fn get_metadata(
     rpc: &RpcClient,
     tokens: &[TokenAccount],
@@ -79,6 +87,9 @@ pub async fn get_metadata(
             _ => {} // No metadata is a valid result, not proof of NFT or fungibility.
         }
     }
+
+    // Zero decimals and one raw unit are candidates only; verified metadata or edition evidence is
+    // still required.
     let candidate = |mint: &Pubkey| {
         mints
             .iter()
@@ -87,6 +98,8 @@ pub async fn get_metadata(
                 token.mint == mint.to_string() && token.raw_amount == 1 && token.decimals == Some(0)
             })
     };
+
+    // Resolve edition PDAs only for legacy candidates whose metadata lacks TokenStandard.
     let editions: BTreeMap<_, _> = decoded
         .iter()
         .filter(|(mint, data)| data.token_standard.is_none() && candidate(mint))
@@ -121,6 +134,8 @@ pub async fn get_metadata(
             }),
         };
         let mut nft = None;
+
+        // Validate NFT semantics before attaching a record to the NFT inventory.
         if candidate(&mint) {
             let verified = match &data.token_standard {
                 Some(standard) if standard_kind(standard).is_nft() => Some((
@@ -186,6 +201,8 @@ pub async fn get_metadata(
     result
 }
 
+/// Map a Metaplex TokenStandard into the core asset kind.
+/// Callers still need to validate mint supply, decimals and account balance semantics.
 pub fn standard_kind(standard: &TokenStandard) -> AssetKind {
     match standard {
         TokenStandard::Fungible => AssetKind::Fungible,

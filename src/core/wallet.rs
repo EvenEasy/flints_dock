@@ -3,6 +3,7 @@ use super::error::ScanStatus;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
+/// Return decoded items alongside partial failures and unrecognized account data.
 #[derive(Debug, Serialize)]
 pub struct ScanCollection<T> {
     pub status: ScanStatus,
@@ -39,6 +40,7 @@ impl<T> ScanCollection<T> {
     }
 }
 
+/// Choose which wallet categories need discovery and enrichment.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct ScanSelection {
     pub balance: bool,
@@ -52,6 +54,7 @@ impl ScanSelection {
     pub const ALL: Self = Self {
         balance: true,
         tokens: true,
+
         // The raw view overlaps the semantic categories and is explicitly opt-in.
         all_tokens: false,
         nfts: true,
@@ -62,14 +65,18 @@ impl ScanSelection {
         !self.balance && !self.tokens && !self.all_tokens && !self.nfts && !self.cnfts
     }
 
+    /// Request shared token discovery only for categories that depend on backing accounts.
     pub fn needs_token_accounts(self) -> bool {
         self.tokens || self.all_tokens || self.nfts
     }
+
+    /// Enable optional pricing only when selected categories contain priceable balances.
     pub fn needs_prices(self) -> bool {
         self.balance || self.tokens || self.all_tokens
     }
 }
 
+/// Configure discovery categories and whether external pricing is allowed.
 #[derive(Debug, Clone, Copy)]
 pub struct ScanOptions {
     pub selection: ScanSelection,
@@ -85,6 +92,7 @@ impl Default for ScanOptions {
     }
 }
 
+/// Collect normalized wallet holdings, enrichment results and per-scanner status.
 #[derive(Debug)]
 pub struct WalletSnapshot {
     pub selected: ScanSelection,
@@ -115,6 +123,7 @@ impl WalletSnapshot {
     }
 }
 
+/// Share account, mint and metadata discovery across token and NFT views.
 pub struct TokenInventory {
     pub accounts: Vec<TokenAccount>,
     pub classification_accounts: Vec<TokenAccount>,
@@ -125,6 +134,8 @@ pub struct TokenInventory {
     pub scanners: BTreeMap<String, ScanStatus>,
 }
 
+/// Return a combined discovery status while preserving partial success.
+/// Component names are included in diagnostics; a wholly unusable set is reported as failed.
 pub fn combine_statuses(statuses: &[(&str, &ScanStatus)]) -> ScanStatus {
     if statuses.iter().all(|(_, status)| status.is_complete()) {
         return ScanStatus::Complete;

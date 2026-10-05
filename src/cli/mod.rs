@@ -17,6 +17,7 @@ pub enum Command {
     Scan(scan::ScanArgs),
     #[command(flatten)]
     Swap(swap::SwapCommand),
+
     /// Preview or explicitly execute swaps, burns and account closure
     Cleanup(cleanup::CleanupArgs),
 }
@@ -30,6 +31,7 @@ pub enum Command {
 pub struct Cli {
     #[command(subcommand)]
     pub command: Option<Command>,
+
     // Preserve the original `dock_flints -p WALLET` scan shorthand.
     #[command(flatten)]
     pub scan: scan::ScanArgs,
@@ -39,6 +41,8 @@ impl Cli {
         self.scan.scan_options()
     }
 }
+
+/// Dispatch the parsed command or run the default wallet scan.
 pub async fn run(cli: Cli) -> anyhow::Result<ExitCode> {
     match cli.command {
         Some(Command::Scan(args)) => scan::run(args).await,

@@ -14,6 +14,7 @@ use std::{
 pub enum SwapCommand {
     /// Preview a real token/native SOL route
     Quote(QuoteArgs),
+
     /// Preview, approve, rebuild and execute one swap
     Swap(ExecuteArgs),
 }
@@ -22,6 +23,7 @@ pub struct SwapArgs {
     /// Exact mint address, never a symbol
     #[arg(long)]
     pub mint: Pubkey,
+
     /// Integer token base units, before decimals
     #[arg(long, value_parser = clap::value_parser!(u64).range(1..))]
     pub raw_amount: u64,
@@ -48,6 +50,7 @@ pub struct ExecuteArgs {
     pub rpc: RpcArgs,
     #[command(flatten)]
     pub execution: ExecutionArgs,
+
     /// Approve the displayed minimum without an interactive prompt
     #[arg(long)]
     pub yes: bool,
@@ -100,6 +103,7 @@ async fn run_inner(command: SwapCommand) -> swap::Result<serde_json::Value> {
             let limits = args.execution.limits(&args.swap.quote);
             let rpc = args.rpc.client();
             let preview = swap::preview(&provider, &request, &limits).await?;
+
             // Preview/prompt are on stderr: stdout remains one JSON result when requested.
             write_quote(io::stderr().lock(), &preview.quote)
                 .map_err(|e| SwapError::InvalidRequest(e.to_string()))?;
@@ -137,6 +141,7 @@ async fn run_inner(command: SwapCommand) -> swap::Result<serde_json::Value> {
     }
 }
 
+/// Render swap results or semantic errors without mixing diagnostics into JSON stdout.
 pub async fn run(command: SwapCommand) -> anyhow::Result<ExitCode> {
     let format = match &command {
         SwapCommand::Quote(args) => args.swap.format,

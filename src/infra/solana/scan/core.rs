@@ -8,6 +8,9 @@ use solana_account_decoder::UiAccount;
 use solana_pubkey::Pubkey;
 use solana_rpc_client::nonblocking::rpc_client::RpcClient;
 
+/// Decode a wallet-owned MPL Core AssetV1 into a normalized asset record.
+/// Validates program, discriminator and owner; variable-length base data may retain plugin tails.
+/// Plugin permissions are not fully assessed.
 pub fn parse_asset(address: Pubkey, account: &UiAccount, owner: &Pubkey) -> Result<CoreAsset> {
     ensure!(
         account.owner == mpl_core::ID.to_string(),
@@ -34,6 +37,7 @@ pub fn parse_asset(address: Pubkey, account: &UiAccount, owner: &Pubkey) -> Resu
             }),
             _ => None,
         },
+
         // Base ownership is discoverable even with unknown future plugins. Plugin
         // authorities/collection inheritance may restrict transfer or burning.
         plugins_status: ScanStatus::Unsupported(
@@ -42,6 +46,9 @@ pub fn parse_asset(address: Pubkey, account: &UiAccount, owner: &Pubkey) -> Resu
     })
 }
 
+/// Return wallet-owned Core assets selected by discriminator and owner byte filters.
+/// Malformed records remain unknown and make discovery partial; RPC failure is not an empty
+/// inventory.
 pub async fn get_core_assets(rpc: &RpcClient, owner: &Pubkey) -> ScanCollection<CoreAsset> {
     // AssetV1: one-byte discriminator followed by the 32-byte owner. Do not
     // constrain dataSize: strings and plugin records make the size variable.
