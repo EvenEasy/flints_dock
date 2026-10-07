@@ -10,4 +10,3 @@ export const COMMANDS = {
 export async function analyzeWallet(request: AnalyzeWalletRequest): Promise<WalletAnalysis> {
   return invoke<WalletAnalysis>(COMMANDS.analyzeWallet, { request });
 }
-

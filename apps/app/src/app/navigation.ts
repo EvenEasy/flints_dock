@@ -1,14 +1,14 @@
 export const screens = [
-  { id: 'welcome', number: '01', label: 'Welcome', frame: 's01' },
-  { id: 'scanning', number: '02', label: 'Scanning wallet', frame: 's02' },
-  { id: 'summary', number: '03', label: 'Scan complete', frame: 's03' },
-  { id: 'tokens', number: '04', label: 'Swappable tokens', frame: 's04' },
-  { id: 'dead', number: '05', label: 'Dead tokens', frame: 's05' },
-  { id: 'nfts', number: '06', label: 'NFTs', frame: 's06' },
-  { id: 'manifest', number: '07', label: 'Cleanup manifest', frame: 's07' },
-  { id: 'confirm', number: '08', label: 'Confirm cleanup', frame: 's08' },
-  { id: 'salvage', number: '09', label: 'Salvage operation', frame: 's09' },
-  { id: 'success', number: '10', label: 'Cargo hold clean', frame: 's10' },
+  { id: 'welcome', label: 'Welcome', frame: 's01' },
+  { id: 'scanning', label: 'Scanning wallet', frame: 's02' },
+  { id: 'summary', label: 'Scan complete', frame: 's03' },
+  { id: 'tokens', label: 'Swappable tokens', frame: 's04' },
+  { id: 'dead', label: 'Dead tokens', frame: 's05' },
+  { id: 'nfts', label: 'NFTs', frame: 's06' },
+  { id: 'manifest', label: 'Cleanup manifest', frame: 's07' },
+  { id: 'confirm', label: 'Confirm cleanup', frame: 's08' },
+  { id: 'salvage', label: 'Salvage operation', frame: 's09' },
+  { id: 'success', label: 'Cargo hold clean', frame: 's10' },
 ] as const;
 
 export type ScreenId = (typeof screens)[number]['id'];

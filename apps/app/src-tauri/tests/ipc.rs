@@ -369,7 +369,9 @@ fn desktop(state: AppState) -> tauri::App<tauri::test::MockRuntime> {
     tauri::test::mock_builder()
         .manage(state)
         .invoke_handler(tauri::generate_handler![
-            dock_flints_app::commands::wallet::analyze_wallet
+            dock_flints_app::commands::wallet::analyze_wallet,
+            dock_flints_app::commands::identity::connect_wallet,
+            dock_flints_app::commands::identity::disconnect_wallet
         ])
         .build(tauri::generate_context!())
         .unwrap()
@@ -498,4 +500,119 @@ fn ipc_calls_existing_core_scanner_and_serializes_exact_rpc_lamports() {
         assert!(response["tokens"].is_null());
     }
     server.join().unwrap();
+}
+
+#[test]
+fn local_identity_sources_reuse_core_and_do_not_serialize_credentials() {
+    use dock_flints_app::dto::identity::ConnectWalletRequestDto;
+    let seed = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    let request: ConnectWalletRequestDto =
+        serde_json::from_value(json!({"source":{"kind":"seed","base64":seed}})).unwrap();
+    let identity = request.into_identity().unwrap();
+    assert!(identity.signer().is_ok());
+    let seed_address = identity.address;
+    let public: ConnectWalletRequestDto = serde_json::from_value(
+        json!({"source":{"kind":"publicKey","address": seed_address.to_string()}}),
+    )
+    .unwrap();
+    assert!(public.into_identity().unwrap().signer().is_err());
+
+    // Test fixtures are deterministic empty seeds, never real user wallet credentials.
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join(".cache/identity-tests");
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = dir.join("fixture-keypair.json");
+    std::fs::write(
+        &file,
+        serde_json::to_vec(&identity.signer().unwrap().to_bytes().to_vec()).unwrap(),
+    )
+    .unwrap();
+    let file_request: ConnectWalletRequestDto = serde_json::from_value(
+        json!({"source":{"kind":"keypairFile","path":file.to_str().unwrap()}}),
+    )
+    .unwrap();
+    let loaded = file_request.into_identity().unwrap();
+    assert_eq!(loaded.address, seed_address);
+    assert!(loaded.signer().is_ok());
+    std::fs::remove_file(file).unwrap();
+
+    for bad in [
+        json!({"source":{"kind":"seed","base64":"secret-value-not-base64"}}),
+        json!({"source":{"kind":"keypairFile","path":"relative-keypair.json"}}),
+    ] {
+        let request: ConnectWalletRequestDto = serde_json::from_value(bad).unwrap();
+        let error = request.into_identity().err().unwrap();
+        assert_eq!(error.code, ErrorCode::InvalidWalletIdentity);
+        let text = serde_json::to_string(&error).unwrap();
+        assert!(!text.contains("secret-value-not-base64"));
+        assert!(!text.contains("relative-keypair.json"));
+    }
+    assert!(
+        serde_json::from_value::<ConnectWalletRequestDto>(
+            json!({"source":{"kind":"seed","base64":seed,"address":"extra"}})
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn identity_ipc_returns_public_connection_and_enforces_local_capability() {
+    let app = desktop(AppState::new("http://127.0.0.1:1".into(), 1, None).unwrap());
+    let main = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    let seed = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    let request = json!({"source":{"kind":"seed","base64":seed}});
+    let response = invoke(&main, "connect_wallet", request.clone(), LOCAL_ORIGIN).unwrap();
+    assert_eq!(response["sourceKind"], "seed");
+    assert_eq!(response["canSign"], true);
+    assert_eq!(response.as_object().unwrap().len(), 3);
+    assert!(response["walletAddress"].as_str().unwrap().len() >= 32);
+    assert!(!serde_json::to_string(&response).unwrap().contains(seed));
+    assert!(
+        invoke(
+            &main,
+            "connect_wallet",
+            request.clone(),
+            "https://untrusted.example"
+        )
+        .is_err()
+    );
+    let other = tauri::WebviewWindowBuilder::new(&app, "other", Default::default())
+        .build()
+        .unwrap();
+    assert!(invoke(&other, "connect_wallet", request, LOCAL_ORIGIN).is_err());
+    let invalid = invoke(
+        &main,
+        "connect_wallet",
+        json!({"source":{"kind":"seed","base64":1234}}),
+        LOCAL_ORIGIN,
+    )
+    .unwrap_err();
+    assert_eq!(invalid["code"], "invalid_wallet_identity");
+    assert!(invalid["details"].is_null());
+    let public = invoke(
+        &main,
+        "connect_wallet",
+        json!({"source":{"kind":"publicKey","address":response["walletAddress"]}}),
+        LOCAL_ORIGIN,
+    )
+    .unwrap();
+    assert_eq!(public["canSign"], false);
+    assert!(
+        invoke(
+            &main,
+            "disconnect_wallet",
+            json!({}),
+            "https://untrusted.example"
+        )
+        .is_err()
+    );
+    assert!(invoke(&other, "disconnect_wallet", json!({}), LOCAL_ORIGIN).is_err());
+    assert_eq!(
+        invoke(&main, "disconnect_wallet", json!({}), LOCAL_ORIGIN).unwrap(),
+        Value::Null
+    );
 }

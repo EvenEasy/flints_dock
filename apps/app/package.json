@@ -7,19 +7,19 @@
     "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/launch.ts dev",
     "build": "npm run typecheck && vite build",
-    "preview": "vite preview",
+    "preview": "node scripts/launch.ts preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "desktop": "tauri dev --config tauri.frontend.conf.json",
-    "desktop:build": "tauri build --config tauri.frontend.conf.json",
+    "desktop": "node scripts/launch.ts desktop",
+    "desktop:build": "node scripts/launch.ts desktop:build",
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
-    "format": "prettier --write src tests *.ts *.js package.json tsconfig.json tauri.frontend.conf.json index.html",
-    "format:check": "prettier --check src tests *.ts *.js package.json tsconfig.json tauri.frontend.conf.json index.html"
+    "format": "prettier --write src tests scripts frontend-contract *.ts *.js package.json tsconfig.json tauri.frontend.conf.json index.html",
+    "format:check": "prettier --check src tests scripts frontend-contract *.ts *.js package.json tsconfig.json tauri.frontend.conf.json index.html"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.1",

@@ -11,6 +11,9 @@ export function MenuDialog({
   onNavigate,
   onConnect,
   onPreview,
+  onExitPreview,
+  connected,
+  onDisconnect,
 }: {
   preview: boolean;
   hasAnalysis: boolean;
@@ -19,6 +22,9 @@ export function MenuDialog({
   onNavigate: (screen: ScreenId) => void;
   onConnect: () => void;
   onPreview: () => void;
+  onExitPreview: () => void;
+  connected: boolean;
+  onDisconnect: () => void;
 }) {
   const destinations = preview
     ? screens
@@ -42,12 +48,21 @@ export function MenuDialog({
             aria-current={item.id === screen ? 'page' : undefined}
             onClick={() => onNavigate(item.id)}
           >
-            <span>{item.number}</span>
             {item.label}
             <span aria-hidden="true">↗</span>
           </button>
         ))}
       </nav>
+      {preview && (
+        <button type="button" className="text-button" onClick={onExitPreview}>
+          EXIT PREVIEW
+        </button>
+      )}
+      {connected && (
+        <button type="button" className="text-button" onClick={onDisconnect}>
+          DISCONNECT WALLET
+        </button>
+      )}
       {!preview && (
         <>
           <button type="button" className="text-button" onClick={onConnect}>

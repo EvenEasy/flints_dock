@@ -1,11 +1,13 @@
 use crate::error::AppError;
+use dock_flints_core::infra::wallet::WalletIdentity;
 use dock_flints_core::infra::{jupiter::Jupiter, solana};
 use solana_rpc_client::nonblocking::rpc_client::RpcClient;
+use std::sync::Mutex;
 
-/// Shared read-only resources, created once at startup and borrowed by async commands.
-/// No wallet secrets or signers are accepted by the desktop backend.
+/// Shared clients and an optional local identity; signer material never enters response DTOs.
 pub struct AppState {
     pub(crate) rpc: RpcClient,
+    pub(crate) identity: Mutex<Option<WalletIdentity>>,
     pub(crate) jupiter: Option<Jupiter>,
     pub(crate) pricing_error: Option<String>,
 }
@@ -52,6 +54,7 @@ impl AppState {
             ),
         };
         Ok(Self {
+            identity: Mutex::new(None),
             rpc: solana::client(url, timeout_seconds),
             jupiter,
             pricing_error,

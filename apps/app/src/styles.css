@@ -22,7 +22,7 @@
 }
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 360px;
 }
 button,
 input {
@@ -82,44 +82,35 @@ small {
 }
 
 /* The metallic frame remains decorative while every screen uses normal document flow. */
-.app-backdrop {
+/* Presentation settings affect only the canvas, never wallet or network configuration. */
+.app-viewport {
+  --render-width: clamp(360px, min(var(--phone-width), 100dvw), 480px);
   min-height: 100dvh;
-  padding: 24px 16px 16px;
+  min-width: 360px;
+  width: 100%;
   height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  place-items: center;
+  padding-block: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-bottom));
 }
-.app-context {
-  width: min(100%, 430px);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  min-height: 24px;
-}
-.mode-badge {
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: var(--muted);
-}
-.mode-badge--preview {
+.preview-indicator {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  padding: 5px 0;
   color: var(--amber);
-}
-.app-context button {
-  background: none;
-  border: 0;
-  color: var(--cyan);
-  font-size: 12px;
-  min-height: 32px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.4px;
 }
 .station-shell {
-  width: min(100%, 430px);
+  width: var(--render-width);
+  height: calc(var(--render-width) * 844 / 390);
+  min-height: 0;
   position: relative;
-  padding: 16px 22px 18px;
-  min-height: 770px;
+  padding: 16px 14px 14px;
+  container-type: inline-size;
+  container-name: phone;
   background: linear-gradient(180deg, #061623, #020e16);
   box-shadow:
     0 20px 90px #000,
@@ -185,32 +176,15 @@ small {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: 18px 0 14px;
+  padding: 18px 12px 18px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cyan-line) var(--screen);
   position: relative;
   z-index: 3;
   flex: 1;
   min-width: 0;
-}
-.station-footer {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1px;
-  position: relative;
-  z-index: 3;
-  padding-top: 8px;
-  opacity: 0.85;
-}
-.app-caption {
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 2px;
-  margin-top: 18px;
-}
-.app-caption span {
-  color: var(--cyan);
-  margin: 0 8px;
 }
 .screen-title h1 {
   font-size: var(--type-title);
@@ -1088,20 +1062,7 @@ legend {
 }
 
 /* Respect safe areas, narrow screens, text zoom, and reduced-motion preferences. */
-@media (max-width: 480px) {
-  .app-backdrop {
-    padding: max(8px, env(safe-area-inset-top)) 6px max(12px, env(safe-area-inset-bottom));
-  }
-  .station-shell {
-    min-height: min(770px, calc(100dvh - 70px));
-    padding: 14px 18px 16px;
-  }
-  .app-caption {
-    font-size: 10px;
-  }
-  .app-context {
-    margin-bottom: 6px;
-  }
+@container phone (max-width: 480px) {
   .screen-content {
     gap: 14px;
   }
@@ -1178,10 +1139,7 @@ legend {
     height: 30px;
   }
 }
-@media (max-width: 360px) {
-  .station-shell {
-    padding-inline: 14px;
-  }
+@container phone (max-width: 360px) {
   .station-wordmark {
     font-size: 15px;
     letter-spacing: 1px;
@@ -1339,4 +1297,18 @@ legend {
 }
 .inventory-pagination button:disabled {
   opacity: 0.5;
+}
+
+/* Public connection state is visible while signing material remains in Rust. */
+.wallet-capability {
+  color: var(--green);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+.wallet-capability small {
+  display: block;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  margin-top: 5px;
 }

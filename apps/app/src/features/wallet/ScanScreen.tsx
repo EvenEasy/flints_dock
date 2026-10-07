@@ -1,3 +1,5 @@
+import { Notice } from '../../shared/ui/Notice';
+import type { ReadError } from '../../shared/api/wallet';
 import { media } from '../../shared/assets';
 import { ScreenTitle } from '../../shared/ui/ScreenTitle';
 import { Icon } from '../../shared/ui/Icon';
@@ -6,7 +8,28 @@ import { scanSteps } from '../preview/designData';
 import type { ScreenProps } from '../../app/ScreenProps';
 
 /** Live scans are indeterminate: the current IPC returns a snapshot, not stage/progress events. */
-export function ScanScreen({ preview, onNavigate }: ScreenProps) {
+export function ScanScreen({
+  preview,
+  onNavigate,
+  error,
+  onRetry,
+  onReconnect,
+}: ScreenProps & { error?: ReadError | null; onRetry?: () => void; onReconnect?: () => void }) {
+  if (!preview && error)
+    return (
+      <>
+        <ScreenTitle subtitle="Your wallet address is retained so you can retry.">
+          SCAN INTERRUPTED
+        </ScreenTitle>
+        <Notice tone="red" alert title="ANALYSIS UNAVAILABLE">
+          {error.message}
+        </Notice>
+        <ActionButton onClick={onRetry}>RETRY SCAN</ActionButton>
+        <ActionButton variant="secondary" onClick={onReconnect}>
+          CHANGE WALLET
+        </ActionButton>
+      </>
+    );
   return (
     <>
       <ScreenTitle subtitle="ANALYZING YOUR CARGO HOLD…">SCANNING WALLET</ScreenTitle>

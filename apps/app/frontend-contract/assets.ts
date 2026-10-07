@@ -136,4 +136,3 @@ export interface AccountSummary {
   potentiallyReclaimableLamports: string;
   closureReviewAccounts: number;
 }
-

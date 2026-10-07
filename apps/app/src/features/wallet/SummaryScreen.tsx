@@ -1,3 +1,4 @@
+import type { WalletConnection } from '../../../frontend-contract/types';
 import { ScreenTitle } from '../../shared/ui/ScreenTitle';
 import { Icon } from '../../shared/ui/Icon';
 import { RecoveryCard } from '../../shared/ui/RecoveryCard';
@@ -8,7 +9,12 @@ import type { IconName, Tone } from '../../shared/assets';
 import type { ScreenProps } from '../../app/ScreenProps';
 
 /** Risk/dust/dead labels remain unavailable until the backend exposes a classification/route plan. */
-export function SummaryScreen({ preview, analysis, onNavigate }: ScreenProps) {
+export function SummaryScreen({
+  preview,
+  analysis,
+  onNavigate,
+  connection,
+}: ScreenProps & { connection?: WalletConnection | null }) {
   const nftCount =
     analysis?.nfts && (analysis.nfts.classic.items !== null || analysis.nfts.core.items !== null)
       ? (analysis.nfts.classic.items?.length ?? 0) + (analysis.nfts.core.items?.length ?? 0)
@@ -82,6 +88,12 @@ export function SummaryScreen({ preview, analysis, onNavigate }: ScreenProps) {
         <Notice tone="red" alert>
           No usable asset results. Inspect the category diagnostics below or rescan.
         </Notice>
+      )}
+      {!preview && connection && (
+        <p className="wallet-capability">
+          {connection.canSign ? 'LOCAL SIGNER CONNECTED' : 'PUBLIC ADDRESS · READ ONLY'}
+          <small>{connection.walletAddress}</small>
+        </p>
       )}
       <div className="summary-grid">
         {cards.map((card) => (

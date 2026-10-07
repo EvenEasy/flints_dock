@@ -1,6 +1,13 @@
 import type {
-  AccountSummary, AssetList, CompressedNfts, Mint, Nfts,
-  Price, TokenAccount, TokenAsset, UnknownAsset,
+  AccountSummary,
+  AssetList,
+  CompressedNfts,
+  Mint,
+  Nfts,
+  Price,
+  TokenAccount,
+  TokenAsset,
+  UnknownAsset,
 } from './assets';
 
 /** The command may resolve with useful partial data; inspect category status before rendering. */
@@ -13,7 +20,11 @@ export type ScanStatus =
 
 /** Stable command rejection envelope. Scanner/network failures are returned in ScanStatus. */
 export interface AppError {
-  code: 'invalid_request' | 'invalid_wallet_address' | 'invalid_configuration';
+  code:
+    | 'invalid_request'
+    | 'invalid_wallet_address'
+    | 'invalid_configuration'
+    | 'invalid_wallet_identity';
   message: string;
   details: Record<string, string> | null;
 }
@@ -68,3 +79,20 @@ export interface WalletAnalysis {
   scanners: Record<string, ScanStatus>;
 }
 
+/** Exactly one identity source; seed is a raw 32-byte Ed25519 seed, not a mnemonic. */
+export type WalletSource =
+  | { kind: 'publicKey'; address: string }
+  | { kind: 'seed'; base64: string }
+  | { kind: 'keypairFile'; path: string };
+
+/** Local connection does not authorize transactions. */
+export interface ConnectWalletRequest {
+  source: WalletSource;
+}
+
+/** Public information only; the connected keypair remains in Rust memory. */
+export interface WalletConnection {
+  walletAddress: string;
+  sourceKind: WalletSource['kind'];
+  canSign: boolean;
+}

@@ -9,11 +9,24 @@ import type { WalletAnalysis } from '../../frontend-contract/types';
 
 function desktop(handler: Parameters<typeof mockIPC>[0]) {
   Reflect.set(globalThis, 'isTauri', true);
-  mockIPC(handler);
+  mockIPC((command, payload) => {
+    if (command === 'connect_wallet') {
+      const request = (payload as { request: { source: { kind: string; address?: string } } })
+        .request;
+      return {
+        walletAddress: request.source.address ?? address,
+        sourceKind: request.source.kind,
+        canSign: request.source.kind !== 'publicKey',
+      };
+    }
+    if (command === 'disconnect_wallet') return null;
+    return handler(command, payload);
+  });
 }
 
 async function connect(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+  await user.click(screen.getByRole('radio', { name: 'Public key (read only)' }));
   await user.type(screen.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }), address);
   await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
 }
@@ -37,6 +50,7 @@ describe('Read-only wallet integration', () => {
 
     // Act
     await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    await user.click(screen.getByRole('radio', { name: 'Public key (read only)' }));
     await user.type(screen.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }), 'not-a-wallet');
     await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
 
@@ -67,14 +81,18 @@ describe('Read-only wallet integration', () => {
     expect(screen.getAllByText('NOT QUOTED')).toHaveLength(2);
   });
 
-  it('Scan_BrowserRuntime_ShowsDesktopRequirement', async () => {
+  it('Connect_BrowserRuntime_ExplainsDesktopBeforeCollectingAddress', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await connect(user);
+    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('requires the Tauri desktop app');
-    expect(screen.getByRole('button', { name: 'CONNECT WALLET' })).toBeEnabled();
+    const dialog = screen.getByRole('dialog', { name: 'DOCK A WALLET' });
+    expect(within(dialog).getByText('DESKTOP APP REQUIRED')).toBeVisible();
+    expect(within(dialog).getByText('npm run desktop')).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: 'WALLET PUBLIC KEY' })).not.toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'EXPLORE DESIGN PREVIEW' }));
+    expect(screen.getByText('REFERENCE PREVIEW · NO TRANSACTIONS')).toBeVisible();
   });
 
   it('Scan_BackendRejects_ShowsPlainContractErrorAndRetry', async () => {
@@ -92,7 +110,9 @@ describe('Read-only wallet integration', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('RPC configuration is missing.');
     expect(screen.queryByText('do-not-display')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    expect(screen.getByRole('heading', { name: 'SCAN INTERRUPTED' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'CHANGE WALLET' }));
+    await user.click(screen.getByRole('radio', { name: 'Public key (read only)' }));
     expect(screen.getByRole('textbox', { name: 'WALLET PUBLIC KEY' })).toHaveValue(address);
   });
 
@@ -220,7 +240,11 @@ describe('Read-only wallet integration', () => {
 describe('Host compatibility', () => {
   it('Scan_OlderTauriBridge_UsesExistingIPCWithoutRuntimeFlag', async () => {
     const ipc = vi.fn(() => wallet());
-    mockIPC(ipc);
+    mockIPC((command) =>
+      command === 'connect_wallet'
+        ? { walletAddress: address, sourceKind: 'publicKey', canSign: false }
+        : ipc(),
+    );
     const user = userEvent.setup();
     render(<App />);
 
@@ -260,5 +284,154 @@ describe('Reference preview', () => {
 
     expect(screen.getByRole('heading', { name: 'CARGO HOLD CLEAN' })).toBeVisible();
     expect(ipc).not.toHaveBeenCalled();
+  });
+});
+
+describe('Local wallet identity', () => {
+  it('Connect_Base64Seed_TransfersOnceThenScansOnlyPublicAddress', async () => {
+    const seed = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+    const ipc = vi.fn((command: string) =>
+      command === 'connect_wallet'
+        ? { walletAddress: address, sourceKind: 'seed', canSign: true }
+        : wallet(),
+    );
+    Reflect.set(globalThis, 'isTauri', true);
+    mockIPC(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    await user.type(screen.getByLabelText('SEED BASE64'), seed);
+
+    await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
+
+    expect(await screen.findByText('LOCAL SIGNER CONNECTED')).toBeVisible();
+    expect(ipc.mock.calls[0]).toEqual([
+      'connect_wallet',
+      { request: { source: { kind: 'seed', base64: seed } } },
+    ]);
+    expect(ipc.mock.calls[1]).toEqual([
+      'analyze_wallet',
+      {
+        request: {
+          walletAddress: address,
+          selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
+          noPrices: true,
+        },
+      },
+    ]);
+    expect(screen.queryByDisplayValue(seed)).not.toBeInTheDocument();
+    expect(window.localStorage.length).toBe(0);
+  });
+
+  it('Connect_KeypairPath_SendsPathWithoutReadingFileInFrontend', async () => {
+    const ipc = vi.fn((command: string) =>
+      command === 'connect_wallet'
+        ? { walletAddress: address, sourceKind: 'keypairFile', canSign: true }
+        : wallet(),
+    );
+    Reflect.set(globalThis, 'isTauri', true);
+    mockIPC(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    await user.click(screen.getByRole('radio', { name: 'File (keypair)' }));
+    await user.type(
+      screen.getByRole('textbox', { name: 'KEYPAIR FILE PATH' }),
+      '/home/example/id.json',
+    );
+
+    await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
+
+    expect(await screen.findByText('LOCAL SIGNER CONNECTED')).toBeVisible();
+    expect(ipc.mock.calls[0]).toEqual([
+      'connect_wallet',
+      { request: { source: { kind: 'keypairFile', path: '/home/example/id.json' } } },
+    ]);
+  });
+
+  it('Connect_RejectedSeed_ClearsSecretAndKeepsConnectionDialog', async () => {
+    const seed = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+    Reflect.set(globalThis, 'isTauri', true);
+    mockIPC(() =>
+      Promise.reject({
+        code: 'invalid_wallet_identity',
+        message: 'Seed could not be loaded.',
+        details: null,
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    await user.type(screen.getByLabelText('SEED BASE64'), seed);
+
+    await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seed could not be loaded.');
+    expect(screen.getByLabelText('SEED BASE64')).toHaveValue('');
+    expect(screen.getByRole('dialog')).toBeVisible();
+  });
+
+  it('Disconnect_ConnectedWallet_ForgetsBackendSignerAndReturnsToEntry', async () => {
+    const ipc = vi.fn((command: string) =>
+      command === 'connect_wallet'
+        ? { walletAddress: address, sourceKind: 'publicKey', canSign: false }
+        : command === 'disconnect_wallet'
+          ? null
+          : wallet(),
+    );
+    Reflect.set(globalThis, 'isTauri', true);
+    mockIPC(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+    await connect(user);
+    await screen.findByRole('heading', { name: 'SCAN COMPLETE' });
+    await user.click(screen.getByRole('button', { name: 'Open navigation' }));
+
+    await user.click(screen.getByRole('button', { name: 'DISCONNECT WALLET' }));
+
+    expect(await screen.findByRole('heading', { name: 'FLINT’S DOCK' })).toBeVisible();
+    expect(ipc.mock.calls.map((call) => call[0])).toEqual([
+      'connect_wallet',
+      'analyze_wallet',
+      'disconnect_wallet',
+    ]);
+  });
+
+  it('Scan_TransportFailure_KeepsErrorScreenAndRetriesWithoutCredentialReplay', async () => {
+    const ipc = vi
+      .fn()
+      .mockRejectedValueOnce('analyze_wallet not allowed on this window')
+      .mockResolvedValueOnce(wallet());
+    desktop(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+    await connect(user);
+    expect(await screen.findByRole('alert')).toHaveTextContent('analyze_wallet not allowed');
+    expect(screen.getByRole('heading', { name: 'SCAN INTERRUPTED' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: 'RETRY SCAN' }));
+
+    expect(await screen.findByRole('heading', { name: 'SCAN COMPLETE' })).toBeVisible();
+    expect(ipc).toHaveBeenCalledTimes(2);
+  });
+
+  it('Scan_CompletedSnapshot_SurvivesHashNavigationAndPartialResults', async () => {
+    desktop(() =>
+      wallet({
+        hasUsableResults: false,
+        scanners: { native_sol: { status: 'failed', reason: 'RPC timeout' } },
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await connect(user);
+    await screen.findByRole('heading', { name: 'SCAN COMPLETE' });
+
+    await act(async () => {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+
+    expect(screen.getByRole('heading', { name: 'SCAN COMPLETE' })).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('No usable asset results');
   });
 });

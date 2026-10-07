@@ -6,10 +6,12 @@ export function Dialog({
   title,
   children,
   onClose,
+  dismissible = true,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  dismissible?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -29,12 +31,18 @@ export function Dialog({
       aria-labelledby="dialog-title"
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        if (dismissible) onClose();
       }}
     >
       <header>
         <h2 id="dialog-title">{title}</h2>
-        <button type="button" className="icon-button" aria-label="Close dialog" onClick={onClose}>
+        <button
+          type="button"
+          className="icon-button"
+          aria-label="Close dialog"
+          disabled={!dismissible}
+          onClick={onClose}
+        >
           ×
         </button>
       </header>

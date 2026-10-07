@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-connect-wallet"
+description = "Enables the connect_wallet command without any pre-configured scope."
+commands.allow = ["connect_wallet"]
+
+[[permission]]
+identifier = "deny-connect-wallet"
+description = "Denies the connect_wallet command without any pre-configured scope."
+commands.deny = ["connect_wallet"]

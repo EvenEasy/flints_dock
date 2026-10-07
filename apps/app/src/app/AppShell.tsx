@@ -1,28 +1,37 @@
-import type { ReactNode } from 'react';
+import { useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { media } from '../shared/assets';
 import { Icon } from '../shared/ui/Icon';
 import { screens } from './navigation';
 import type { ScreenId } from './navigation';
+import { displayOptions } from './display';
 
-/** A responsive station frame keeps the portrait composition without drawing a fake phone status bar. */
+/** A centered, bounded phone viewport scrolls content without stretching its metallic frame. */
 export function AppShell({
   screen,
   preview,
   children,
   onBack,
   onMenu,
-  onExitPreview,
 }: {
   screen: ScreenId;
   preview: boolean;
   children: ReactNode;
   onBack: () => void;
   onMenu: () => void;
-  onExitPreview: () => void;
 }) {
+  const [display] = useState(() =>
+    displayOptions(window.location.search, {
+      width: import.meta.env.VITE_DOCK_WIDTH,
+      backdrop: import.meta.env.VITE_DOCK_BACKDROP,
+    }),
+  );
   const descriptor = screens.find((item) => item.id === screen)!;
   return (
-    <div className="app-backdrop stars">
+    <div
+      className={`app-viewport ${display.backdrop ? 'app-backdrop stars' : ''}`}
+      style={{ '--phone-width': `${display.width}px` } as CSSProperties}
+    >
       <a
         className="skip-link"
         href="#main-content"
@@ -33,23 +42,14 @@ export function AppShell({
       >
         Skip to content
       </a>
-      <div className="app-context">
-        <span className={`mode-badge ${preview ? 'mode-badge--preview' : ''}`}>
-          {preview ? 'REFERENCE PREVIEW · NO TRANSACTIONS' : 'DESKTOP WALLET ANALYSIS · READ ONLY'}
-        </span>
-        {preview && (
-          <button type="button" onClick={onExitPreview}>
-            EXIT PREVIEW
-          </button>
-        )}
-      </div>
-      <div className={`station-shell station-shell--${screen}`}>
+      <section aria-label="Wallet app screen" className={`station-shell station-shell--${screen}`}>
         <img
           className="station-frame"
           src={media(`frames/frame-${descriptor.frame}.png`)}
           alt=""
           aria-hidden="true"
         />
+        {preview && <div className="preview-indicator">REFERENCE PREVIEW · NO TRANSACTIONS</div>}
         <header className="station-header">
           <button
             className="icon-button"
@@ -81,14 +81,7 @@ export function AppShell({
         >
           {children}
         </main>
-        <footer className="station-footer">
-          <span>ORBITAL SALVAGE TERMINAL</span>
-          <span>{descriptor.number} / 10</span>
-        </footer>
-      </div>
-      <p className="app-caption">
-        FLINT’S DOCK <span>✦</span> SOLANA CARGO CONTROL
-      </p>
+      </section>
     </div>
   );
 }

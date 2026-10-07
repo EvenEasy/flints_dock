@@ -8,6 +8,7 @@ pub enum ErrorCode {
     InvalidRequest,
     InvalidWalletAddress,
     InvalidConfiguration,
+    InvalidWalletIdentity,
 }
 
 /// Frontend-safe failure envelope; category read failures live in scanner statuses.
@@ -20,6 +21,15 @@ pub struct AppError {
 }
 
 impl AppError {
+    /// Identity failures must not echo credential values, file contents, or loader debug output.
+    pub(crate) fn invalid_identity(message: &str) -> Self {
+        Self {
+            code: ErrorCode::InvalidWalletIdentity,
+            message: message.into(),
+            details: None,
+        }
+    }
+
     pub(crate) fn invalid_request(reason: &str) -> Self {
         Self {
             code: ErrorCode::InvalidRequest,
