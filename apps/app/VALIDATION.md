@@ -1,5 +1,16 @@
 # App validation — 2026-10-07
 
+## Jupiter pricing follow-up
+
+- Current strict TypeScript, ESLint, Prettier, production build, and **46 frontend tests** passed.
+- Current Rust formatting/checks, **10 IPC integration tests plus 1 pricing-configuration unit test** passed.
+- **5 affected browser cases** passed: default price-enabled IPC transport, partial live inventory, wallet-source dialog accessibility, and priced inventory at 360/430px. Automated WCAG checks and no horizontal overflow passed. Captures: `.cache/screenshots/jupiter-prices-360.png` and `jupiter-prices-430.png`.
+- A separate **live smoke check using the existing Rust Jupiter adapter** retrieved and parsed real SOL/USDC unit prices without an API key; both prices were finite/positive and their decimals matched 9/6. This check is separate from deterministic unit/integration tests. Initial Python-urllib probes received 403; a subsequent public probe and the actual Rust adapter both succeeded.
+- Tests cover enabled-by-default prices, explicit opt-out, SOL unit price versus balance value, token/all-account views, tiny/zero/invalid price formatting, and partial quote diagnostics without losing balances.
+- No new dependencies, frontend pricing HTTP requests, execution commands, core modifications, or contract changes were needed for this pricing follow-up.
+
+## Earlier layout and identity validation
+
 Environment: Node 26.10.0, npm 12.2.0. Source changes and generated check artifacts are confined to `apps/app`. The original README, underlying core, dependency manifests for Rust, and workspace Cargo.lock remain unchanged. Backend/contract edits are limited to the authorized local identity extension.
 
 - Strict TypeScript, ESLint, Prettier, and Vite production build passed.

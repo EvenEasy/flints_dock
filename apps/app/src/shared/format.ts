@@ -20,6 +20,27 @@ export function usd(value: number | null | undefined): string {
     : '—';
 }
 
+/** Preserve small unit prices instead of displaying a positive price as $0.00. */
+export function usdUnitPrice(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value) || value < 0) return '—';
+
+  // Scientific notation keeps tiny quotes readable in a narrow phone table.
+  if (value > 0 && value < 1e-6)
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'scientific',
+      maximumSignificantDigits: 6,
+    }).format(value);
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: value < 1 ? 8 : 4,
+  }).format(value);
+}
+
 export function shortAddress(value: string): string {
   return value.length > 16 ? `${value.slice(0, 6)}…${value.slice(-5)}` : value;
 }

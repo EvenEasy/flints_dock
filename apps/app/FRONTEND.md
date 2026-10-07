@@ -34,6 +34,24 @@ Choose scan categories and optional USD prices, then **Scan Wallet**. Analysis r
 
 Completed scans remain on the summary screen. Scan failures stay on **Scan Interrupted**, with the error, **Retry Scan**, and **Change Wallet** actions. Retrying uses the public address, not saved credentials. Partial results and per-category diagnostics remain visible; unavailable and successfully empty inventories remain distinct. Dismissing a scan discards its eventual UI result but does not cancel backend RPC work.
 
+## Jupiter USD prices
+
+Prices are **enabled by default** in the wallet dialog. The existing Rust Jupiter Price V3 adapter enriches the normal `analyze_wallet` snapshot; React makes no direct Jupiter requests. Uncheck **Include Jupiter USD prices** to skip pricing while retaining the same inventory.
+
+The summary shows **1 SOL = USD price** separately from the approximate USD value of the entire native balance. Token views show **PRICE / TOKEN** separately from the USD holding value. Small unit prices use additional decimal places or scientific notation (for example `$1.23E-10`) to stay readable without falsely displaying zero. The token-price tooltip includes the provider value and source. Amount strings remain exact; all valuation is owned by the existing Rust core.
+
+Without `JUPITER_API_KEY`, Rust attempts the official **keyless** endpoint. A configured key uses the existing sensitive `x-api-key` header and remains outside frontend requests/bundles. To supply a key without entering it into shell history:
+
+```sh
+read -rsp "Jupiter API key: " JUPITER_API_KEY
+export JUPITER_API_KEY
+npm run desktop
+```
+
+The existing adapter deduplicates mint addresses and requests batches of up to 50. Keyless access has a lower provider rate limit; an API key can increase available limits. See the official [Jupiter rate limits](https://developers.jup.ag/docs/portal/rate-limits). Pricing failures/partial coverage are labelled **USD PRICES** on the summary and token screens and do not remove assets or replace missing prices with zero.
+
+Prices are a snapshot from the scan, not a streaming ticker or swap quote. Restart the desktop app after changing backend configuration and run a new scan for updated prices. Jupiter market prices describe mainnet assets; devnet test tokens generally have no quote, and SOL USD is a mainnet reference rather than a valuation of devnet funds. Missing quotes display **PRICE UNAVAILABLE** and do not classify tokens as unswappable/dead. Existing NFT and unsupported Token-2022 pricing restrictions remain in the core.
+
 ## Display options
 
 The default is a centered portrait app screen without stars, external captions, or page numbering.

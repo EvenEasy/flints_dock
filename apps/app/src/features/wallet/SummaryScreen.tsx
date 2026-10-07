@@ -4,7 +4,7 @@ import { Icon } from '../../shared/ui/Icon';
 import { RecoveryCard } from '../../shared/ui/RecoveryCard';
 import { ActionButton } from '../../shared/ui/ActionButton';
 import { CategoryNotice, Notice } from '../../shared/ui/Notice';
-import { decimal, usd } from '../../shared/format';
+import { decimal, usd, usdUnitPrice } from '../../shared/format';
 import type { IconName, Tone } from '../../shared/assets';
 import type { ScreenProps } from '../../app/ScreenProps';
 
@@ -81,7 +81,16 @@ export function SummaryScreen({
         <div className="balance-strip">
           <span>NATIVE SOL</span>
           <strong>{decimal(analysis.balance.value?.sol)} SOL</strong>
-          <span>{usd(analysis.balance.value?.valueUsd)}</span>
+          <span>
+            {analysis.balance.value?.valueUsd == null
+              ? 'USD value unavailable'
+              : `≈ ${usd(analysis.balance.value.valueUsd)}`}
+          </span>
+          <small className="sol-unit-price" title={analysis.balance.value?.price?.source}>
+            {analysis.balance.value?.price
+              ? `1 SOL = ${usdUnitPrice(analysis.balance.value.price.usd)}`
+              : 'SOL price unavailable'}
+          </small>
         </div>
       )}
       {!preview && !analysis?.hasUsableResults && (
@@ -114,7 +123,7 @@ export function SummaryScreen({
         <>
           <CategoryNotice status={analysis?.balance?.status} />
           <CategoryNotice status={analysis?.tokens?.status} />
-          <CategoryNotice status={analysis?.scanners.prices} />
+          <CategoryNotice status={analysis?.scanners.prices} label="USD PRICES" />
         </>
       )}
       <RecoveryCard

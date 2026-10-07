@@ -28,12 +28,18 @@ export function Notice({
 }
 
 /** Missing/failed data is distinct from a successful empty category. */
-export function CategoryNotice({ status }: { status: ScanStatus | undefined }) {
+export function CategoryNotice({
+  status,
+  label,
+}: {
+  status: ScanStatus | undefined;
+  label?: string;
+}) {
   if (!status || status.status === 'complete') return null;
   return (
     <Notice
       tone={status.status === 'failed' ? 'red' : 'amber'}
-      title={status.status === 'partial' ? 'PARTIAL RESULTS' : status.status.toUpperCase()}
+      title={`${label ? `${label} · ` : ''}${status.status === 'partial' ? 'PARTIAL RESULTS' : status.status.toUpperCase()}`}
     >
       {status.reason}
     </Notice>

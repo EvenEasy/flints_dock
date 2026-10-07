@@ -38,7 +38,7 @@ export function ConnectWalletDialog({
   const [address, setAddress] = useState(initialAddress);
   const [seed, setSeed] = useState('');
   const [path, setPath] = useState('');
-  const [noPrices, setNoPrices] = useState(true);
+  const [noPrices, setNoPrices] = useState(false);
   const [selection, setSelection] = useState<SelectedCategories>({
     balance: true,
     tokens: true,
@@ -215,7 +215,7 @@ export function ConnectWalletDialog({
             disabled={busy}
             onChange={(event) => setNoPrices(!event.target.checked)}
           />
-          Include optional Jupiter USD prices
+          Include Jupiter USD prices
         </label>
         <p className="field-help">
           Missing prices do not hide your assets. Empty category selection uses the backend

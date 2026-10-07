@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { AxeResults } from 'axe-core';
 import { screens } from '../../src/app/navigation';
-import { address, wallet } from '../../src/test/fixtures';
+import { address, wallet, pricedWallet } from '../../src/test/fixtures';
 
 // Browser tests use the IPC boundary only; no RPC endpoint or wallet signer is contacted.
 for (const width of [360, 390, 393, 430, 480, 700, 1280]) {
@@ -100,7 +100,7 @@ test('DesktopTransport_PublicAddress_RendersContractAndNeverMutates', async ({ p
       payload: {
         request: {
           walletAddress: address,
-          noPrices: true,
+          noPrices: false,
           selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
         },
       },
@@ -199,3 +199,45 @@ test('WalletSources_DesktopDialog_LabelsErrorsAndFocusAreAccessible', async ({ p
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'CONNECT WALLET' })).toBeFocused();
 });
+
+for (const width of [360, 430]) {
+  test(`JupiterPrices_${width}px_UnitPricesAndValuesRemainAccessible`, async ({ page }) => {
+    await page.addInitScript((analysis) => {
+      Reflect.set(window, '__TAURI_INTERNALS__', {
+        invoke: async (command: string) =>
+          command === 'connect_wallet'
+            ? { walletAddress: analysis.owner, sourceKind: 'publicKey', canSign: false }
+            : analysis,
+      });
+    }, pricedWallet());
+    await page.setViewportSize({ width, height: 1100 });
+    await page.goto(`/?width=${width}`);
+    await page.getByRole('button', { name: 'CONNECT WALLET' }).click();
+    await expect(page.getByRole('checkbox', { name: 'Include Jupiter USD prices' })).toBeChecked();
+    await page.getByRole('radio', { name: 'Public key (read only)' }).check();
+    await page.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }).fill(address);
+    await page.getByRole('button', { name: 'SCAN WALLET' }).click();
+    await expect(page.getByText('1 SOL = $120.50')).toBeVisible();
+    await expect(page.getByText('≈ $1,487.65')).toBeVisible();
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+    await page.getByRole('button', { name: /Swappable tokens/ }).click();
+    await expect(page.getByText('$1.23E-10')).toBeVisible();
+    await expect(page.getByText('$1.0022')).toBeVisible();
+    await expect(page.getByText('$10.02')).toBeVisible();
+    await page.addScriptTag({ url: '/node_modules/axe-core/axe.min.js' });
+    const results = await page.evaluate(async () => {
+      const axe = Reflect.get(window, 'axe') as { run: (options: object) => Promise<AxeResults> };
+      return axe.run({
+        runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] },
+      });
+    });
+    expect(results.violations.map((violation) => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: `.cache/screenshots/jupiter-prices-${width}.png`,
+      fullPage: true,
+    });
+  });
+}

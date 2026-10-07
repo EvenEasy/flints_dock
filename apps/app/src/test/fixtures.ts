@@ -63,3 +63,37 @@ export function wallet(overrides: Partial<WalletAnalysis> = {}): WalletAnalysis 
     ...overrides,
   };
 }
+
+/** Provider values are fixture quotes; valuation stays backend-owned in every UI test. */
+export function pricedWallet(): WalletAnalysis {
+  const snapshot = wallet();
+  snapshot.balance!.value!.price = {
+    usd: 120.5,
+    decimals: 9,
+    source: 'Jupiter Price V3',
+    blockId: '123456789',
+  };
+  snapshot.balance!.value!.valueUsd = 1487.6543075705;
+  const tiny = token('11111111111111111111111111111111');
+  tiny.metadata.symbol = 'TINY';
+  tiny.balance = '2';
+  tiny.totalRawAmount = '2000000000';
+  tiny.price = {
+    usd: 0.000000000123,
+    decimals: 9,
+    source: 'Jupiter Price V3',
+    blockId: '123456789',
+  };
+  tiny.valueUsd = 0.000000000246;
+  const stable = token(secondMint);
+  stable.metadata.symbol = 'USDC';
+  stable.decimals = 6;
+  stable.balance = '10';
+  stable.totalRawAmount = '10000000';
+  stable.price = { usd: 1.0022, decimals: 6, source: 'Jupiter Price V3', blockId: '123456789' };
+  stable.valueUsd = 10.022;
+  snapshot.tokens!.items = [tiny, stable];
+  snapshot.allTokens = { status: { status: 'complete' }, items: [tiny, stable] };
+  snapshot.scanners.prices = { status: 'complete' };
+  return snapshot;
+}

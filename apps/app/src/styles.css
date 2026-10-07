@@ -1312,3 +1312,15 @@ legend {
   font-size: 11px;
   margin-top: 5px;
 }
+
+/* Keep unit prices separate from the USD value of the entire SOL balance. */
+.sol-unit-price {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.token-row--live .token-quote strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { App } from './App';
 import { screens } from './navigation';
-import { address, secondMint, token, wallet } from '../test/fixtures';
+import { address, secondMint, token, wallet, pricedWallet } from '../test/fixtures';
 import type { WalletAnalysis } from '../../frontend-contract/types';
 
 function desktop(handler: Parameters<typeof mockIPC>[0]) {
@@ -71,14 +71,14 @@ describe('Read-only wallet integration', () => {
     expect(ipc).toHaveBeenCalledExactlyOnceWith('analyze_wallet', {
       request: {
         walletAddress: address,
-        noPrices: true,
+        noPrices: false,
         selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
       },
     });
     expect(screen.getByText('12.345678901 SOL')).toBeVisible();
     await go(user, 'Swappable tokens');
     expect(screen.getAllByText('900,719,925,474.099312345')).toHaveLength(2);
-    expect(screen.getAllByText('NOT QUOTED')).toHaveLength(2);
+    expect(screen.getAllByText('PRICE UNAVAILABLE')).toHaveLength(2);
   });
 
   it('Connect_BrowserRuntime_ExplainsDesktopBeforeCollectingAddress', async () => {
@@ -315,7 +315,7 @@ describe('Local wallet identity', () => {
         request: {
           walletAddress: address,
           selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
-          noPrices: true,
+          noPrices: false,
         },
       },
     ]);
@@ -433,5 +433,84 @@ describe('Local wallet identity', () => {
 
     expect(screen.getByRole('heading', { name: 'SCAN COMPLETE' })).toBeVisible();
     expect(screen.getByRole('alert')).toHaveTextContent('No usable asset results');
+  });
+});
+
+describe('Jupiter price presentation', () => {
+  it('Scan_DefaultPricing_ShowsSOLAndMintUnitPricesWithBackendValues', async () => {
+    // Arrange: a priced snapshot arrives through the actual Tauri contract boundary.
+    const ipc = vi.fn(() => pricedWallet());
+    desktop(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Act: connect and inspect the native balance and both token views.
+    await connect(user);
+
+    // Assert: unit prices and holding values remain distinct, including tiny prices.
+    expect(await screen.findByText('1 SOL = $120.50')).toBeVisible();
+    expect(screen.getByText('≈ $1,487.65')).toBeVisible();
+    await go(user, 'Swappable tokens');
+    expect(screen.getByRole('columnheader', { name: 'PRICE / TOKEN' })).toBeVisible();
+    expect(screen.getByText('$1.23E-10')).toBeVisible();
+    expect(screen.getByText('$1.0022')).toBeVisible();
+    expect(screen.getByText('$10.02')).toBeVisible();
+    expect(screen.queryByText('NOT QUOTED')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'ALL ACCOUNTS' }));
+    expect(screen.getByText('$1.23E-10')).toBeVisible();
+    expect(ipc).toHaveBeenCalledTimes(1);
+  });
+
+  it('Scan_PricingOptOut_PreservesUnpricedInventory', async () => {
+    // Arrange
+    const ipc = vi.fn(() =>
+      wallet({ scanners: { prices: { status: 'skipped', reason: 'Prices disabled by user.' } } }),
+    );
+    desktop(ipc);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Act: prices are checked by default and can still be disabled before scanning.
+    await user.click(screen.getByRole('button', { name: 'CONNECT WALLET' }));
+    const prices = screen.getByRole('checkbox', { name: 'Include Jupiter USD prices' });
+    expect(prices).toBeChecked();
+    await user.click(prices);
+    await user.click(screen.getByRole('radio', { name: 'Public key (read only)' }));
+    await user.type(screen.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }), address);
+    await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
+
+    // Assert: balances remain visible and unknown prices are never fabricated.
+    expect(await screen.findByText('12.345678901 SOL')).toBeVisible();
+    expect(screen.getByText('SOL price unavailable')).toBeVisible();
+    expect(ipc).toHaveBeenCalledWith('analyze_wallet', {
+      request: expect.objectContaining({ noPrices: true }),
+    });
+    await go(user, 'Swappable tokens');
+    expect(screen.getAllByText('PRICE UNAVAILABLE')).toHaveLength(2);
+    expect(screen.getAllByText('900,719,925,474.099312345')).toHaveLength(2);
+  });
+
+  it('Scan_PartialPricing_ShowsAvailablePricesAndProviderDiagnostics', async () => {
+    // Arrange: one missing quote does not erase a successful native/token quote.
+    const snapshot = pricedWallet();
+    snapshot.tokens!.items![1]!.price = null;
+    snapshot.tokens!.items![1]!.valueUsd = null;
+    snapshot.scanners.prices = {
+      status: 'partial',
+      reason: '2/3 mints priced; unquoted mints remain unvalued',
+    };
+    desktop(() => snapshot);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Act
+    await connect(user);
+    await screen.findByText('1 SOL = $120.50');
+    await go(user, 'Swappable tokens');
+
+    // Assert
+    expect(screen.getByText('$1.23E-10')).toBeVisible();
+    expect(screen.getByText('PRICE UNAVAILABLE')).toBeVisible();
+    expect(screen.getByText('2/3 mints priced; unquoted mints remain unvalued')).toBeVisible();
   });
 });

@@ -6,6 +6,8 @@ The frontend calls the unmodified `analyzeWallet(request)` wrapper, which invoke
 
 The authorized identity extension implements `connect_wallet({request:{source}})` and `disconnect_wallet()`. `source` is exactly one tagged object: `{kind:"publicKey",address}`, `{kind:"seed",base64}`, or `{kind:"keypairFile",path}`. Seed means standard base64 of 32 raw Ed25519 bytes; keypair means an absolute local Solana JSON file path. The response is `{walletAddress,sourceKind,canSign}`. The signer stays in backend memory and the existing core loaders are reused. Errors add the sanitized `invalid_wallet_identity` code.
 
+USD pricing is now enabled by default. The existing Jupiter adapter runs with optional backend authentication (keyless when no key is configured). SOL/token unit prices and backend USD holding values are displayed through the existing `price` and `valueUsd` fields; no new pricing command or DTO was introduced. These prices are scan snapshots, not swap estimates.
+
 All three commands are registered and allowed only to the local main webview. No live responses are fabricated. Analysis request/response shapes remain unchanged. Preview screens issue no analysis or connection calls; switching from a connected session first invokes disconnect.
 
 ## Needed before real cleanup

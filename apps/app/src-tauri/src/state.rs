@@ -43,9 +43,10 @@ impl AppState {
             return Err(Self::timeout_error());
         }
 
-        // Match the CLI's optional pricing fallback while retaining one shared HTTP client.
-        let (jupiter, pricing_error) = match api_key.map(Jupiter::new).transpose() {
-            Ok(provider) => (provider, None),
+        // Reuse the core adapter: an empty key enables Jupiter's lower-limit keyless access.
+        // A configured key stays in Rust and is sent only through the existing sensitive header.
+        let (jupiter, pricing_error) = match Jupiter::new(api_key.unwrap_or_default()) {
+            Ok(provider) => (Some(provider), None),
             Err(_) => (
                 None,
                 Some(
@@ -73,5 +74,28 @@ impl AppState {
             "DOCK_FLINTS_RPC_TIMEOUT_SECONDS",
             "RPC timeout must be between 1 and 300 seconds",
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::AppState;
+
+    #[test]
+    fn jupiter_is_available_without_a_key_and_invalid_keys_do_not_disable_rpc() {
+        // Keyless pricing must not silently become "No price provider configured".
+        let keyless = AppState::new("http://127.0.0.1:8899".into(), 30, None).unwrap();
+        assert!(keyless.jupiter.is_some());
+        assert!(keyless.pricing_error.is_none());
+
+        // Invalid authentication configuration is isolated from wallet discovery.
+        let invalid = AppState::new(
+            "http://127.0.0.1:8899".into(),
+            30,
+            Some("invalid\nheader".into()),
+        )
+        .unwrap();
+        assert!(invalid.jupiter.is_none());
+        assert!(invalid.pricing_error.unwrap().contains("JUPITER_API_KEY"));
     }
 }

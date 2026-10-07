@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decimal, lamportsToSol, looksLikeAddress, usd } from './format';
+import { decimal, lamportsToSol, looksLikeAddress, usd, usdUnitPrice } from './format';
 
 describe('Exact presentation formatting', () => {
   it('Decimal_LargeExactString_PreservesAllDigits', () => {
@@ -15,5 +15,18 @@ describe('Exact presentation formatting', () => {
     expect(decimal(null)).toBe('—');
     expect(usd(undefined)).toBe('—');
     expect(looksLikeAddress('private-key-with-spaces')).toBe(false);
+  });
+});
+
+describe('Unit price formatting', () => {
+  it('UnitPrice_SmallOrZeroPrices_DistinguishesTinyValueFromZero', () => {
+    expect(usdUnitPrice(0.000000000123)).toBe('$1.23E-10');
+    expect(usdUnitPrice(1e-15)).toBe('$1E-15');
+    expect(usdUnitPrice(0)).toBe('$0.00');
+    expect(usdUnitPrice(120.5)).toBe('$120.50');
+  });
+
+  it('UnitPrice_MissingOrInvalidPrice_RemainsUnavailable', () => {
+    for (const value of [null, undefined, NaN, Infinity, -1]) expect(usdUnitPrice(value)).toBe('—');
   });
 });

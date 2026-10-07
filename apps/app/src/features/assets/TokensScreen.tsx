@@ -4,7 +4,7 @@ import { media } from '../../shared/assets';
 import { Icon } from '../../shared/ui/Icon';
 import { ScreenTitle } from '../../shared/ui/ScreenTitle';
 import { CategoryNotice, Notice } from '../../shared/ui/Notice';
-import { decimal, shortAddress, usd } from '../../shared/format';
+import { decimal, shortAddress, usd, usdUnitPrice } from '../../shared/format';
 import type { ScreenProps } from '../../app/ScreenProps';
 
 /** Local keep intent is keyed exclusively by mint. It never calls quote or execution APIs. */
@@ -39,7 +39,7 @@ export function TokensScreen({
       {!preview && (
         <>
           <Notice tone="amber">
-            Swap quotes are not exposed by the current IPC. “Keep” marks local intent only; no
+            Jupiter USD prices are estimates, not swap quotes. “Keep” marks local intent only; no
             cleanup is submitted.
           </Notice>
           <div className="view-tabs" aria-label="Token inventory view">
@@ -58,6 +58,7 @@ export function TokensScreen({
             ))}
           </div>
           <CategoryNotice status={category?.status} />
+          <CategoryNotice status={analysis?.scanners.prices} label="USD PRICES" />
         </>
       )}
       <div
@@ -68,7 +69,7 @@ export function TokensScreen({
         <div className="token-table__head" role="row">
           <span role="columnheader">TOKEN</span>
           <span role="columnheader">BALANCE</span>
-          <span role="columnheader">EST. SOL</span>
+          <span role="columnheader">{preview ? 'EST. SOL' : 'PRICE / TOKEN'}</span>
           <span role="columnheader" className="sr-only">
             {preview ? 'Swap selection' : 'Keep token'}
           </span>
@@ -137,9 +138,17 @@ export function TokensScreen({
                     <small className="wallet-usd">{usd(token.valueUsd)}</small>
                   )}
                 </span>
-                <div role="cell" className="token-quote">
-                  <strong>—</strong>
-                  <small>NOT QUOTED</small>
+                <div
+                  role="cell"
+                  className="token-quote"
+                  title={
+                    token.price
+                      ? `${token.price.usd} USD per token · ${token.price.source}`
+                      : undefined
+                  }
+                >
+                  <strong>{usdUnitPrice(token.price?.usd)}</strong>
+                  <small>{token.price ? 'USD / TOKEN' : 'PRICE UNAVAILABLE'}</small>
                 </div>
                 <div role="cell">
                   <button
