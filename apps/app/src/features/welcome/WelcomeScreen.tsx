@@ -1,83 +1,38 @@
-import { media } from '../../shared/assets';
-import { Icon } from '../../shared/ui/Icon';
-import { ActionButton } from '../../shared/ui/ActionButton';
-import { Notice } from '../../shared/ui/Notice';
-import type { ReadError } from '../../shared/api/wallet';
+import {
+  Brand,
+  MascotHero,
+  MechanicalPanel,
+  SurfaceFrame,
+  TitlePedestal,
+} from '../../shared/ui/Design';
+import { designAsset } from '../../shared/assets';
 
-/** Entry artwork and benefits follow screen s01; connection accepts a public address only. */
-export function WelcomeScreen({
-  onConnect,
-  onPreview,
-  preview,
-  error,
-}: {
-  onConnect: () => void;
-  onPreview: () => void;
-  preview: boolean;
-  error: ReadError | null;
-}) {
+/** The welcome composition has one connection action and a neutral disconnected indicator. */
+export function WelcomeScreen({ onConnect }: { onConnect: () => void }) {
   return (
-    <div className="welcome-screen">
-      <header className="welcome-brand">
-        <img src={media('brand/pirate-emblem.png')} alt="" width="62" height="51" />
-        <h1 tabIndex={-1}>FLINT’S DOCK</h1>
-        <p>ORBITAL SOLANA CLEANUP STATION</p>
-      </header>
-      <div className="welcome-art">
-        <img
-          src={media('illustrations/welcome-raptor.png')}
-          alt="Raptor pirate at an orbital Solana cleanup station"
-          width="281"
-          height="237"
-          fetchPriority="high"
-        />
-        <p>
-          Scan your wallet.
+    <div className="page page--welcome">
+      <Brand />
+      <MascotHero />
+      <TitlePedestal page="welcome" />
+      <MechanicalPanel page="welcome" asset="connect_module_shell" className="connect-module">
+        <h2>ПІДКЛЮЧИ ГАМАНЕЦЬ</h2>
+        <p className="connect-description">
+          Підключи Solana-гаманець,
           <br />
-          Clean junk assets.
-          <br />
-          Recover useful SOL.
+          щоб знайти зайві активи та повернути SOL.
         </p>
-      </div>
-      <div className="benefits">
-        <div>
-          <Icon name="coins" />
+        <button className="connect-button" type="button" onClick={onConnect}>
+          <SurfaceFrame page="welcome" asset="connect_button_shell" />
           <span>
-            FIND
-            <br />
-            JUNK
+            <img src={designAsset('welcome', 'wallet_outline_icon')} alt="" aria-hidden="true" />
+            CONNECT WALLET
           </span>
-        </div>
-        <div>
-          <Icon name="trash" />
-          <span>
-            REMOVE
-            <br />
-            TRASH
-          </span>
-        </div>
-        <div>
-          <Icon name="salvage-coins" />
-          <span>
-            RECOVER
-            <br />
-            SOL
-          </span>
-        </div>
-      </div>
-      {error && (
-        <Notice tone="red" alert title="ANALYSIS UNAVAILABLE">
-          {error.message}
-        </Notice>
-      )}
-      <ActionButton icon="wallet" onClick={onConnect}>
-        CONNECT WALLET
-      </ActionButton>
-      {!preview && (
-        <button type="button" className="text-button" onClick={onPreview}>
-          EXPLORE DESIGN PREVIEW <span aria-hidden="true">↗</span>
         </button>
-      )}
+        <p className="wallet-status">
+          <span className="status-led" aria-hidden="true" />
+          ГАМАНЕЦЬ НЕ ПІДКЛЮЧЕНО
+        </p>
+      </MechanicalPanel>
     </div>
   );
 }

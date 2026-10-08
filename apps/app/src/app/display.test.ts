@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { displayOptions, phoneWidth } from './display';
 
 describe('Phone presentation options', () => {
-  it('Defaults_NoOptions_Uses390pxWithoutBackdrop', () => {
-    expect(displayOptions('')).toEqual({ width: 390, backdrop: false });
+  it('Defaults_NoOptions_Uses430pxWithBackdrop', () => {
+    expect(displayOptions('')).toEqual({ width: 430, backdrop: true });
   });
   it.each([
     ['320', 360],
@@ -12,7 +12,7 @@ describe('Phone presentation options', () => {
     ['430', 430],
     ['480', 480],
     ['700', 480],
-    ['NaN', 390],
+    ['NaN', 430],
   ])('Width_%s_BoundsTo%s', (value, expected) => {
     expect(phoneWidth(value)).toBe(expected);
   });

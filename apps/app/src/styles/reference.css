@@ -1,0 +1,846 @@
+/* Explicit reference mode reproduces the XML redlines at 1024×1536 / 853×1280.
+   These selectors are page-specific CSS, not an XML runtime renderer. */
+.reference-mode.app-viewport {
+  padding: 36px 0 0;
+}
+.reference-mode .dock-screen {
+  height: auto;
+  max-height: none;
+  width: min(100%, var(--screen-width));
+  aspect-ratio: 2 / 3;
+}
+.reference-mode .dock-screen--main {
+  aspect-ratio: 853 / 1280;
+}
+.reference-mode .screen-content {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.reference-mode .page {
+  height: 100%;
+  padding: 0;
+  min-height: 0;
+}
+.reference-mode .panel-content {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+}
+.reference-mode .brand {
+  position: absolute;
+  left: 0.586%;
+  top: 0.456%;
+  width: 41.992%;
+  height: 8.008%;
+  margin: 0;
+}
+.reference-mode .brand-copy p:first-child {
+  font-size: 4.492188cqw;
+  line-height: 1;
+}
+.reference-mode .brand-copy p:last-child {
+  font-size: 2.929688cqw;
+  line-height: 1;
+  margin-top: 0.6cqw;
+}
+.reference-mode .mascot-hero {
+  position: absolute;
+  left: 21.289%;
+  top: 4.232%;
+  width: 57.813%;
+  height: 36.003%;
+  margin: 0;
+  max-width: none;
+}
+.reference-mode .title-pedestal {
+  position: absolute;
+  left: 2.344%;
+  top: 36.133%;
+  width: 95.313%;
+  height: 17.839%;
+  min-height: 0;
+  margin: 0;
+}
+.reference-mode .title-pedestal .eyebrow {
+  position: absolute;
+  top: 28.832%;
+  left: 25%;
+  width: 50%;
+  font-size: 3.515625cqw;
+}
+.reference-mode .title-pedestal h1 {
+  position: absolute;
+  top: 43.066%;
+  left: 14%;
+  width: 72%;
+  font-size: 10.742188cqw;
+}
+.reference-mode .title-pedestal .tagline {
+  position: absolute;
+  top: 81.022%;
+  left: 20%;
+  width: 60%;
+  font-size: 2.734375cqw;
+  margin: 0;
+}
+.reference-mode .tagline span::before,
+.reference-mode .tagline span::after {
+  width: 2.6cqw;
+  height: 0.2cqw;
+  margin: 0 1cqw 0.6cqw;
+}
+.reference-mode .connect-module {
+  position: absolute;
+  left: 1.27%;
+  top: 53.385%;
+  width: 97.363%;
+  height: 32.943%;
+  margin: 0;
+}
+.reference-mode .connect-module h2 {
+  position: absolute;
+  left: 15%;
+  top: 15.217%;
+  width: 70%;
+  font-size: 6.054688cqw;
+}
+.reference-mode .connect-description {
+  position: absolute;
+  left: 15%;
+  top: 31.423%;
+  width: 70%;
+  margin: 0;
+  font-size: 2.929688cqw;
+  line-height: 1.18;
+}
+.reference-mode .connect-button {
+  position: absolute;
+  left: 6.82%;
+  top: 48.617%;
+  width: 86.459%;
+  height: 30.633%;
+}
+.reference-mode .connect-button > span {
+  font-size: 7.03125cqw;
+  gap: 4cqw;
+}
+.reference-mode .connect-button span img {
+  width: 8cqw;
+  height: 7.227cqw;
+}
+.reference-mode .wallet-status {
+  position: absolute;
+  left: 20%;
+  top: 83.004%;
+  width: 60%;
+  margin: 0;
+  font-size: 2.441406cqw;
+  gap: 1.66cqw;
+}
+.reference-mode .wallet-status .status-led {
+  width: 2.539cqw;
+  height: 2.539cqw;
+}
+.reference-mode .connected-status {
+  position: absolute;
+  left: 23.535%;
+  top: 35.872%;
+  width: 53.516%;
+  height: 6.25%;
+  min-width: 0;
+  margin: 0;
+}
+.reference-mode .connected-status .panel-content {
+  position: absolute;
+  inset: 0;
+  gap: 3cqw;
+}
+.reference-mode .connected-status img:not(.surface-frame) {
+  width: 6.348cqw;
+  height: 5.371cqw;
+}
+.reference-mode .connected-status p {
+  font-size: 3.125cqw;
+}
+.reference-mode .connected-status .status-led {
+  width: 2.246cqw;
+  height: 2.246cqw;
+}
+.reference-mode .scan-title {
+  position: absolute;
+  left: 1.758%;
+  top: 39.648%;
+  width: 96.289%;
+  height: 13.021%;
+  min-height: 0;
+  margin: 0;
+}
+.reference-mode .scan-title h1 {
+  position: absolute;
+  left: 14%;
+  top: 27%;
+  width: 72%;
+  font-size: 8.984375cqw;
+}
+.reference-mode .scan-process {
+  position: absolute;
+  left: 1.27%;
+  top: 51.823%;
+  width: 97.363%;
+  height: 35.156%;
+  margin: 0;
+}
+.reference-mode .scan-process h2 {
+  position: absolute;
+  top: 2.037%;
+  left: 20%;
+  width: 60%;
+  font-size: 4.492188cqw;
+}
+.reference-mode .stage-progress {
+  position: absolute;
+  top: 13.333%;
+  left: 14.845%;
+  width: 70.512%;
+  height: 4.444%;
+  gap: 1cqw;
+  margin: 0;
+}
+.reference-mode .stage-progress img {
+  width: calc((100% - 4cqw) / 5);
+  height: 100%;
+}
+.reference-mode .analysis-steps {
+  position: absolute;
+  left: 11.334%;
+  top: 21.667%;
+  width: 78.435%;
+  height: 63.889%;
+}
+.reference-mode .analysis-steps li {
+  height: 20%;
+  min-height: 0;
+  grid-template-columns: 10% minmax(0, 1fr) 23%;
+  gap: 2.6cqw;
+  padding: 0;
+}
+.reference-mode .analysis-steps li > img {
+  width: 4.688cqw;
+  height: 4.688cqw;
+}
+.reference-mode .analysis-steps li > span {
+  font-size: 3.125cqw;
+}
+.reference-mode .analysis-steps li > strong {
+  font-size: 2.636719cqw;
+  white-space: nowrap;
+}
+.reference-mode .analysis-steps li:not(:last-child)::after {
+  left: 5%;
+  top: 85%;
+  height: 1.8cqw;
+}
+.reference-mode .automatic-note {
+  position: absolute;
+  left: 15%;
+  top: 88.704%;
+  width: 70%;
+  margin: 0;
+  font-size: 2.539063cqw;
+}
+.reference-mode .automatic-note::before,
+.reference-mode .automatic-note::after {
+  width: 4cqw;
+  height: 0.4cqw;
+}
+.reference-mode .scan-dismiss {
+  display: none;
+}
+.reference-mode .page--main .brand {
+  left: 0.703%;
+  top: 0.547%;
+  width: 41.735%;
+  height: 7.5%;
+}
+.reference-mode .page--main .brand-copy p:first-child {
+  font-size: 4.220399cqw;
+}
+.reference-mode .page--main .brand-copy p:last-child {
+  font-size: 2.930832cqw;
+}
+.reference-mode .main-hero {
+  position: static;
+  width: auto;
+  margin: 0;
+}
+.reference-mode .main-hero .mascot-hero {
+  left: 20.75%;
+  top: 4.063%;
+  width: 58.499%;
+  height: 37.344%;
+  margin: 0;
+}
+.reference-mode .mascot-label {
+  font-size: 3.165299cqw;
+}
+.reference-mode .station-side {
+  position: absolute;
+  left: 1.055%;
+  top: 8.594%;
+  width: 19.461%;
+  height: 29.453%;
+}
+.reference-mode .profit-side {
+  position: absolute;
+  left: 79.484%;
+  top: 8.75%;
+  width: 19.344%;
+  height: 29.531%;
+}
+.reference-mode .station-side .panel-content,
+.reference-mode .profit-side .panel-content {
+  gap: 2.2cqw;
+  padding: 3.4cqw 1cqw;
+}
+.reference-mode .side-title {
+  font-size: 4.689332cqw;
+  line-height: 1.07;
+}
+.reference-mode .side-status {
+  font-size: 2.579133cqw;
+}
+.reference-mode .station-side img:not(.surface-frame) {
+  width: 9.379cqw;
+  height: 14.185cqw;
+}
+.reference-mode .profit-side img:not(.surface-frame) {
+  width: 9.848cqw;
+  height: 10.668cqw;
+}
+.reference-mode .station-side .status-led {
+  width: 1.055cqw;
+  height: 1.055cqw;
+}
+.reference-mode .page--main .title-pedestal {
+  left: 2.227%;
+  top: 35.625%;
+  width: 95.545%;
+  height: 18.359%;
+  margin: 0;
+}
+.reference-mode .page--main .title-pedestal .eyebrow {
+  top: 31.064%;
+  font-size: 3.516999cqw;
+}
+.reference-mode .page--main .title-pedestal h1 {
+  top: 44.255%;
+  font-size: 10.31653cqw;
+}
+.reference-mode .page--main .title-pedestal .tagline {
+  top: 82.127%;
+  font-size: 2.696366cqw;
+}
+.reference-mode .page--main .crossed-sabers {
+  top: -5.532%;
+}
+.reference-mode .scan-summary {
+  position: absolute;
+  left: 2.11%;
+  top: 53.125%;
+  width: 95.78%;
+  height: 19.688%;
+  margin: 0;
+}
+.reference-mode .scan-summary-heading {
+  position: absolute;
+  left: 3.427%;
+  top: 5.952%;
+  width: 54.467%;
+  height: 18.254%;
+  min-height: 0;
+  padding: 0.6cqw 2cqw;
+  font-size: 2.930832cqw;
+  gap: 1cqw;
+}
+.reference-mode .scan-summary-heading img:not(.surface-frame) {
+  width: 3.986cqw;
+  height: 3.986cqw;
+}
+.reference-mode .scan-summary-content {
+  position: absolute;
+  left: 4.161%;
+  top: 25.397%;
+  width: 91.922%;
+  height: 65.079%;
+  padding: 0;
+  grid-template-columns: 32.623% 36.752% 30.625%;
+  gap: 0;
+}
+.reference-mode .scan-total,
+.reference-mode .scan-rent {
+  gap: 1cqw;
+  padding: 0 1cqw;
+}
+.reference-mode .scan-summary-content p {
+  font-size: 2.579133cqw;
+}
+.reference-mode .scan-total strong {
+  font-size: 11.01993cqw;
+}
+.reference-mode .scan-rent strong {
+  font-size: 7.737397cqw;
+  white-space: nowrap;
+}
+.reference-mode .orbital-station {
+  position: absolute;
+  right: 2.264%;
+  top: -27.439%;
+  width: 28.895%;
+  height: 118.293%;
+  opacity: 1;
+}
+.reference-mode .cargo-manifest {
+  position: absolute;
+  left: 4.337%;
+  top: 70.938%;
+  width: 91.09%;
+  height: 16.484%;
+  margin: 0;
+}
+.reference-mode .cargo-manifest > h2 {
+  position: absolute;
+  left: 30.116%;
+  top: 0;
+  width: 39.768%;
+  height: 17.062%;
+  min-height: 0;
+  font-size: 2.930832cqw;
+  gap: 0.8cqw;
+  margin: 0;
+}
+.reference-mode .cargo-manifest h2 img:not(.surface-frame) {
+  width: 3.283cqw;
+  height: 3.048cqw;
+}
+.reference-mode .category-grid {
+  position: absolute;
+  left: 0;
+  top: 10.427%;
+  width: 100%;
+  height: 88.626%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1cqw;
+}
+.reference-mode .category-card {
+  min-height: 0;
+  padding: 1.6cqw 1cqw;
+}
+.reference-mode .category-art {
+  width: 10.551cqw;
+  height: 10.668cqw;
+}
+.reference-mode .category-card--dust .category-art {
+  width: 15.006cqw;
+}
+.reference-mode .category-card > span {
+  font-size: 2.579133cqw;
+  margin-top: 0.4cqw;
+}
+.reference-mode .category-card > strong {
+  font-size: 4.220399cqw;
+}
+.reference-mode .page--main .recover-button {
+  position: absolute;
+  left: 3.283%;
+  top: 87.266%;
+  width: 93.552%;
+  height: 7.109%;
+  margin: 0;
+}
+.reference-mode .recover-button > span {
+  font-size: 7.226563cqw;
+  gap: 2cqw;
+}
+.reference-mode .page--main .recover-button > span {
+  font-size: 6.096131cqw;
+}
+.reference-mode .recover-button > span > img {
+  width: 9.18cqw;
+  height: 8.203cqw;
+}
+.reference-mode .page--main .recover-button > span > img {
+  width: 7.737cqw;
+  height: 7.503cqw;
+}
+.reference-mode .bottom-navigation {
+  position: absolute;
+  left: 0.684%;
+  top: 94.857%;
+  width: 98.73%;
+  height: 5.143%;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+.reference-mode .bottom-navigation button {
+  font-size: 2.148438cqw;
+  gap: 0.4cqw;
+  padding: 0.7cqw;
+}
+.reference-mode .bottom-navigation button img:not(.surface-frame) {
+  width: 4.297cqw;
+  height: 3.809cqw;
+}
+.reference-mode .dock-screen--main .bottom-navigation {
+  left: 1.641%;
+  top: 94.219%;
+  width: 96.718%;
+  height: 5.781%;
+}
+.reference-mode .dock-screen--main .bottom-navigation button {
+  font-size: 2.110199cqw;
+}
+.reference-mode .dock-screen--main .bottom-navigation button img:not(.surface-frame) {
+  width: 4.455cqw;
+  height: 4.103cqw;
+}
+.reference-mode .page--cleanup .brand {
+  left: 0.684%;
+  top: 0.456%;
+  width: 36.133%;
+  height: 7.747%;
+}
+.reference-mode .page--cleanup .brand-copy p:first-child {
+  font-size: 4.199219cqw;
+}
+.reference-mode .page--cleanup .brand-copy p:last-child {
+  font-size: 2.832031cqw;
+}
+.reference-mode .mascot-hero--corner {
+  left: 79.102%;
+  top: 0.195%;
+  width: 20.215%;
+  height: 13.346%;
+}
+.reference-mode .cleanup-header {
+  position: absolute;
+  left: 2.344%;
+  top: 8.268%;
+  width: 92.871%;
+  height: 11.719%;
+  margin: 0;
+  padding: 0;
+}
+.reference-mode .cleanup-header h1 {
+  position: absolute;
+  left: 3.891%;
+  top: 13.333%;
+  font-size: 10.449219cqw;
+}
+.reference-mode .cleanup-header p {
+  position: absolute;
+  left: 4.627%;
+  top: 67.778%;
+  width: 80%;
+  margin: 0;
+  font-size: 3.613281cqw;
+  white-space: nowrap;
+}
+.reference-mode .asset-manifest {
+  position: absolute;
+  left: 1.27%;
+  top: 19.661%;
+  width: 97.363%;
+  height: 55.339%;
+  margin: 0;
+}
+.reference-mode .manifest-columns {
+  position: absolute;
+  left: 4.313%;
+  top: 4.471%;
+  width: 91.575%;
+  height: 6.353%;
+  padding: 0.8cqw 3cqw;
+  font-size: 3.125cqw;
+}
+.reference-mode .asset-list {
+  position: absolute;
+  left: 6.319%;
+  top: 10.824%;
+  width: 87.663%;
+  height: 85.059%;
+  margin: 0;
+  padding: 0;
+  max-height: none;
+  overflow: visible;
+}
+.reference-mode .asset-row {
+  display: block;
+  height: 16.044%;
+  min-height: 0;
+  padding: 0;
+}
+.reference-mode .asset-row:nth-child(1) {
+  height: 15.768%;
+}
+.reference-mode .asset-row:nth-child(5) {
+  height: 17.704%;
+}
+.reference-mode .asset-row:nth-child(6) {
+  height: 17.98%;
+}
+.reference-mode .selection-control {
+  position: absolute;
+  left: 0.915%;
+  top: 27.19%;
+  width: 6.407%;
+  height: 48.276%;
+}
+.reference-mode .asset-thumbnail {
+  position: absolute;
+  left: 10.298%;
+  top: 9.48%;
+  width: 11.556%;
+  height: 87.069%;
+}
+.reference-mode .asset-identity {
+  position: absolute;
+  left: 24.371%;
+  top: 17.24%;
+  width: 48.627%;
+}
+.reference-mode .asset-identity strong {
+  font-size: 3.710938cqw;
+  white-space: nowrap;
+}
+.reference-mode .asset-identity p {
+  font-size: 3.027344cqw;
+  margin-top: 0.6cqw;
+  white-space: nowrap;
+}
+.reference-mode .asset-valuation {
+  position: absolute;
+  left: 73.684%;
+  top: 17.24%;
+  width: 25.744%;
+  display: block;
+  text-align: right;
+}
+.reference-mode .asset-valuation > strong {
+  font-size: 4.296875cqw;
+}
+.reference-mode .asset-valuation > span {
+  font-size: 2.441406cqw;
+  margin-top: 0.8cqw;
+}
+.reference-mode .dead-badge {
+  padding: 0.3cqw 0.8cqw;
+}
+.reference-mode .selection-summary {
+  position: absolute;
+  left: 1.465%;
+  top: 73.372%;
+  width: 97.07%;
+  height: 13.086%;
+  margin: 0;
+}
+.reference-mode .selection-summary .panel-content {
+  display: grid;
+  grid-template-columns: 52% 48%;
+  padding: 5cqw 9.4cqw;
+  min-height: 0;
+  gap: 3cqw;
+}
+.reference-mode .selection-count {
+  font-size: 3.90625cqw;
+  white-space: nowrap;
+}
+.reference-mode .selection-estimate {
+  padding-left: 3cqw;
+}
+.reference-mode .selection-estimate p {
+  font-size: 2.636719cqw;
+  white-space: nowrap;
+}
+.reference-mode .selection-estimate strong {
+  font-size: 5.566406cqw;
+  margin-top: 0.6cqw;
+}
+.reference-mode .page--cleanup .recover-button {
+  position: absolute;
+  left: 1.953%;
+  top: 86.523%;
+  width: 96.191%;
+  height: 8.464%;
+  margin: 0;
+}
+.reference-mode .page--success .brand {
+  width: 39.844%;
+  height: 7.747%;
+}
+.reference-mode .page--success .mascot-hero {
+  left: 21.289%;
+  top: 4.232%;
+  width: 57.813%;
+  height: 36.003%;
+}
+.reference-mode .success-title {
+  position: absolute;
+  left: 2.344%;
+  top: 38.802%;
+  width: 95.313%;
+  height: 19.857%;
+  min-height: 0;
+  margin: 0;
+}
+.reference-mode .success-title h1 {
+  position: absolute;
+  left: 24.693%;
+  top: 43.934%;
+  width: 50.615%;
+  font-size: 6.054688cqw;
+  white-space: nowrap;
+}
+.reference-mode .page--success .success-medallion {
+  left: 35.449%;
+  top: 36.328%;
+  width: 29.199%;
+  height: 10.742%;
+}
+.reference-mode .returned-sol {
+  position: absolute;
+  left: 16.309%;
+  top: 54.232%;
+  width: 67.383%;
+  height: 20.247%;
+  min-height: 0;
+  margin: 0;
+}
+.reference-mode .returned-sol p {
+  position: absolute;
+  left: 24.638%;
+  top: 22.508%;
+  width: 50.725%;
+  font-size: 3.125cqw;
+  white-space: nowrap;
+}
+.reference-mode .returned-sol strong {
+  position: absolute;
+  left: 19.565%;
+  top: 37.621%;
+  width: 60.87%;
+  font-size: 10.546875cqw;
+  margin: 0;
+}
+.reference-mode .success-spacer {
+  display: none;
+}
+.reference-mode .dock-screen--success .bottom-navigation {
+  left: 1.465%;
+  top: 93.62%;
+  width: 97.07%;
+  height: 6.12%;
+}
+.reference-mode .dock-screen--success .bottom-navigation button {
+  font-size: 2.246094cqw;
+}
+.reference-mode .success-title h1,
+.reference-mode .returned-sol strong {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.reference-mode .scan-total p,
+.reference-mode .scan-rent p {
+  position: absolute;
+  white-space: nowrap;
+}
+.reference-mode .scan-total p:first-child {
+  left: 5%;
+  top: 4.27%;
+  width: 90%;
+  font-size: 2.4cqw;
+}
+.reference-mode .scan-total strong {
+  position: absolute;
+  left: 10%;
+  top: 30.49%;
+  width: 80%;
+}
+.reference-mode .scan-total p:last-child {
+  left: 5%;
+  top: 81.1%;
+  width: 90%;
+}
+.reference-mode .scan-rent p:first-child {
+  left: 5%;
+  top: 6.71%;
+  width: 90%;
+  font-size: 2.4cqw;
+}
+.reference-mode .scan-rent strong {
+  position: absolute;
+  left: 0;
+  top: 31.71%;
+  width: 100%;
+}
+.reference-mode .scan-rent p:last-child {
+  left: 5%;
+  top: 74.39%;
+  width: 90%;
+  font-size: 2.4cqw;
+}
+.reference-mode .station-side .panel-content,
+.reference-mode .profit-side .panel-content {
+  display: block;
+  padding: 0;
+}
+.reference-mode .station-side .side-title {
+  position: absolute;
+  left: 10%;
+  top: 13%;
+  width: 80%;
+  font-size: 3.52cqw;
+}
+.reference-mode .station-side img:not(.surface-frame) {
+  position: absolute;
+  left: 28.916%;
+  top: 39.788%;
+  width: 48.193%;
+  height: 32.095%;
+}
+.reference-mode .station-side .side-status {
+  position: absolute;
+  left: 15%;
+  top: 76.127%;
+  width: 70%;
+}
+.reference-mode .station-side .status-led {
+  position: absolute;
+  left: 50.602%;
+  top: 90.186%;
+}
+.reference-mode .profit-side .side-title {
+  position: absolute;
+  left: 10%;
+  width: 80%;
+  font-size: 3.4cqw;
+}
+.reference-mode .profit-side .side-title:first-child {
+  top: 15.344%;
+}
+.reference-mode .profit-side .side-title:last-child {
+  top: 65.873%;
+}
+.reference-mode .profit-side img:not(.surface-frame) {
+  position: absolute;
+  left: 21.212%;
+  top: 36.508%;
+  width: 50.909%;
+  height: 24.074%;
+}
+.reference-mode .scan-summary-heading {
+  white-space: nowrap;
+  font-size: 2.34cqw;
+}

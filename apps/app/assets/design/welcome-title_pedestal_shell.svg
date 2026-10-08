@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 976 274" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="title_pedestal_shell-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#B99DA9" />
+            <stop offset=".15" stop-color="#25202C" />
+            <stop offset=".32" stop-color="#705358" />
+            <stop offset=".53" stop-color="#0A0A13" />
+            <stop offset=".74" stop-color="#8B7279" />
+            <stop offset="1" stop-color="#201C28" />
+          </linearGradient>
+          <radialGradient id="title_pedestal_shell-face" cx=".5" cy=".15" r=".9">
+            <stop stop-color="#B72CFF" stop-opacity=".09" />
+            <stop offset=".65" stop-color="#02070B" />
+            <stop offset="1" stop-color="#010306" />
+          </radialGradient>
+        </defs>
+        <polygon points="35.86,61.12 166.32,61.12 225.08,2.00 750.92,2.00 809.68,61.12 940.14,61.12 974.00,97.58 974.00,237.51 934.16,272.00 812.66,272.00 794.74,260.18 181.26,260.18 163.34,272.00 41.84,272.00 2.00,237.51 2.00,97.58" fill="#080910" stroke="url(#title_pedestal_shell-metal)" stroke-width="4" />
+        <polygon points="40.51,63.93 169.63,63.93 227.79,7.00 748.21,7.00 806.37,63.93 935.49,63.93 969.00,99.04 969.00,233.79 929.57,267.00 809.32,267.00 791.58,255.61 184.42,255.61 166.68,267.00 46.43,267.00 7.00,233.79 7.00,99.04" fill="#05050B" stroke="#554357" stroke-width="2" />
+        <polygon points="45.16,66.74 172.94,66.74 230.49,12.00 745.51,12.00 803.06,66.74 930.84,66.74 964.00,100.50 964.00,230.07 924.98,262.00 805.98,262.00 788.43,251.05 187.57,251.05 170.02,262.00 51.02,262.00 12.00,230.07 12.00,100.50" fill="#02040A" stroke="#B72CFF" stroke-width="4" stroke-opacity=".3" />
+        <polygon points="50.75,70.12 176.91,70.12 233.74,18.00 742.26,18.00 799.09,70.12 925.25,70.12 958.00,102.26 958.00,225.60 919.48,256.00 801.98,256.00 784.64,245.58 191.36,245.58 174.02,256.00 56.52,256.00 18.00,225.60 18.00,102.26" fill="url(#title_pedestal_shell-face)" stroke="#B72CFF" stroke-width="2.5" />
+        <polygon points="55.40,72.93 180.22,72.93 236.44,23.00 739.56,23.00 795.78,72.93 920.60,72.93 953.00,103.72 953.00,221.88 914.89,251.00 798.64,251.00 781.48,241.01 194.52,241.01 177.36,251.00 61.11,251.00 23.00,221.88 23.00,103.72" fill="#020408" fill-opacity=".55" stroke="#B72CFF" stroke-width=".9" stroke-opacity=".3" />
+        <g transform="">
+          <path d="M109 98H68l-26 29v65l28 29h42" stroke="#AD29FF" stroke-width="6" />
+          <path d="M109 98H68l-26 29v65l28 29h42" stroke="#EAB7FF" stroke-width="1.6" />
+          <path d="M80 126h62v18H73M69 168h71v17H81" stroke="#241138" stroke-width="1.4" />
+          <circle cx="171" cy="160" r="8" fill="#12172A" stroke="#574180" />
+          <circle cx="171" cy="160" r="3" fill="#6DBAFF" />
+        </g>
+        <g transform="translate(976 0) scale(-1 1)">
+          <path d="M109 98H68l-26 29v65l28 29h42" stroke="#AD29FF" stroke-width="6" />
+          <path d="M109 98H68l-26 29v65l28 29h42" stroke="#EAB7FF" stroke-width="1.6" />
+          <path d="M80 126h62v18H73M69 168h71v17H81" stroke="#241138" stroke-width="1.4" />
+          <circle cx="171" cy="160" r="8" fill="#12172A" stroke="#574180" />
+          <circle cx="171" cy="160" r="3" fill="#6DBAFF" />
+        </g>
+        <circle cx="10.00" cy="82.20" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="966.00" cy="82.20" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="10.00" cy="191.80" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="966.00" cy="191.80" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+      </svg>

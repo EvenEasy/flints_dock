@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 233" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="dock_floor_foreground-floor" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#0D0C24" />
+            <stop offset="1" stop-color="#18141F" />
+          </linearGradient>
+        </defs>
+        <path d="M292 53H732l292 180H0z" fill="url(#dock_floor_foreground-floor)" stroke="#302445" />
+        <path d="M0 0h112l35 150H0zM912 0h112v150H877z" fill="#07070E" stroke="#5F495D" stroke-width="3" />
+        <path d="M252.2 52L-300 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M316.2 52L-100 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M380.2 52L100 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M444.2 52L300 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M508.2 52L500 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M572.2 52L700 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M636.2 52L900 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M700.2 52L1100 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M764.2 52L1300 233" stroke="#594269" stroke-width="1.4" />
+        <path d="M269.3 67H754.7" stroke="#60516E" stroke-width="1" />
+        <path d="M232.1 90H791.9" stroke="#60516E" stroke-width="1" />
+        <path d="M181.8 121H842.2" stroke="#60516E" stroke-width="1" />
+        <path d="M118.7 160H905.3" stroke="#60516E" stroke-width="1" />
+        <path d="M42.5 207H981.5" stroke="#60516E" stroke-width="1" />
+        <path d="M48 89h89" stroke="#0AD5E8" stroke-width="3" opacity=".6" />
+        <path d="M835 130h71" stroke="#9039E4" stroke-width="3" opacity=".6" />
+        <path d="M305 158h84" stroke="#195BA3" stroke-width="3" opacity=".6" />
+        <path d="M598 201h95" stroke="#C734E6" stroke-width="3" opacity=".6" />
+        <path d="M461 113h51" stroke="#924EEB" stroke-width="3" opacity=".6" />
+        <g transform="">
+          <path d="M0 5h89l28 46v64l-29 33H0z" fill="#121018" stroke="#745262" stroke-width="3" />
+          <path d="M11 15h54l16 37v60H11z" fill="#070910" stroke="#3F3045" />
+          <path d="M16 30v53M34 30v53M52 30v53" stroke="#484050" stroke-width="2" />
+          <path d="M84 12l22 27M8 18v28" stroke="#B450E6" stroke-width="4" />
+          <path d="M100 114h43l20 49H94z" fill="#10101B" stroke="#4B3D52" />
+        </g>
+        <g transform="translate(1024 0) scale(-1 1)">
+          <path d="M0 5h89l28 46v64l-29 33H0z" fill="#121018" stroke="#745262" stroke-width="3" />
+          <path d="M11 15h54l16 37v60H11z" fill="#070910" stroke="#3F3045" />
+          <path d="M16 30v53M34 30v53M52 30v53" stroke="#484050" stroke-width="2" />
+          <path d="M84 12l22 27M8 18v28" stroke="#B450E6" stroke-width="4" />
+          <path d="M100 114h43l20 49H94z" fill="#10101B" stroke="#4B3D52" />
+        </g>
+      </svg>
+      

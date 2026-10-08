@@ -1,44 +1,18 @@
-// Keep media references local and explicit; wallet metadata never chooses an image URL.
-const files = import.meta.glob<string>(
-  [
-    '../../assets/brand/*.png',
-    '../../assets/illustrations/*.png',
-    '../../assets/frames/*.png',
-    '../../assets/nfts/*.png',
-    '../../assets/tokens/*.png',
-    '../../assets/icons/base/*.png',
-  ],
-  { eager: true, query: '?url', import: 'default' },
-);
+// The design catalogs are bundled locally; wallet metadata cannot select arbitrary image URLs.
+const files = import.meta.glob<string>('../../assets/design/*.svg', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
-export function media(path: string): string {
-  const asset = files[`../../assets/${path}`];
-  if (!asset) throw new Error('A bundled interface asset is missing');
+export type DesignPage = 'welcome' | 'scan' | 'main' | 'cleanup' | 'success';
+export type Tone = 'cyan' | 'purple' | 'green' | 'red' | 'amber' | 'muted';
+export type IconName =
+  'wallet' | 'warning' | 'info' | 'rocket' | 'home' | 'cargo' | 'target' | 'skull';
+
+/** Resolve an application-owned XML catalog key to an inert, bundled SVG image. */
+export function designAsset(page: DesignPage, key: string): string {
+  const asset = files[`../../assets/design/${page}-${key}.svg`];
+  if (!asset) throw new Error(`Missing local design asset: ${page}/${key}`);
   return asset;
 }
-
-export type IconName =
-  | 'back'
-  | 'menu'
-  | 'wallet'
-  | 'skull'
-  | 'trash'
-  | 'coins'
-  | 'nft'
-  | 'swap'
-  | 'accounts'
-  | 'fire'
-  | 'shield'
-  | 'warning'
-  | 'check'
-  | 'check-circle'
-  | 'spinner'
-  | 'pending'
-  | 'chevron'
-  | 'chevrons'
-  | 'info'
-  | 'boat'
-  | 'document'
-  | 'raptor-action'
-  | 'salvage-coins';
-export type Tone = 'cyan' | 'purple' | 'green' | 'red' | 'amber' | 'muted';

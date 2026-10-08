@@ -1,24 +1,24 @@
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-import { media } from '../shared/assets';
-import { Icon } from '../shared/ui/Icon';
-import { screens } from './navigation';
-import type { ScreenId } from './navigation';
+import { SceneBackground } from '../shared/ui/Design';
+import type { DesignPage } from '../shared/assets';
 import { displayOptions } from './display';
+import { BottomNavigation } from './BottomNavigation';
+import type { DockSection, ScreenId } from './navigation';
 
-/** A centered, bounded phone viewport scrolls content without stretching its metallic frame. */
+/** Center a portrait application canvas; scrollable content never sits behind its navigation. */
 export function AppShell({
   screen,
   preview,
   children,
-  onBack,
-  onMenu,
+  onSection,
+  onPreviewMenu,
 }: {
   screen: ScreenId;
   preview: boolean;
   children: ReactNode;
-  onBack: () => void;
-  onMenu: () => void;
+  onSection: (section: DockSection) => void;
+  onPreviewMenu: () => void;
 }) {
   const [display] = useState(() =>
     displayOptions(window.location.search, {
@@ -26,11 +26,18 @@ export function AppShell({
       backdrop: import.meta.env.VITE_DOCK_BACKDROP,
     }),
   );
-  const descriptor = screens.find((item) => item.id === screen)!;
+  const reference =
+    preview && new URLSearchParams(window.location.search).get('layout') === 'reference';
+  const page: DesignPage = screen === 'scanning' ? 'scan' : screen;
+  const connectedPage = ['main', 'cleanup', 'success'].includes(screen);
   return (
     <div
-      className={`app-viewport ${display.backdrop ? 'app-backdrop stars' : ''}`}
-      style={{ '--phone-width': `${display.width}px` } as CSSProperties}
+      className={`app-viewport ${display.backdrop ? 'app-backdrop' : ''} ${reference ? 'reference-mode' : ''}`}
+      style={
+        {
+          '--screen-width': `${reference ? (screen === 'main' ? 853 : 1024) : display.width}px`,
+        } as CSSProperties
+      }
     >
       <a
         className="skip-link"
@@ -42,45 +49,24 @@ export function AppShell({
       >
         Skip to content
       </a>
-      <section aria-label="Wallet app screen" className={`station-shell station-shell--${screen}`}>
-        <img
-          className="station-frame"
-          src={media(`frames/frame-${descriptor.frame}.png`)}
-          alt=""
-          aria-hidden="true"
-        />
-        {preview && <div className="preview-indicator">REFERENCE PREVIEW · NO TRANSACTIONS</div>}
-        <header className="station-header">
-          <button
-            className="icon-button"
-            type="button"
-            aria-label={screen === 'scanning' && !preview ? 'Dismiss scan view' : 'Go back'}
-            disabled={screen === 'welcome'}
-            onClick={onBack}
-          >
-            <Icon name="back" />
-          </button>
-          <div className="station-wordmark">
-            <img src={media('brand/pirate-emblem.png')} alt="" width="31" height="26" />
-            <span>FLINT’S DOCK</span>
-          </div>
-          <button
-            className="icon-button"
-            type="button"
-            aria-label="Open navigation"
-            onClick={onMenu}
-          >
-            <Icon name="menu" />
-          </button>
-        </header>
+      {preview && (
+        <button type="button" className="preview-indicator" onClick={onPreviewMenu}>
+          DESIGN PREVIEW · NO TRANSACTIONS
+        </button>
+      )}
+      <section aria-label="Wallet app screen" className={`dock-screen dock-screen--${screen}`}>
+        <SceneBackground page={page} />
+
         <main
           id="main-content"
           tabIndex={-1}
+          aria-labelledby="screen-heading"
           className="screen-content"
           key={`${preview}:${screen}`}
         >
           {children}
         </main>
+        {connectedPage && <BottomNavigation main={screen === 'main'} onNavigate={onSection} />}
       </section>
     </div>
   );

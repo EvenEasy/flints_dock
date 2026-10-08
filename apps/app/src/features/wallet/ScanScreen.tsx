@@ -1,99 +1,137 @@
+import { Brand, MascotHero, MechanicalPanel } from '../../shared/ui/Design';
+import { designAsset } from '../../shared/assets';
 import { Notice } from '../../shared/ui/Notice';
-import type { ReadError } from '../../shared/api/wallet';
-import { media } from '../../shared/assets';
-import { ScreenTitle } from '../../shared/ui/ScreenTitle';
-import { Icon } from '../../shared/ui/Icon';
 import { ActionButton } from '../../shared/ui/ActionButton';
-import { scanSteps } from '../preview/designData';
-import type { ScreenProps } from '../../app/ScreenProps';
+import type { ReadError } from '../../shared/api/wallet';
 
-/** Live scans are indeterminate: the current IPC returns a snapshot, not stage/progress events. */
+const steps = [
+  'Підключення гаманця',
+  'Завантаження активів',
+  'Перевірка токенів і NFT',
+  'Розрахунок доступного SOL',
+  'Підготовка результатів',
+];
+
+/** Preview reproduces stage three; live IPC is one pending snapshot, not five invented progress events. */
 export function ScanScreen({
   preview,
-  onNavigate,
   error,
   onRetry,
   onReconnect,
-}: ScreenProps & { error?: ReadError | null; onRetry?: () => void; onReconnect?: () => void }) {
-  if (!preview && error)
-    return (
-      <>
-        <ScreenTitle subtitle="Your wallet address is retained so you can retry.">
-          SCAN INTERRUPTED
-        </ScreenTitle>
-        <Notice tone="red" alert title="ANALYSIS UNAVAILABLE">
-          {error.message}
-        </Notice>
-        <ActionButton onClick={onRetry}>RETRY SCAN</ActionButton>
-        <ActionButton variant="secondary" onClick={onReconnect}>
-          CHANGE WALLET
-        </ActionButton>
-      </>
-    );
+  onDismiss,
+}: {
+  preview: boolean;
+  error: ReadError | null;
+  onRetry: () => void;
+  onReconnect: () => void;
+  onDismiss: () => void;
+}) {
   return (
-    <>
-      <ScreenTitle subtitle="ANALYZING YOUR CARGO HOLD…">SCANNING WALLET</ScreenTitle>
-      <div className="scan-art">
-        <img
-          src={media('illustrations/orbital-station.png')}
-          alt="Orbital station above a blue planet"
-          width="249"
-          height="199"
-        />
-      </div>
-      <div className="scan-progress">
-        <div
-          className={`progress-track ${!preview ? 'progress-track--indeterminate' : ''}`}
-          role="progressbar"
-          aria-label="Wallet scan progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={preview ? 67 : undefined}
-        >
-          <div className="progress-fill" />
-        </div>
-        <strong>{preview ? '67%' : '…'}</strong>
-      </div>
-      {preview ? (
-        <ol className="operation-steps">
-          {scanSteps.map((step, index) => (
-            <li
-              key={step}
-              className={index < 2 ? 'step--done' : index === 2 ? 'step--active' : 'step--pending'}
+    <div className="page page--scan" aria-busy={!preview && !error}>
+      <Brand variant="scan" />
+      <MascotHero scanning />
+      <MechanicalPanel page="scan" asset="connected_plaque_shell" className="connected-status">
+        <img src={designAsset('scan', 'wallet_outline_icon')} alt="" aria-hidden="true" />
+        <span className="status-led status-led--connected" aria-hidden="true" />
+        <p>ГАМАНЕЦЬ ПІДКЛЮЧЕНО</p>
+      </MechanicalPanel>
+      <MechanicalPanel page="scan" asset="scan_title_shell" className="scan-title">
+        <h1 id="screen-heading" tabIndex={-1}>
+          {error ? 'АНАЛІЗ ПЕРЕРВАНО' : 'АНАЛІЗ ГАМАНЦЯ'}
+        </h1>
+      </MechanicalPanel>
+      <MechanicalPanel page="scan" asset="scan_process_shell" className="scan-process">
+        {error ? (
+          <div className="scan-error">
+            <Notice tone="red" alert title="ANALYSIS FAILED">
+              {error.message}
+            </Notice>
+            <ActionButton onClick={onRetry}>RETRY SCAN</ActionButton>
+            <button type="button" className="text-button" onClick={onReconnect}>
+              CHANGE WALLET
+            </button>
+            <button type="button" className="text-button" onClick={onDismiss}>
+              DISMISS SCAN
+            </button>
+          </div>
+        ) : (
+          <>
+            <h2 role="status">{preview ? 'ЕТАП 3 ІЗ 5' : 'ОТРИМУЄМО ДАНІ'}</h2>
+            <div
+              className="stage-progress"
+              role="progressbar"
+              aria-label="Завершені етапи аналізу"
+              aria-valuemin={0}
+              aria-valuemax={5}
+              aria-valuenow={preview ? 2 : undefined}
+              aria-valuetext={
+                preview
+                  ? 'Завершено 2 етапи з 5; виконується третій'
+                  : 'Очікуємо готовий результат аналізу'
+              }
             >
-              <Icon
-                name={index < 2 ? 'check-circle' : index === 2 ? 'spinner' : 'pending'}
-                tone={index === 2 ? 'purple' : index > 2 ? 'muted' : 'cyan'}
-              />
-              {step}
-              <span className="sr-only">
-                {index < 2
-                  ? 'Complete in reference'
-                  : index === 2
-                    ? 'In progress in reference'
-                    : 'Pending in reference'}
-              </span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <div className="live-scan-status" role="status">
-          <Icon name="spinner" />
-          <p>
-            Reading selected wallet categories…
-            <br />
-            <span>
-              RPC results and price availability will appear together. Route checking is not part of
-              this API.
-            </span>
-          </p>
-        </div>
-      )}
-      {preview && (
-        <ActionButton variant="secondary" onClick={() => onNavigate('summary')}>
-          PREVIEW SCAN RESULTS
-        </ActionButton>
-      )}
-    </>
+              {steps.map((step, index) => (
+                <img
+                  key={step}
+                  src={designAsset(
+                    'scan',
+                    `progress_capsule_${preview ? (index < 2 ? 'complete' : index === 2 ? 'active' : 'pending') : index === 0 ? 'complete' : 'pending'}`,
+                  )}
+                  alt=""
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+            <ol className="analysis-steps">
+              {steps.map((step, index) => {
+                const state = preview
+                  ? index < 2
+                    ? 'complete'
+                    : index === 2
+                      ? 'active'
+                      : 'pending'
+                  : index === 0
+                    ? 'complete'
+                    : index === 1
+                      ? 'active'
+                      : 'pending';
+                return (
+                  <li key={step} data-state={state}>
+                    <img
+                      src={designAsset(
+                        'scan',
+                        state === 'complete'
+                          ? 'step_check_circle'
+                          : state === 'active'
+                            ? 'step_active_spinner'
+                            : 'step_pending_circle',
+                      )}
+                      alt=""
+                      aria-hidden="true"
+                    />
+                    <span>{step}</span>
+                    <strong>
+                      {state === 'complete'
+                        ? 'ГОТОВО'
+                        : state === 'active'
+                          ? 'ВИКОНУЄТЬСЯ'
+                          : preview
+                            ? 'ОЧІКУЄ'
+                            : 'БЕЗ ДАНИХ ЕТАПУ'}
+                    </strong>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="automatic-note">Результати відкриються автоматично</p>
+            {!preview && (
+              <button className="text-button scan-dismiss" type="button" onClick={onDismiss}>
+                DISMISS SCAN
+              </button>
+            )}
+          </>
+        )}
+      </MechanicalPanel>
+    </div>
   );
 }

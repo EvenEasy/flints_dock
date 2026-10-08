@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 40" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="solana_mark-gradient" x1="7" y1="35" x2="40" y2="4" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#BD3AFF" />
+            <stop offset=".48" stop-color="#2DF2CE" />
+            <stop offset="1" stop-color="#12EAC0" />
+          </linearGradient>
+        </defs>
+        <path d="M11 4h31l-8 8H3zM3 16h31l8 8H11zM11 28h31l-8 8H3z" fill="url(#solana_mark-gradient)" />
+      </svg>
+    

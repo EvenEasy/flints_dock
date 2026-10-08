@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 815 235" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="frame_title_pedestal-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#9B809B" />
+            <stop offset=".1" stop-color="#232330" />
+            <stop offset=".25" stop-color="#5D465E" />
+            <stop offset=".5" stop-color="#0A0B11" />
+            <stop offset=".75" stop-color="#827183" />
+            <stop offset="1" stop-color="#24212D" />
+          </linearGradient>
+          <radialGradient id="frame_title_pedestal-surface">
+            <stop stop-color="#B82AFF" stop-opacity=".06" />
+            <stop offset="1" stop-color="#020306" />
+          </radialGradient>
+        </defs>
+        <polygon points="32.92,53.55 141.65,53.55 190.53,1.00 624.47,1.00 673.35,53.55 782.08,53.55 814.00,85.28 814.00,199.30 778.09,234.00 680.33,234.00 657.39,219.13 157.61,219.13 134.67,234.00 36.91,234.00 1.00,199.30 1.00,85.28" fill="#07080D" stroke="url(#frame_title_pedestal-metal)" stroke-width="3" />
+        <polygon points="36.61,55.74 144.27,55.74 192.67,5.00 622.33,5.00 670.73,55.74 778.39,55.74 810.00,86.38 810.00,196.49 774.44,230.00 677.64,230.00 654.93,215.64 160.07,215.64 137.36,230.00 40.56,230.00 5.00,196.49 5.00,86.38" fill="#0E0C14" stroke="#524456" stroke-width="2" />
+        <polygon points="40.29,57.94 146.89,57.94 194.80,9.00 620.20,9.00 668.11,57.94 774.71,57.94 806.00,87.49 806.00,193.68 770.80,226.00 674.96,226.00 652.47,212.15 162.53,212.15 140.04,226.00 44.20,226.00 9.00,193.68 9.00,87.49" fill="#020306" stroke="#B82AFF" stroke-opacity=".25" stroke-width="5" />
+        <polygon points="43.06,59.59 148.85,59.59 196.40,12.00 618.60,12.00 666.15,59.59 771.94,59.59 803.00,88.32 803.00,191.57 768.06,223.00 672.95,223.00 650.62,209.53 164.38,209.53 142.05,223.00 46.94,223.00 12.00,191.57 12.00,88.32" fill="url(#frame_title_pedestal-surface)" stroke="#B82AFF" stroke-width="1.8" />
+        <polygon points="47.67,62.33 152.12,62.33 199.07,17.00 615.93,17.00 662.88,62.33 767.33,62.33 798.00,89.70 798.00,188.06 763.50,218.00 669.59,218.00 647.55,205.17 167.45,205.17 145.41,218.00 51.50,218.00 17.00,188.06 17.00,89.70" fill="#020306" fill-opacity=".6" stroke="#B82AFF" stroke-opacity=".35" stroke-width=".7" />
+        <g transform="">
+          <path d="M83 88H54l-24 26v60l25 25h29" stroke="#B82AFF" stroke-width="5" />
+          <path d="M84 88H54l-24 26v60l25 25h29" stroke="#E8AFFF" stroke-width="1.5" />
+          <path d="M64 120h59v18H59M56 160h70v18H62" stroke="#231131" />
+          <circle cx="145" cy="141" r="7" fill="#0C223A" stroke="#6C46B2" />
+          <circle cx="145" cy="141" r="2" fill="#4BADFF" />
+        </g>
+        <g transform="translate(815 0) scale(-1 1)">
+          <path d="M83 88H54l-24 26v60l25 25h29" stroke="#B82AFF" stroke-width="5" />
+          <path d="M84 88H54l-24 26v60l25 25h29" stroke="#E8AFFF" stroke-width="1.5" />
+          <path d="M64 120h59v18H59M56 160h70v18H62" stroke="#231131" />
+          <circle cx="145" cy="141" r="7" fill="#0C223A" stroke="#6C46B2" />
+          <circle cx="145" cy="141" r="2" fill="#4BADFF" />
+        </g>
+        <circle cx="10.0" cy="51.7" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="805.0" cy="51.7" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="10.0" cy="183.3" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="805.0" cy="183.3" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+      </svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 862 155" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="connect_button_shell-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#B99DA9" />
+            <stop offset=".15" stop-color="#25202C" />
+            <stop offset=".32" stop-color="#705358" />
+            <stop offset=".53" stop-color="#0A0A13" />
+            <stop offset=".74" stop-color="#8B7279" />
+            <stop offset="1" stop-color="#201C28" />
+          </linearGradient>
+          <radialGradient id="connect_button_shell-face" cx=".5" cy=".15" r=".9">
+            <stop stop-color="#00F4D1" stop-opacity=".09" />
+            <stop offset=".65" stop-color="#02070B" />
+            <stop offset="1" stop-color="#010306" />
+          </radialGradient>
+        </defs>
+        <polygon points="43.81,2.00 818.19,2.00 860.00,41.26 860.00,113.74 818.19,153.00 43.81,153.00 2.00,113.74 2.00,41.26" fill="#080910" stroke="url(#connect_button_shell-metal)" stroke-width="4" />
+        <polygon points="48.32,7.00 813.68,7.00 855.00,43.66 855.00,111.34 813.68,148.00 48.32,148.00 7.00,111.34 7.00,43.66" fill="#05050B" stroke="#554357" stroke-width="2" />
+        <polygon points="52.83,12.00 809.17,12.00 850.00,46.06 850.00,108.94 809.17,143.00 52.83,143.00 12.00,108.94 12.00,46.06" fill="#02040A" stroke="#00F4D1" stroke-width="4" stroke-opacity=".3" />
+        <polygon points="58.25,18.00 803.75,18.00 844.00,48.94 844.00,106.06 803.75,137.00 58.25,137.00 18.00,106.06 18.00,48.94" fill="url(#connect_button_shell-face)" stroke="#00F4D1" stroke-width="2.5" />
+        <polygon points="62.76,23.00 799.24,23.00 839.00,51.34 839.00,103.66 799.24,132.00 62.76,132.00 23.00,103.66 23.00,51.34" fill="#020408" fill-opacity=".55" stroke="#00F4D1" stroke-width=".9" stroke-opacity=".3" />
+        <polygon points="55.54,15.00 806.46,15.00 847.00,47.50 847.00,107.50 806.46,140.00 55.54,140.00 15.00,107.50 15.00,47.50" stroke="#CBFFF3" stroke-width="1.4" />
+        <path d="M60 24H802" stroke="#C2FFF0" stroke-width="1" opacity=".45" />
+      </svg>

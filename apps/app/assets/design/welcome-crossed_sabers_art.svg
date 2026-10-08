@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="crossed_sabers-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#F4EFFF" />
+            <stop offset=".16" stop-color="#5D576D" />
+            <stop offset=".34" stop-color="#171520" />
+            <stop offset=".54" stop-color="#A9A1BC" />
+            <stop offset=".73" stop-color="#302939" />
+            <stop offset="1" stop-color="#05060B" />
+          </linearGradient>
+          <radialGradient id="crossed_sabers-violet">
+            <stop stop-color="#F0B1FF" />
+            <stop offset=".38" stop-color="#9340CA" />
+            <stop offset=".7" stop-color="#401466" />
+            <stop offset="1" stop-color="#0B0618" />
+          </radialGradient>
+          <filter id="crossed_sabers-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
+        </defs>
+        <g transform="">
+          <path d="M106 37L350 72l-12 10L104 47Z" fill="url(#crossed_sabers-metal)" stroke="#AFA0C0" stroke-width="1.5" />
+          <path d="M111 38L341 74" stroke="#E4CAFF" stroke-width="2" />
+          <path d="M42 80l62-25-7-17-62 24z" fill="#17101D" stroke="#9D83B2" stroke-width="2" />
+          <path d="M51 61l5 16M63 56l5 16M75 51l5 16M87 46l5 16" stroke="url(#crossed_sabers-metal)" stroke-width="5" />
+          <path d="M97 26q-13-15-20-4q-4 10 8 16l22 45q8 10 16 0q2-10-11-13" stroke="url(#crossed_sabers-metal)" stroke-width="9" fill="none" />
+          <circle cx="31" cy="75" r="12" fill="#15101A" stroke="url(#crossed_sabers-metal)" stroke-width="4" />
+          <circle cx="31" cy="75" r="5" stroke="#8E6CA9" stroke-width="2" />
+        </g>
+        <g transform="translate(420 0) scale(-1 1)">
+          <path d="M106 37L350 72l-12 10L104 47Z" fill="url(#crossed_sabers-metal)" stroke="#AFA0C0" stroke-width="1.5" />
+          <path d="M111 38L341 74" stroke="#E4CAFF" stroke-width="2" />
+          <path d="M42 80l62-25-7-17-62 24z" fill="#17101D" stroke="#9D83B2" stroke-width="2" />
+          <path d="M51 61l5 16M63 56l5 16M75 51l5 16M87 46l5 16" stroke="url(#crossed_sabers-metal)" stroke-width="5" />
+          <path d="M97 26q-13-15-20-4q-4 10 8 16l22 45q8 10 16 0q2-10-11-13" stroke="url(#crossed_sabers-metal)" stroke-width="9" fill="none" />
+          <circle cx="31" cy="75" r="12" fill="#15101A" stroke="url(#crossed_sabers-metal)" stroke-width="4" />
+          <circle cx="31" cy="75" r="5" stroke="#8E6CA9" stroke-width="2" />
+        </g>
+      </svg>
+      

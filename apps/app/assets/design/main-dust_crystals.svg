@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+        <ellipse cx="80" cy="109" rx="71" ry="7" fill="#002E27" stroke="#00B89E" stroke-opacity=".3" />
+        <g>
+          <path d="M81 15l21 13.23v55.769999999999996l-21 13.02l-21 -13.02v-55.769999999999996z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M81 15l21 13.23-21 13.02-21 -13.02z" fill="#53F8DB" />
+          <path d="M81 41.25v55.769999999999996l-21 -13.02v-55.769999999999996z" fill="#0BAF92" />
+          <path d="M81 41.25l21 -13.02v55.769999999999996l-21 13.02z" fill="#005A50" />
+          <path d="M81 15v26.25" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M54 38l17 10.71v38.29l-17 10.54l-17 -10.54v-38.29z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M54 38l17 10.71-17 10.54-17 -10.54z" fill="#53F8DB" />
+          <path d="M54 59.25v38.29l-17 -10.54v-38.29z" fill="#0BAF92" />
+          <path d="M54 59.25l17 -10.54v38.29l-17 10.54z" fill="#005A50" />
+          <path d="M54 38v21.25" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M112 44l17 10.71v35.29l-17 10.54l-17 -10.54v-35.29z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M112 44l17 10.71-17 10.54-17 -10.54z" fill="#53F8DB" />
+          <path d="M112 65.25v35.29l-17 -10.54v-35.29z" fill="#0BAF92" />
+          <path d="M112 65.25l17 -10.54v35.29l-17 10.54z" fill="#005A50" />
+          <path d="M112 44v21.25" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M37 66l15 9.45v25.55l-15 9.3l-15 -9.3v-25.55z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M37 66l15 9.45-15 9.3-15 -9.3z" fill="#53F8DB" />
+          <path d="M37 84.75v25.55l-15 -9.3v-25.55z" fill="#0BAF92" />
+          <path d="M37 84.75l15 -9.3v25.55l-15 9.3z" fill="#005A50" />
+          <path d="M37 66v18.75" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M74 65l17 10.71v30.29l-17 10.54l-17 -10.54v-30.29z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M74 65l17 10.71-17 10.54-17 -10.54z" fill="#53F8DB" />
+          <path d="M74 86.25v30.29l-17 -10.54v-30.29z" fill="#0BAF92" />
+          <path d="M74 86.25l17 -10.54v30.29l-17 10.54z" fill="#005A50" />
+          <path d="M74 65v21.25" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M99 82l16 10.08v18.92l-16 9.92l-16 -9.92v-18.92z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M99 82l16 10.08-16 9.92-16 -9.92z" fill="#53F8DB" />
+          <path d="M99 102.0v18.92l-16 -9.92v-18.92z" fill="#0BAF92" />
+          <path d="M99 102.0l16 -9.92v18.92l-16 9.92z" fill="#005A50" />
+          <path d="M99 82v20.0" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M22 82l12 7.5600000000000005v13.44l-12 7.4399999999999995l-12 -7.4399999999999995v-13.44z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M22 82l12 7.5600000000000005-12 7.4399999999999995-12 -7.4399999999999995z" fill="#53F8DB" />
+          <path d="M22 97.0v13.44l-12 -7.4399999999999995v-13.44z" fill="#0BAF92" />
+          <path d="M22 97.0l12 -7.4399999999999995v13.44l-12 7.4399999999999995z" fill="#005A50" />
+          <path d="M22 82v15.0" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M132 82l13 8.19v17.810000000000002l-13 8.06l-13 -8.06v-17.810000000000002z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M132 82l13 8.19-13 8.06-13 -8.06z" fill="#53F8DB" />
+          <path d="M132 98.25v17.810000000000002l-13 -8.06v-17.810000000000002z" fill="#0BAF92" />
+          <path d="M132 98.25l13 -8.06v17.810000000000002l-13 8.06z" fill="#005A50" />
+          <path d="M132 82v16.25" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+        <g>
+          <path d="M49 91l14 8.82v14.18l-14 8.68l-14 -8.68v-14.18z" fill="#008B76" stroke="#02DDC4" stroke-width=".9" />
+          <path d="M49 91l14 8.82-14 8.68-14 -8.68z" fill="#53F8DB" />
+          <path d="M49 108.5v14.18l-14 -8.68v-14.18z" fill="#0BAF92" />
+          <path d="M49 108.5l14 -8.68v14.18l-14 8.68z" fill="#005A50" />
+          <path d="M49 91v17.5" stroke="#C3FFF2" stroke-width="1.2" />
+        </g>
+      </svg>
+      

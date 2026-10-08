@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="mascot_porthole-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#F4EFFF" />
+            <stop offset=".16" stop-color="#5D576D" />
+            <stop offset=".34" stop-color="#171520" />
+            <stop offset=".54" stop-color="#A9A1BC" />
+            <stop offset=".73" stop-color="#302939" />
+            <stop offset="1" stop-color="#05060B" />
+          </linearGradient>
+          <radialGradient id="mascot_porthole-violet">
+            <stop stop-color="#F0B1FF" />
+            <stop offset=".38" stop-color="#9340CA" />
+            <stop offset=".7" stop-color="#401466" />
+            <stop offset="1" stop-color="#0B0618" />
+          </radialGradient>
+          <filter id="mascot_porthole-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
+        </defs>
+        <circle cx="250" cy="250" r="236" fill="#03050A" stroke="#61536B" stroke-width="5" />
+        <circle cx="250" cy="250" r="227" stroke="url(#mascot_porthole-metal)" stroke-width="31" />
+        <circle cx="250" cy="250" r="207" stroke="#2B193D" stroke-width="7" />
+        <circle cx="250" cy="250" r="201" stroke="#A833EA" stroke-width="2" />
+        <g transform="rotate(0 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(30 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(60 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(90 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(120 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(150 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(180 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(210 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(240 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(270 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(300 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <g transform="rotate(330 250 250)">
+          <path d="M220 14h60l5 33h-70z" fill="#18121E" stroke="#8C7299" stroke-width="1.5" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#C83FFF" stroke-width="5" opacity=".45" filter="url(#mascot_porthole-glow)" />
+          <path d="M224 25h52M222 31h56M224 37h52" stroke="#D969FF" stroke-width="3" />
+          <path d="M225 31h50" stroke="#F9DFFF" stroke-width="1.4" />
+          <circle cx="209" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <circle cx="291" cy="36" r="3" fill="#08131E" stroke="#6D547B" />
+          <path d="M181 31l7 27M312 58l7-27" stroke="#17ADCC" stroke-width="2" opacity=".7" />
+        </g>
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(0 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(15 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(30 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(45 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(60 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(75 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(90 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(105 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(120 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(135 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(150 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(165 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(180 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(195 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(210 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(225 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(240 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(255 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(270 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(285 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(300 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(315 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(330 250 250)" />
+        <path d="M243 68h14" stroke="#13ADBB" stroke-width="1" opacity=".5" transform="rotate(345 250 250)" />
+        <path d="M96 225h36M362 225h36M123 329h17M360 329h17M135 158h34M331 158h34" stroke="#00CDE2" stroke-width="2" opacity=".4" />
+      </svg>
+      

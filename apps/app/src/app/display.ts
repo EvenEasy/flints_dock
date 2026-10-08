@@ -1,6 +1,6 @@
 export const PHONE_MIN_WIDTH = 360;
 export const PHONE_MAX_WIDTH = 480;
-export const PHONE_DEFAULT_WIDTH = 390;
+export const PHONE_DEFAULT_WIDTH = 430;
 
 export interface DisplayOptions {
   width: number;
@@ -21,6 +21,6 @@ export function displayOptions(
   const query = new URLSearchParams(search);
   return {
     width: phoneWidth(query.get('width') ?? defaults.width),
-    backdrop: (query.get('backdrop') ?? defaults.backdrop) === '1',
+    backdrop: (query.get('backdrop') ?? defaults.backdrop ?? '1') !== '0',
   };
 }

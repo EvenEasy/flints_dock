@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 110" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="dead_bone-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#F4EFFF" />
+            <stop offset=".16" stop-color="#5D576D" />
+            <stop offset=".34" stop-color="#171520" />
+            <stop offset=".54" stop-color="#A9A1BC" />
+            <stop offset=".73" stop-color="#302939" />
+            <stop offset="1" stop-color="#05060B" />
+          </linearGradient>
+          <radialGradient id="dead_bone-violet">
+            <stop stop-color="#F0B1FF" />
+            <stop offset=".38" stop-color="#9340CA" />
+            <stop offset=".7" stop-color="#401466" />
+            <stop offset="1" stop-color="#0B0618" />
+          </radialGradient>
+          <filter id="dead_bone-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
+        </defs>
+        <path d="M28 76C14 70 9 78 14 87c-4 9 4 16 13 11 8 6 16 0 12-11l59-47c11 5 20-1 17-10 8-7 2-18-8-17-7-10-18-7-19 3-9 2-12 12-6 18L28 76Z" fill="url(#dead_bone-metal)" stroke="#AFACB9" stroke-width="2" />
+        <path d="M35 80l56-45M22 79c-5-1-8 2-7 6M99 17c-5-1-8 3-6 8M108 30c5-1 6 3 4 5" stroke="#F0EAF8" stroke-width="3" stroke-linecap="round" />
+        <path d="M40 85l57-46" stroke="#34303C" stroke-width="4" />
+      </svg>
+      

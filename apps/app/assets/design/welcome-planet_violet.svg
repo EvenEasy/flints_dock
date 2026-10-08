@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 284 355" fill="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="planet_violet-sphere" cx=".38" cy=".4" r=".65">
+            <stop stop-color="#38216B" />
+            <stop offset=".52" stop-color="#3F1F75" />
+            <stop offset=".85" stop-color="#131145" />
+            <stop offset=".98" stop-color="#79A5FF" />
+            <stop offset="1" stop-color="#C1DFFF" />
+          </radialGradient>
+          <clipPath id="planet_violet-clip">
+            <ellipse cx="91" cy="151" rx="168" ry="177" />
+          </clipPath>
+        </defs>
+        <ellipse cx="91" cy="151" rx="168" ry="177" fill="url(#planet_violet-sphere)" stroke="#8AABFF" stroke-width="2" />
+        <path d="M-15 5q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="3.89" opacity=".55" />
+        <path d="M38 11q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="4.25" opacity=".55" />
+        <path d="M12 17q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="2.62" opacity=".55" />
+        <path d="M8 23q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="2.54" opacity=".55" />
+        <path d="M2 29q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.00" opacity=".55" />
+        <path d="M-20 35q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="4.67" opacity=".55" />
+        <path d="M-66 41q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="2.11" opacity=".55" />
+        <path d="M-60 47q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.73" opacity=".55" />
+        <path d="M28 53q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="4.61" opacity=".55" />
+        <path d="M-70 59q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.79" opacity=".55" />
+        <path d="M-45 65q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="3.84" opacity=".55" />
+        <path d="M-52 71q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="1.08" opacity=".55" />
+        <path d="M-68 77q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="2.36" opacity=".55" />
+        <path d="M14 83q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="3.98" opacity=".55" />
+        <path d="M38 89q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="4.79" opacity=".55" />
+        <path d="M-75 95q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="4.47" opacity=".55" />
+        <path d="M-62 101q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="2.55" opacity=".55" />
+        <path d="M-9 107q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="3.70" opacity=".55" />
+        <path d="M-6 113q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="2.93" opacity=".55" />
+        <path d="M-29 119q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="2.96" opacity=".55" />
+        <path d="M-14 125q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="1.66" opacity=".55" />
+        <path d="M-15 131q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="3.54" opacity=".55" />
+        <path d="M41 137q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="4.68" opacity=".55" />
+        <path d="M-2 143q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="4.69" opacity=".55" />
+        <path d="M31 149q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="4.66" opacity=".55" />
+        <path d="M-62 155q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="1.47" opacity=".55" />
+        <path d="M-62 161q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="4.29" opacity=".55" />
+        <path d="M-46 167q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.94" opacity=".55" />
+        <path d="M34 173q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.83" opacity=".55" />
+        <path d="M-37 179q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="3.22" opacity=".55" />
+        <path d="M-38 185q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="2.18" opacity=".55" />
+        <path d="M-68 191q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.19" opacity=".55" />
+        <path d="M25 197q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="1.80" opacity=".55" />
+        <path d="M33 203q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="1.91" opacity=".55" />
+        <path d="M-28 209q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.14" opacity=".55" />
+        <path d="M3 215q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="1.04" opacity=".55" />
+        <path d="M-67 221q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="1.93" opacity=".55" />
+        <path d="M41 227q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="3.97" opacity=".55" />
+        <path d="M29 233q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="4.31" opacity=".55" />
+        <path d="M47 239q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.93" opacity=".55" />
+        <path d="M-2 245q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="3.32" opacity=".55" />
+        <path d="M-52 251q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="3.77" opacity=".55" />
+        <path d="M-31 257q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="4.34" opacity=".55" />
+        <path d="M63 263q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="2.41" opacity=".55" />
+        <path d="M-53 269q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="4.68" opacity=".55" />
+        <path d="M-58 275q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="3.60" opacity=".55" />
+        <path d="M-3 281q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="4.71" opacity=".55" />
+        <path d="M-53 287q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="1.74" opacity=".55" />
+        <path d="M-18 293q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#BD74E9" stroke-width="2.81" opacity=".55" />
+        <path d="M19 299q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="1.40" opacity=".55" />
+        <path d="M43 305q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#1C1047" stroke-width="3.23" opacity=".55" />
+        <path d="M-51 311q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="3.06" opacity=".55" />
+        <path d="M-16 317q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="2.58" opacity=".55" />
+        <path d="M50 323q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#8557C0" stroke-width="3.43" opacity=".55" />
+        <path d="M46 329q28-20 55 4t49-1t66 4t51 6" clip-path="url(#planet_violet-clip)" stroke="#422566" stroke-width="3.22" opacity=".55" />
+      </svg>
+      

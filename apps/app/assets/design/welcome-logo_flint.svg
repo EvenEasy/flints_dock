@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 72" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="flint_emblem-gradient" x1="9" y1="7" x2="48" y2="68" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#D76FFF" />
+            <stop offset=".46" stop-color="#9C46E8" />
+            <stop offset=".57" stop-color="#0AE9D3" />
+            <stop offset="1" stop-color="#17CCD9" />
+          </linearGradient>
+        </defs>
+        <path d="M58 6H31C14 6 4 17 4 33s10 27 25 29l21 10-2-24H32c-9 0-15-6-15-15s6-15 15-15h16z" fill="url(#flint_emblem-gradient)" />
+        <path d="M47 27H32a7 7 0 0 0 0 14h9l7-8H32v-2h15z" fill="#0EF3CE" />
+        <path d="M34 52l8 4 1 7-9-5z" fill="#032B40" />
+      </svg>
+      

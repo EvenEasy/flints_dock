@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 445 46" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="frame_scan_tab-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#9B809B" />
+            <stop offset=".1" stop-color="#232330" />
+            <stop offset=".25" stop-color="#5D465E" />
+            <stop offset=".5" stop-color="#0A0B11" />
+            <stop offset=".75" stop-color="#827183" />
+            <stop offset="1" stop-color="#24212D" />
+          </linearGradient>
+          <radialGradient id="frame_scan_tab-surface">
+            <stop stop-color="#15B1AA" stop-opacity=".06" />
+            <stop offset="1" stop-color="#020306" />
+          </radialGradient>
+        </defs>
+        <polygon points="12.95,1.00 421.10,1.00 444.00,23.00 421.10,45.00 1.00,45.00 1.00,12.48" fill="#07080D" stroke="url(#frame_scan_tab-metal)" stroke-width="3" />
+        <polygon points="16.73,5.00 417.52,5.00 440.00,23.00 417.52,41.00 5.00,41.00 5.00,14.39" fill="#0E0C14" stroke="#524456" stroke-width="2" />
+        <polygon points="20.51,9.00 413.93,9.00 436.00,23.00 413.93,37.00 9.00,37.00 9.00,16.30" fill="#020306" stroke="#15B1AA" stroke-opacity=".25" stroke-width="5" />
+        <polygon points="23.35,12.00 411.24,12.00 433.00,23.00 411.24,34.00 12.00,34.00 12.00,17.74" fill="url(#frame_scan_tab-surface)" stroke="#15B1AA" stroke-width="1.8" />
+        <polygon points="28.08,17.00 406.76,17.00 428.00,23.00 406.76,29.00 17.00,29.00 17.00,20.13" fill="#020306" fill-opacity=".6" stroke="#15B1AA" stroke-opacity=".35" stroke-width=".7" />
+      </svg>

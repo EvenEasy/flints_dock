@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="nft_coin-gold" cx=".36" cy=".25">
+            <stop stop-color="#FFF0AA" />
+            <stop offset=".28" stop-color="#FFD24A" />
+            <stop offset=".62" stop-color="#B7740B" />
+            <stop offset="1" stop-color="#392001" />
+          </radialGradient>
+          <linearGradient id="nft_coin-edge" x1="15" y1="12" x2="100" y2="112" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFE8A3" />
+            <stop offset=".45" stop-color="#AC6907" />
+            <stop offset=".65" stop-color="#FFCE62" />
+            <stop offset="1" stop-color="#5F3403" />
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="60" r="55" fill="url(#nft_coin-edge)" stroke="#FFD86B" stroke-width="2" />
+        <circle cx="60" cy="60" r="47" fill="#7C4904" stroke="#F6CB63" stroke-width="3" />
+        <circle cx="60" cy="60" r="39" fill="url(#nft_coin-gold)" stroke="#E0A734" stroke-width="2" />
+        <circle cx="110.00" cy="60.00" r="1.3" fill="#4E2C03" />
+        <circle cx="109.24" cy="68.68" r="1.3" fill="#4E2C03" />
+        <circle cx="106.98" cy="77.10" r="1.3" fill="#4E2C03" />
+        <circle cx="103.30" cy="85.00" r="1.3" fill="#4E2C03" />
+        <circle cx="98.30" cy="92.14" r="1.3" fill="#4E2C03" />
+        <circle cx="92.14" cy="98.30" r="1.3" fill="#4E2C03" />
+        <circle cx="85.00" cy="103.30" r="1.3" fill="#4E2C03" />
+        <circle cx="77.10" cy="106.98" r="1.3" fill="#4E2C03" />
+        <circle cx="68.68" cy="109.24" r="1.3" fill="#4E2C03" />
+        <circle cx="60.00" cy="110.00" r="1.3" fill="#4E2C03" />
+        <circle cx="51.32" cy="109.24" r="1.3" fill="#4E2C03" />
+        <circle cx="42.90" cy="106.98" r="1.3" fill="#4E2C03" />
+        <circle cx="35.00" cy="103.30" r="1.3" fill="#4E2C03" />
+        <circle cx="27.86" cy="98.30" r="1.3" fill="#4E2C03" />
+        <circle cx="21.70" cy="92.14" r="1.3" fill="#4E2C03" />
+        <circle cx="16.70" cy="85.00" r="1.3" fill="#4E2C03" />
+        <circle cx="13.02" cy="77.10" r="1.3" fill="#4E2C03" />
+        <circle cx="10.76" cy="68.68" r="1.3" fill="#4E2C03" />
+        <circle cx="10.00" cy="60.00" r="1.3" fill="#4E2C03" />
+        <circle cx="10.76" cy="51.32" r="1.3" fill="#4E2C03" />
+        <circle cx="13.02" cy="42.90" r="1.3" fill="#4E2C03" />
+        <circle cx="16.70" cy="35.00" r="1.3" fill="#4E2C03" />
+        <circle cx="21.70" cy="27.86" r="1.3" fill="#4E2C03" />
+        <circle cx="27.86" cy="21.70" r="1.3" fill="#4E2C03" />
+        <circle cx="35.00" cy="16.70" r="1.3" fill="#4E2C03" />
+        <circle cx="42.90" cy="13.02" r="1.3" fill="#4E2C03" />
+        <circle cx="51.32" cy="10.76" r="1.3" fill="#4E2C03" />
+        <circle cx="60.00" cy="10.00" r="1.3" fill="#4E2C03" />
+        <circle cx="68.68" cy="10.76" r="1.3" fill="#4E2C03" />
+        <circle cx="77.10" cy="13.02" r="1.3" fill="#4E2C03" />
+        <circle cx="85.00" cy="16.70" r="1.3" fill="#4E2C03" />
+        <circle cx="92.14" cy="21.70" r="1.3" fill="#4E2C03" />
+        <circle cx="98.30" cy="27.86" r="1.3" fill="#4E2C03" />
+        <circle cx="103.30" cy="35.00" r="1.3" fill="#4E2C03" />
+        <circle cx="106.98" cy="42.90" r="1.3" fill="#4E2C03" />
+        <circle cx="109.24" cy="51.32" r="1.3" fill="#4E2C03" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(0.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(15.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(30.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(45.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(60.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(75.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(90.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(105.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(120.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(135.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(150.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(165.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(180.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(195.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(210.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(225.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(240.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(255.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(270.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(285.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(300.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(315.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(330.0 60 60)" />
+        <path d="M60 21v5" stroke="#FFD879" stroke-width="1.2" transform="rotate(345.0 60 60)" />
+        <path d="M60 30c-18 0-28 12-27 28l5 12v10l11 5v9h22v-9l11-5V70l5-12C88 42 78 30 60 30Z" fill="url(#nft_coin-edge)" stroke="#4F2C02" stroke-width="2" />
+        <path d="M42 53l14 7-8 11-10-6zM78 53l-14 7 8 11 10-6zM60 68l-6 11h12z" fill="#1A0D00" />
+        <path d="M49 84v9M56 85v9M63 85v9M70 84v9M60 33v16M46 38l10 12M74 38L64 50" stroke="#3C2102" stroke-width="2" />
+        <path d="M33 89l54-6M37 97l43-12" stroke="#E0AF44" stroke-width="2" />
+      </svg>
+      

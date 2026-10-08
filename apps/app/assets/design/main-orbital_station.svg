@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 230" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="orbital_station-cylinder" x1="130" y1="140" x2="240" y2="200" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#17DAE0" />
+            <stop offset=".3" stop-color="#004A6B" />
+            <stop offset=".7" stop-color="#433AAB" />
+            <stop offset="1" stop-color="#AD35ED" />
+          </linearGradient>
+          <radialGradient id="orbital_station-engine">
+            <stop stop-color="#ECD8FF" />
+            <stop offset=".15" stop-color="#A03CFF" />
+            <stop offset=".5" stop-color="#351183" />
+            <stop offset="1" stop-color="#070719" />
+          </radialGradient>
+        </defs>
+        <g>
+          <path d="M18 145l24 -12.0 24 12.0-24 12.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M18 145v28l24 12.0v-28z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M42 157.0l24 -12.0v28l-24 12.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M21 149v12.6M46 161.0l17 -8.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M52 126l25 -12.5 25 12.5-25 12.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M52 126v36l25 12.5v-36z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M77 138.5l25 -12.5v36l-25 12.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M55 130v16.2M81 142.5l18 -8.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M78 151l21 -10.5 21 10.5-21 10.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M78 151v34l21 10.5v-34z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M99 161.5l21 -10.5v34l-21 10.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M81 155v15.3M103 165.5l14 -6.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M32 104l24 -12.0 24 12.0-24 12.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M32 104v30l24 12.0v-30z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M56 116.0l24 -12.0v30l-24 12.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M35 108v13.5M60 120.0l17 -8.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M59 86l27 -13.5 27 13.5-27 13.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M59 86v30l27 13.5v-30z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M86 99.5l27 -13.5v30l-27 13.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M62 90v13.5M90 103.5l20 -9.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M92 73l28 -14.0 28 14.0-28 14.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M92 73v33l28 14.0v-33z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M120 87.0l28 -14.0v33l-28 14.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M95 77v14.85M124 91.0l21 -10.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M126 93l26 -13.0 26 13.0-26 13.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M126 93v35l26 13.0v-35z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M152 106.0l26 -13.0v35l-26 13.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M129 97v15.75M156 110.0l19 -9.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M151 69l26 -13.0 26 13.0-26 13.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M151 69v33l26 13.0v-33z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M177 82.0l26 -13.0v33l-26 13.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M154 73v14.85M181 86.0l19 -9.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M182 92l23 -11.5 23 11.5-23 11.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M182 92v35l23 11.5v-35z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M205 103.5l23 -11.5v35l-23 11.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M185 96v15.75M209 107.5l16 -7.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M86 116l25 -12.5 25 12.5-25 12.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M86 116v40l25 12.5v-40z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M111 128.5l25 -12.5v40l-25 12.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M89 120v18.0M115 132.5l18 -8.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M114 126l28 -14.0 28 14.0-28 14.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M114 126v31l28 14.0v-31z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M142 140.0l28 -14.0v31l-28 14.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M117 130v13.950000000000001M146 144.0l21 -10.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M154 117l24 -12.0 24 12.0-24 12.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M154 117v35l24 12.0v-35z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M178 129.0l24 -12.0v35l-24 12.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M157 121v15.75M182 133.0l17 -8.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M170 135l23 -11.5 23 11.5-23 11.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M170 135v30l23 11.5v-30z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M193 146.5l23 -11.5v30l-23 11.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M173 139v13.5M197 150.5l16 -7.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M77 49l8 -4.0 8 4.0-8 4.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M77 49v37l8 4.0v-37z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M85 53.0l8 -4.0v37l-8 4.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M80 53v16.650000000000002M89 57.0l1 -0.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M157 49l9 -4.5 9 4.5-9 4.5z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M157 49v29l9 4.5v-29z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M166 53.5l9 -4.5v29l-9 4.5z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M160 53v13.05M170 57.5l2 -0.5" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <g>
+          <path d="M189 80l6 -3.0 6 3.0-6 3.0z" fill="#26204F" stroke="#CB49F2" stroke-width="1" />
+          <path d="M189 80v19l6 3.0v-19z" fill="#090B20" stroke="#AE30EB" stroke-width="1" />
+          <path d="M195 83.0l6 -3.0v19l-6 3.0z" fill="#141038" stroke="#DA46FF" stroke-width="1" />
+          <path d="M192 84v8.55M199 87.0l-1 --1.0" stroke="#14CDE3" stroke-width="1.5" />
+        </g>
+        <path d="M133 139q26-30 64-4l39 29-31 47-59-30z" fill="url(#orbital_station-cylinder)" stroke="#724BE4" stroke-width="2" />
+        <path d="M149 132l-8 16 18 37M164 133l-10 18 18 39M181 138l-11 18 18 39M197 148l-12 18 18 35M213 157l-11 17 16 29" stroke="#14C1D2" stroke-width="3" />
+        <ellipse cx="218" cy="187" rx="24" ry="34" transform="rotate(27 218 187)" fill="url(#orbital_station-engine)" stroke="#D954FF" stroke-width="2" />
+        <ellipse cx="218" cy="187" rx="15" ry="24" transform="rotate(27 218 187)" stroke="#985AFF" stroke-width="2" />
+        <path d="M210 187h17M218 178v19" stroke="#EAB4FF" stroke-width="1.5" />
+        <path d="M29 159v21l16 8v-21M119 175v26l19 9v-24M164 194v24l18-8v-20" stroke="#AB3CDE" stroke-width="2" />
+        <path d="M43 167l18-9M119 194l17-8M173 207l10-4" stroke="#20E3E6" stroke-width="2" />
+      </svg>
+      

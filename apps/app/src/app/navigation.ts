@@ -1,32 +1,14 @@
 export const screens = [
-  { id: 'welcome', label: 'Welcome', frame: 's01' },
-  { id: 'scanning', label: 'Scanning wallet', frame: 's02' },
-  { id: 'summary', label: 'Scan complete', frame: 's03' },
-  { id: 'tokens', label: 'Swappable tokens', frame: 's04' },
-  { id: 'dead', label: 'Dead tokens', frame: 's05' },
-  { id: 'nfts', label: 'NFTs', frame: 's06' },
-  { id: 'manifest', label: 'Cleanup manifest', frame: 's07' },
-  { id: 'confirm', label: 'Confirm cleanup', frame: 's08' },
-  { id: 'salvage', label: 'Salvage operation', frame: 's09' },
-  { id: 'success', label: 'Cargo hold clean', frame: 's10' },
+  { id: 'welcome', label: 'Підключення' },
+  { id: 'scanning', label: 'Аналіз гаманця' },
+  { id: 'main', label: 'Станція' },
+  { id: 'cleanup', label: 'Очищення' },
+  { id: 'success', label: 'Очищення завершено' },
 ] as const;
-
 export type ScreenId = (typeof screens)[number]['id'];
+export type DockSection = 'station' | 'hangar' | 'holds' | 'missions' | 'profile';
 
+/** Hashes select known screens only; live result access is additionally guarded by App. */
 export function screenFromHash(): ScreenId {
-  const id = window.location.hash.slice(1);
-  return screens.find((screen) => screen.id === id)?.id ?? 'welcome';
+  return screens.find((screen) => screen.id === window.location.hash.slice(1))?.id ?? 'welcome';
 }
-
-export const backScreen: Record<ScreenId, ScreenId> = {
-  welcome: 'welcome',
-  scanning: 'welcome',
-  summary: 'welcome',
-  tokens: 'manifest',
-  dead: 'manifest',
-  nfts: 'manifest',
-  manifest: 'summary',
-  confirm: 'manifest',
-  salvage: 'confirm',
-  success: 'summary',
-};

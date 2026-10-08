@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 165 378" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="frame_right_panel-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#9B809B" />
+            <stop offset=".1" stop-color="#232330" />
+            <stop offset=".25" stop-color="#5D465E" />
+            <stop offset=".5" stop-color="#0A0B11" />
+            <stop offset=".75" stop-color="#827183" />
+            <stop offset="1" stop-color="#24212D" />
+          </linearGradient>
+          <radialGradient id="frame_right_panel-surface">
+            <stop stop-color="#B82AFF" stop-opacity=".06" />
+            <stop offset="1" stop-color="#020306" />
+          </radialGradient>
+        </defs>
+        <polygon points="20.76,21.89 141.28,1.00 164.00,23.88 164.00,355.12 144.24,377.00 21.75,377.00 1.00,353.13 1.00,43.77" fill="#07080D" stroke="url(#frame_right_panel-metal)" stroke-width="3" />
+        <polygon points="23.79,25.44 138.39,5.00 160.00,27.39 160.00,351.58 141.21,373.00 24.73,373.00 5.00,349.63 5.00,46.86" fill="#0E0C14" stroke="#524456" stroke-width="2" />
+        <polygon points="26.82,29.00 135.51,9.00 156.00,30.90 156.00,348.05 138.18,369.00 27.71,369.00 9.00,346.14 9.00,49.95" fill="#020306" stroke="#B82AFF" stroke-opacity=".25" stroke-width="5" />
+        <polygon points="29.09,31.67 133.35,12.00 153.00,33.54 153.00,345.40 135.91,366.00 29.95,366.00 12.00,343.52 12.00,52.27" fill="url(#frame_right_panel-surface)" stroke="#B82AFF" stroke-width="1.8" />
+        <polygon points="32.88,36.11 129.74,17.00 148.00,37.93 148.00,340.98 132.12,361.00 33.67,361.00 17.00,339.16 17.00,56.13" fill="#020306" fill-opacity=".6" stroke="#B82AFF" stroke-opacity=".35" stroke-width=".7" />
+        <circle cx="10.0" cy="83.2" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="155.0" cy="83.2" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="10.0" cy="294.8" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+        <circle cx="155.0" cy="294.8" r="2" fill="#07080D" stroke="#766678" stroke-width=".7" />
+      </svg>

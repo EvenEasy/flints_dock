@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 997 506" fill="none" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="connect_module_shell-metal" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#B99DA9" />
+            <stop offset=".15" stop-color="#25202C" />
+            <stop offset=".32" stop-color="#705358" />
+            <stop offset=".53" stop-color="#0A0A13" />
+            <stop offset=".74" stop-color="#8B7279" />
+            <stop offset="1" stop-color="#201C28" />
+          </linearGradient>
+          <radialGradient id="connect_module_shell-face" cx=".5" cy=".15" r=".9">
+            <stop stop-color="#07E3ED" stop-opacity=".09" />
+            <stop offset=".65" stop-color="#02070B" />
+            <stop offset="1" stop-color="#010306" />
+          </radialGradient>
+        </defs>
+        <polygon points="51.80,2.00 945.20,2.00 995.00,51.60 995.00,454.40 945.20,504.00 51.80,504.00 2.00,454.40 2.00,51.60" fill="#080910" stroke="url(#connect_module_shell-metal)" stroke-width="4" />
+        <polygon points="56.30,7.00 940.70,7.00 990.00,55.62 990.00,450.38 940.70,499.00 56.30,499.00 7.00,450.38 7.00,55.62" fill="#05050B" stroke="#554357" stroke-width="2" />
+        <polygon points="60.80,12.00 936.20,12.00 985.00,59.63 985.00,446.37 936.20,494.00 60.80,494.00 12.00,446.37 12.00,59.63" fill="#02040A" stroke="#07E3ED" stroke-width="4" stroke-opacity=".3" />
+        <polygon points="66.19,18.00 930.81,18.00 979.00,64.44 979.00,441.56 930.81,488.00 66.19,488.00 18.00,441.56 18.00,64.44" fill="url(#connect_module_shell-face)" stroke="#07E3ED" stroke-width="2.5" />
+        <polygon points="70.69,23.00 926.31,23.00 974.00,68.45 974.00,437.55 926.31,483.00 70.69,483.00 23.00,437.55 23.00,68.45" fill="#020408" fill-opacity=".55" stroke="#07E3ED" stroke-width=".9" stroke-opacity=".3" />
+        <g transform="">
+          <path d="M133 40H79l-28 31v56l17 21v236l-17 21v35l28 30h54" stroke="#09DCEB" stroke-width="4" />
+          <path d="M133 40H79l-28 31v56" stroke="#CDFFFF" stroke-width="1.3" />
+          <path d="M22 125v87M22 230v41M68 188v35" stroke="#BC25FF" stroke-width="3" />
+          <path d="M62 153v197" stroke="#252035" stroke-width="2" />
+        </g>
+        <g transform="translate(997 0) scale(-1 1)">
+          <path d="M133 40H79l-28 31v56l17 21v236l-17 21v35l28 30h54" stroke="#09DCEB" stroke-width="4" />
+          <path d="M133 40H79l-28 31v56" stroke="#CDFFFF" stroke-width="1.3" />
+          <path d="M22 125v87M22 230v41M68 188v35" stroke="#BC25FF" stroke-width="3" />
+          <path d="M62 153v197" stroke="#252035" stroke-width="2" />
+        </g>
+        <circle cx="10.00" cy="151.80" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="987.00" cy="151.80" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="10.00" cy="354.20" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+        <circle cx="987.00" cy="354.20" r="2.4" fill="#0A0810" stroke="#97808C" stroke-width=".8" />
+      </svg>

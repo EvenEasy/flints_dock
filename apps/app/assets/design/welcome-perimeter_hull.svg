@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536" fill="none" aria-hidden="true">
+        <g transform="">
+          <path d="M2 0h18v1325H2z" fill="#06060B" stroke="#43303E" />
+          <path d="M8 51v112M8 830v415" stroke="#725875" stroke-width="2" />
+          <path d="M6 172h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 177v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 458h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 463v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 869h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 874v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 981h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 986v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 1133h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 1138v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 1210h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 1215v31" stroke="#CA39FF" stroke-width="3" />
+        </g>
+        <g transform="translate(1024 0) scale(-1 1)">
+          <path d="M2 0h18v1325H2z" fill="#06060B" stroke="#43303E" />
+          <path d="M8 51v112M8 830v415" stroke="#725875" stroke-width="2" />
+          <path d="M6 172h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 177v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 458h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 463v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 869h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 874v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 981h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 986v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 1133h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 1138v31" stroke="#CA39FF" stroke-width="3" />
+          <path d="M6 1210h13v42H6z" fill="#1B0C27" stroke="#694881" />
+          <path d="M12 1215v31" stroke="#CA39FF" stroke-width="3" />
+        </g>
+      </svg>
+      
