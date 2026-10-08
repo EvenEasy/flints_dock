@@ -1,0 +1,526 @@
+/* Production layout fits a phone viewport; the separate XML reference canvas stays unchanged. */
+.phone-layout {
+  height: 100dvh;
+  min-height: 0;
+
+  .dock-screen {
+    width: min(
+      100%,
+      var(--screen-width),
+      max(var(--phone-min-width), calc((100dvh - 48px) * var(--phone-aspect-ratio)))
+    );
+    height: auto;
+    aspect-ratio: var(--phone-aspect-ratio);
+    max-height: 100%;
+  }
+
+  .screen-content {
+    display: flex;
+    flex-direction: column;
+    container-type: size;
+  }
+
+  .page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .brand {
+    flex: none;
+    width: clamp(192px, 55cqw, 238px);
+    height: clamp(40px, 7cqh, 64px);
+  }
+
+  .brand-copy p:first-child {
+    font-size: clamp(21px, 5.8cqw, 25px);
+  }
+
+  .brand--main .brand-copy p:first-child {
+    font-size: clamp(18px, 5cqw, 22px);
+  }
+
+  /* Only decorative art shrinks to the remaining space. Text and controls keep readable sizes. */
+  .mascot-hero {
+    flex: 1;
+    min-height: 0;
+    width: min(78%, 360px);
+    margin: 0 auto;
+    aspect-ratio: auto;
+    container-type: size;
+  }
+
+  .mascot-hero img,
+  .mascot-label {
+    --hero-width: min(100cqw, calc(100cqh * 592 / 553));
+    --hero-height: min(100cqh, calc(100cqw * 553 / 592));
+  }
+
+  .hero-ring {
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    width: var(--hero-width);
+    height: var(--hero-height);
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-portrait {
+    left: calc(50% - var(--hero-width) * 0.34628);
+    top: calc(50% - var(--hero-height) * 0.34448);
+    width: calc(var(--hero-width) * 0.68581);
+    height: calc(var(--hero-height) * 0.74864);
+  }
+
+  .hero-badge {
+    left: calc(50% - var(--hero-width) * 0.03547);
+    top: calc(50% - var(--hero-height) * 0.23056);
+    width: calc(var(--hero-width) * 0.06588);
+    height: calc(var(--hero-height) * 0.0633);
+  }
+
+  .hero-beam {
+    left: calc(50% - var(--hero-width) * 0.38682);
+    top: calc(50% + var(--hero-height) * 0.01718);
+    width: calc(var(--hero-width) * 0.77196);
+    height: calc(var(--hero-height) * 0.09946);
+  }
+
+  .mascot-label {
+    top: calc(50% - var(--hero-height) * 0.41);
+  }
+
+  .title-pedestal {
+    flex: none;
+    height: clamp(100px, 18cqh, 150px);
+    min-height: 0;
+    margin: 0 auto;
+
+    .panel-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 26px 22px 10px;
+    }
+  }
+
+  .connect-module {
+    flex: none;
+    margin: 0 auto;
+
+    .panel-content {
+      padding: clamp(18px, 3cqh, 28px) 24px;
+    }
+  }
+
+  .connect-module h2 {
+    font-size: clamp(24px, 6.7cqw, 30px);
+  }
+
+  .connect-button > span {
+    font-size: clamp(24px, 7cqw, 30px);
+    gap: 10px;
+  }
+
+  .connect-button span img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .connect-description {
+    margin: 8px 0 12px;
+  }
+
+  .connect-button {
+    height: clamp(64px, 9cqh, 76px);
+  }
+
+  .wallet-status {
+    margin-top: 12px;
+  }
+
+  .connected-status {
+    flex: none;
+    height: 44px;
+    margin: 0 auto;
+  }
+
+  .scan-title {
+    flex: none;
+    height: clamp(70px, 11cqh, 96px);
+    min-height: 0;
+    margin: 0 auto;
+
+    .panel-content {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 20px 22px 10px;
+    }
+  }
+
+  .scan-process {
+    flex: none;
+    margin: 0 auto;
+
+    .panel-content {
+      padding: 12px 24px 18px;
+    }
+  }
+
+  .stage-progress {
+    margin: 8px auto 10px;
+  }
+
+  .analysis-steps li {
+    min-height: 44px;
+    padding-block: 4px;
+    row-gap: 1px;
+  }
+
+  .automatic-note {
+    margin-top: 10px;
+  }
+
+  .scan-dismiss {
+    margin-top: 4px;
+  }
+
+  .main-hero {
+    flex: 1;
+    min-height: 76px;
+    margin: 0 auto;
+
+    .mascot-hero {
+      width: 118%;
+      height: 100%;
+      margin: 0 -9%;
+    }
+  }
+
+  .station-side,
+  .profit-side {
+    height: 100%;
+    max-height: 240px;
+
+    .panel-content {
+      gap: clamp(2px, 0.8cqh, 8px);
+      padding: 4px;
+    }
+  }
+
+  .side-title {
+    font-size: clamp(14px, 4.6cqw, 22px);
+  }
+
+  .station-side img:not(.surface-frame),
+  .profit-side img:not(.surface-frame) {
+    width: clamp(14px, 7cqh, 46px);
+    height: clamp(16px, 8cqh, 60px);
+  }
+
+  .page--main .title-pedestal {
+    height: clamp(80px, 15cqh, 126px);
+  }
+
+  .scan-summary {
+    flex: none;
+    margin: 0 auto;
+
+    .panel-content {
+      padding: 10px 18px 16px;
+    }
+  }
+
+  .scan-summary-heading {
+    min-height: 28px;
+    font-size: clamp(12px, 3.5cqw, 16px);
+  }
+
+  .scan-summary-content {
+    padding-top: 6px;
+  }
+
+  .scan-total,
+  .scan-rent {
+    gap: 3px;
+  }
+
+  .scan-total strong {
+    font-size: clamp(32px, 7cqh, 48px);
+  }
+
+  .scan-rent strong {
+    font-size: clamp(24px, 5cqh, 32px);
+  }
+
+  .cargo-manifest {
+    flex: none;
+    margin: 0 auto;
+
+    > h2 {
+      min-height: 28px;
+    }
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .category-card {
+    height: clamp(88px, 16cqh, 140px);
+    min-height: 44px;
+    padding: 10px 4px 8px;
+
+    > span {
+      font-size: clamp(14px, 3.8cqw, 18px);
+      margin-top: 2px;
+    }
+
+    > strong {
+      font-size: clamp(24px, 5cqh, 32px);
+    }
+  }
+
+  .category-art {
+    width: clamp(30px, 9cqh, 72px);
+    height: clamp(24px, 7cqh, 64px);
+  }
+
+  .category-card--dust .category-art {
+    width: clamp(40px, 12cqh, 90px);
+  }
+
+  .recover-button {
+    flex: none;
+    height: clamp(52px, 8cqh, 72px);
+    margin-top: 4px;
+
+    > span > img {
+      width: clamp(28px, 6cqh, 42px);
+      height: clamp(28px, 6cqh, 42px);
+    }
+  }
+
+  /* The manifest alone consumes and scrolls the remaining height; summary and CTA stay visible. */
+  .page--cleanup > .brand {
+    height: clamp(44px, 8cqh, 68px);
+  }
+
+  .mascot-hero--corner {
+    position: absolute;
+    width: 22%;
+    height: 80px;
+  }
+
+  .cleanup-header {
+    flex: none;
+    margin: 4px 6% 8px;
+    padding: 4px 0;
+
+    h1 {
+      font-size: clamp(38px, 10cqw, 50px);
+    }
+
+    p {
+      margin-top: 8px;
+    }
+  }
+
+  .asset-manifest {
+    flex: 1;
+    min-height: 0;
+
+    .panel-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 18px 24px;
+    }
+  }
+
+  .manifest-columns {
+    flex: none;
+  }
+
+  .asset-list {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .selection-summary {
+    flex: none;
+    margin: 0 auto;
+
+    .panel-content {
+      padding: 20px 24px;
+      min-height: 82px;
+    }
+  }
+
+  .page--success {
+    display: grid;
+    grid-template-areas: 'brand' 'hero' 'title' 'amount' 'scenery';
+    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 8cqh);
+
+    .brand {
+      grid-area: brand;
+    }
+
+    .mascot-hero {
+      grid-area: hero;
+      height: 100%;
+    }
+  }
+
+  .success-title {
+    grid-area: title;
+    margin: 0 auto;
+    min-height: 120px;
+
+    .panel-content {
+      padding: 60px 24px 26px;
+    }
+  }
+
+  .page--success .success-medallion {
+    position: relative;
+    grid-area: title;
+    align-self: start;
+    left: auto;
+    top: -12px;
+    margin: 0 auto;
+    z-index: 3;
+  }
+
+  .returned-sol {
+    grid-area: amount;
+    margin-top: -12px;
+    min-height: 156px;
+  }
+
+  .success-spacer {
+    grid-area: scenery;
+    height: auto;
+  }
+
+  .bottom-navigation {
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Long backend messages can scroll locally instead of moving the controls off screen. */
+  .page > .notice,
+  .screen-content > .notice,
+  .asset-manifest .notice {
+    flex: none;
+    max-height: 84px;
+    overflow: auto;
+    margin-block: 4px;
+  }
+
+  .session-shortcut {
+    flex: none;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .phone-layout {
+    padding-top: env(safe-area-inset-top, 0px);
+
+    .dock-screen {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+      max-height: none;
+    }
+
+    &:has(.preview-indicator) {
+      padding-top: max(48px, env(safe-area-inset-top, 0px));
+    }
+  }
+}
+
+/* Short phone screens reduce panel spacing before reducing the decorative hero slot. */
+@container (max-height: 600px) {
+  .phone-layout {
+    .station-side,
+    .profit-side {
+      .side-title {
+        font-size: 14px;
+      }
+
+      img:not(.surface-frame) {
+        display: none;
+      }
+    }
+
+    .page--main .title-pedestal {
+      height: 80px;
+
+      .panel-content {
+        display: grid;
+        grid-template-rows: 16px 36px 16px;
+        align-content: center;
+        gap: 1px;
+        padding: 8px 16px 4px;
+      }
+
+      h1 {
+        font-size: clamp(32px, 9cqw, 36px);
+      }
+
+      .eyebrow {
+        font-size: 14px;
+      }
+
+      .tagline {
+        margin-top: 0;
+      }
+    }
+
+    .scan-summary .panel-content {
+      padding: 8px 14px 12px;
+    }
+
+    .scan-summary-content p {
+      font-size: 12px;
+    }
+
+    .scan-total strong {
+      font-size: 30px;
+    }
+
+    .scan-rent strong {
+      font-size: 22px;
+    }
+
+    .category-art {
+      width: 34px;
+      height: 26px;
+    }
+
+    .category-card--dust .category-art {
+      width: 44px;
+    }
+
+    .scan-process h2 {
+      font-size: 24px;
+    }
+
+    .automatic-note {
+      font-size: 12px;
+    }
+
+    .analysis-steps li > span {
+      font-size: 16px;
+    }
+  }
+}

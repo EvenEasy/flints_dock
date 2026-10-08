@@ -2,11 +2,11 @@ import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { SceneBackground } from '../shared/ui/Design';
 import type { DesignPage } from '../shared/assets';
-import { displayOptions } from './display';
+import { displayOptions, PHONE_ASPECT_RATIO, PHONE_MIN_WIDTH } from './display';
 import { BottomNavigation } from './BottomNavigation';
 import type { DockSection, ScreenId } from './navigation';
 
-/** Center a portrait application canvas; scrollable content never sits behind its navigation. */
+/** Fit the UI into a portrait phone viewport, keeping lists and navigation in separate rows. */
 export function AppShell({
   screen,
   preview,
@@ -32,10 +32,12 @@ export function AppShell({
   const connectedPage = ['main', 'cleanup', 'success'].includes(screen);
   return (
     <div
-      className={`app-viewport ${display.backdrop ? 'app-backdrop' : ''} ${reference ? 'reference-mode' : ''}`}
+      className={`app-viewport ${display.backdrop ? 'app-backdrop' : ''} ${reference ? 'reference-mode' : 'phone-layout'}`}
       style={
         {
           '--screen-width': `${reference ? (screen === 'main' ? 853 : 1024) : display.width}px`,
+          '--phone-aspect-ratio': PHONE_ASPECT_RATIO,
+          '--phone-min-width': `${PHONE_MIN_WIDTH}px`,
         } as CSSProperties
       }
     >

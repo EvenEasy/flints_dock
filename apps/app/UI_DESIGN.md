@@ -18,9 +18,12 @@ PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright npm run test:e2e
 
 Desktop uses a centered portrait screen and decorative space backdrop. Width
 preferences are bounded to 360–480 CSS px. Viewports up to 600px use the available
-width and readable production reflow, including 320px screens. Scrolling content
-and the bottom navigation occupy separate layout rows; navigation cannot obscure
-an action. An asset list can also scroll independently.
+width, including 320px screens. The desktop canvas uses a modern phone's 390:844
+aspect ratio and fits the available viewport height. Production UI adapts to the
+screen height: decorative heroes and panel spacing shrink before text or touch
+targets. On standard phone sizes, the page stays in view and only long asset lists
+scroll; summary, action, and navigation remain visible. Extremely short windows or
+large text zoom retain a scrolling fallback rather than clipping controls.
 
 Browser mode cannot connect a signer or analyze a wallet. Its connection dialog
 explains how to start Tauri and provides entry into the design preview.
@@ -54,7 +57,8 @@ live wallet. The XML completion example is reachable only in preview.
   and reusable include/keep rows. Metadata is escaped text; remote artwork is
   never loaded. Inventory inspection paginates by 50 rows.
 - `src/features/cleanup`: frontend-only selection and static result presentation.
-- `src/styles.css`: shared visuals, dialogs, and readable responsive flow.
+- `src/styles.css`: shared visuals, dialogs, and reference surface defaults.
+- `src/styles/phone.css`: height-responsive phone layout and local list scrolling.
 - `src/styles/reference.css`: page-specific XML reference geometry.
 - `assets/design`: inert SVG resources exported from the new XML catalogs.
 - `assets/fonts/roboto-condensed`: locally bundled Cyrillic variable font and OFL

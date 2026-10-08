@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import type { AxeResults } from 'axe-core';
 import { screens } from '../../src/app/navigation';
+import { PHONE_ASPECT_RATIO } from '../../src/app/display';
 import { address, wallet, pricedWallet, token } from '../../src/test/fixtures';
 import type { WalletAnalysis } from '../../frontend-contract/types';
 
@@ -62,7 +63,8 @@ for (const width of [320, 360, 390, 393, 430, 480, 700, 1280]) {
       await page.evaluate(() => document.fonts.ready);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       const box = await page.getByRole('region', { name: 'Wallet app screen' }).boundingBox();
-      expect(box!.width).toBe(width <= 600 ? width : 480);
+      const expectedWidth = width <= 600 ? width : Math.min(480, 952 * PHONE_ASPECT_RATIO);
+      expect(box!.width).toBeCloseTo(expectedWidth, 1);
       expect(box!.x + box!.width / 2).toBeCloseTo(width / 2, 0);
       if (width > 600) expect(box!.y + box!.height / 2).toBeCloseTo(500, 0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -102,6 +104,70 @@ for (const width of [320, 360, 390, 393, 430, 480, 700, 1280]) {
       });
     });
   }
+}
+
+// Actual phone heights catch regressions that tall screenshot viewports cannot reveal.
+for (const viewport of [
+  { width: 360, height: 640 },
+  { width: 375, height: 667 },
+  { width: 390, height: 844 },
+  { width: 393, height: 852 },
+  { width: 430, height: 932 },
+  { width: 480, height: 960 },
+  { width: 1280, height: 900 },
+  { width: 1280, height: 720 },
+]) {
+  test(`Phone_${viewport.width}x${viewport.height}_FitsAllPagesWithoutPageScroll`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    for (const descriptor of screens) {
+      await page.goto(`/?preview=1#${descriptor.id}`);
+      await page.evaluate(() => document.fonts.ready);
+      const canvas = await page.getByRole('region', { name: 'Wallet app screen' }).boundingBox();
+      if (viewport.width > 600) {
+        expect(canvas!.width).toBeGreaterThanOrEqual(360);
+        expect(canvas!.height).toBeLessThanOrEqual(viewport.height - 48);
+        expect(canvas!.x + canvas!.width / 2).toBeCloseTo(viewport.width / 2, 0);
+        expect(canvas!.y + canvas!.height / 2).toBeCloseTo(viewport.height / 2, 0);
+      }
+      const dimensions = await page.evaluate(() => {
+        const main = document.querySelector('main')!;
+        const list = document.querySelector('.asset-list');
+        return {
+          pageOverflow: main.scrollHeight - main.clientHeight,
+          documentOverflow: document.documentElement.scrollHeight - innerHeight,
+          horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
+          listScrollable: list ? list.scrollHeight > list.clientHeight : null,
+        };
+      });
+      expect(dimensions.pageOverflow, descriptor.id).toBeLessThanOrEqual(1);
+      expect(dimensions.documentOverflow, descriptor.id).toBeLessThanOrEqual(1);
+      expect(dimensions.horizontalOverflow, descriptor.id).toBeLessThanOrEqual(1);
+      if (descriptor.id === 'cleanup') {
+        expect(dimensions.listScrollable).toBe(true);
+        const last = page.getByRole('checkbox', { name: /Include Lost Cargo/ });
+        await last.scrollIntoViewIfNeeded();
+        await last.uncheck();
+        await expect(last).not.toBeChecked();
+        expect(await page.locator('main').evaluate((element) => element.scrollTop)).toBe(0);
+      }
+      if (descriptor.id === 'main' || descriptor.id === 'cleanup') {
+        const action = await page
+          .getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })
+          .boundingBox();
+        const navigation = await page
+          .getByRole('navigation', { name: 'Основна навігація' })
+          .boundingBox();
+        expect(action!.y + action!.height).toBeLessThanOrEqual(navigation!.y);
+        expect(action!.y).toBeGreaterThanOrEqual(0);
+      }
+      await page.screenshot({
+        path: `.cache/phone-layout/${descriptor.id}-${viewport.width}x${viewport.height}.png`,
+        animations: 'disabled',
+      });
+    }
+  });
 }
 
 for (const descriptor of screens) {
@@ -165,6 +231,24 @@ test('PreviewSelection_ClearMeansKeepAndEmptyDisablesCTA', async ({ page }) => {
   await page.keyboard.press('Tab');
 });
 
+test('PhoneResize_KeepsSelectionAndOnlyListScrolls', async ({ page }) => {
+  await page.setViewportSize({ width: 430, height: 932 });
+  await page.goto('/?preview=1#cleanup');
+  const bonk = page.getByRole('checkbox', { name: /Include Bonk/ });
+  await bonk.uncheck();
+  await page.setViewportSize({ width: 360, height: 640 });
+  await expect(bonk).not.toBeChecked();
+  const last = page.getByRole('checkbox', { name: /Include Lost Cargo/ });
+  await last.scrollIntoViewIfNeeded();
+  await last.check();
+  const main = page.locator('main');
+  expect(
+    await main.evaluate((element) => element.scrollHeight - element.clientHeight),
+  ).toBeLessThanOrEqual(1);
+  expect(await main.evaluate((element) => element.scrollTop)).toBe(0);
+  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeVisible();
+});
+
 test('PreviewMenu_AllFiveScreensWithoutAutomaticCompletion', async ({ page }) => {
   await page.goto('/?preview=1#scanning');
   await page.waitForTimeout(1300);
@@ -179,6 +263,7 @@ test('PreviewMenu_AllFiveScreensWithoutAutomaticCompletion', async ({ page }) =>
 });
 
 test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
   await mockDesktop(page, pricedWallet());
   await page.goto('/');
   await connect(page);
@@ -197,6 +282,9 @@ test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }
   await page.getByRole('checkbox', { name: /mint EPjFW/ }).uncheck();
   await expect(page.getByText('ЗАЛИШИТИ', { exact: true })).toBeVisible();
   await expect(page.getByText('МЕРТВИЙ')).toHaveCount(0);
+  expect(
+    await page.locator('main').evaluate((element) => element.scrollHeight - element.clientHeight),
+  ).toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: 'ПРОФІЛЬ' }).click();
   await page.getByRole('button', { name: 'DISCONNECT WALLET' }).click();
   await expect(page.getByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
@@ -251,7 +339,10 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
   await last.scrollIntoViewIfNeeded();
   await last.uncheck();
   await expect(last).not.toBeChecked();
-  await page.locator('main').evaluate((el) => (el.scrollTop = el.scrollHeight));
+  expect(
+    await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
+  ).toBeLessThanOrEqual(1);
+  expect(await page.locator('main').evaluate((el) => el.scrollTop)).toBe(0);
   const cta = await page.getByRole('button', { name: /CLEANUP API REQUIRED/ }).boundingBox();
   const nav = await page.getByRole('navigation', { name: 'Основна навігація' }).boundingBox();
   expect(cta!.y + cta!.height).toBeLessThanOrEqual(nav!.y);

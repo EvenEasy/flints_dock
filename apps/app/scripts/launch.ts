@@ -1,6 +1,11 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { PHONE_MIN_WIDTH, PHONE_MAX_WIDTH, PHONE_DEFAULT_WIDTH } from '../src/app/display.ts';
+import {
+  PHONE_MIN_WIDTH,
+  PHONE_MAX_WIDTH,
+  PHONE_DEFAULT_WIDTH,
+  PHONE_ASPECT_RATIO,
+} from '../src/app/display.ts';
 
 // Pass only display preferences to Vite; no credentials are accepted as command arguments.
 const [mode, ...args] = process.argv.slice(2);
@@ -36,7 +41,7 @@ if (mode === 'dev' || mode === 'preview') {
           label: 'main',
           title: 'Flint’s Dock',
           width: backdrop === '1' ? 1100 : Number(width),
-          height: backdrop === '1' ? 1000 : Math.max(640, Math.round(Number(width) * 1.5)),
+          height: backdrop === '1' ? 1000 : Math.round(Number(width) / PHONE_ASPECT_RATIO),
           minWidth: PHONE_MIN_WIDTH,
           minHeight: 600,
         },

@@ -2,6 +2,9 @@ export const PHONE_MIN_WIDTH = 360;
 export const PHONE_MAX_WIDTH = 480;
 export const PHONE_DEFAULT_WIDTH = 430;
 
+// A 390×844 CSS viewport represents a modern portrait phone, independently of physical inches.
+export const PHONE_ASPECT_RATIO = 390 / 844;
+
 export interface DisplayOptions {
   width: number;
   backdrop: boolean;
