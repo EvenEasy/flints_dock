@@ -1,4 +1,4 @@
-# dock_flints
+# flints_dock
 
 A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair or seed and confirmation; NFT/cNFT liquidation, parallel cleanup and multi-swap transaction batching are excluded.
 
@@ -12,7 +12,7 @@ cargo run -- scan --keypair /path/to/wallet.json --tokens --no-prices
 cargo run -- scan --seed "$WALLET_SEED_BASE64" --balance --no-prices
 ```
 
-`scan` is explicit; the original `dock_flints -p WALLET ...` shorthand remains supported. Execution requires a signer and explicit confirmation. Do not pass `--pubkey` alongside `--keypair` anymore.
+`scan` is explicit; the original `flints_dock -p WALLET ...` shorthand remains supported. Execution requires a signer and explicit confirmation. Do not pass `--pubkey` alongside `--keypair` anymore.
 
 ## Usage
 
