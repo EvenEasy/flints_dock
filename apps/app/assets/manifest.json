@@ -1,0 +1,1768 @@
+{
+  "project": "Flint’s Dock",
+  "source": "reference/source-board.png",
+  "source_sha256": "feb6fff102ec8ce514cb0a74660b4f10e019caf595ee9868c0674582a00452af",
+  "assets": [
+    {
+      "path": "brand/pirate-emblem.png",
+      "kind": "raster-viewport",
+      "asset_id": "pirate-emblem",
+      "source_region": [
+        134.0,
+        23.0,
+        52.0,
+        43.0
+      ],
+      "width": 52,
+      "height": 43,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "illustrations/welcome-raptor.png",
+      "kind": "raster-viewport",
+      "asset_id": "welcome-raptor",
+      "source_region": [
+        18,
+        115,
+        281,
+        237
+      ],
+      "width": 281,
+      "height": 237,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "illustrations/orbital-station.png",
+      "kind": "raster-viewport",
+      "asset_id": "orbital-station",
+      "source_region": [
+        333,
+        124,
+        249,
+        199
+      ],
+      "width": 249,
+      "height": 199,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "illustrations/success-raptor.png",
+      "kind": "raster-viewport",
+      "asset_id": "success-raptor",
+      "source_region": [
+        1160,
+        659,
+        268,
+        136
+      ],
+      "width": 268,
+      "height": 136,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-01.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-01",
+      "source_region": [
+        23.0,
+        684.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-02.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-02",
+      "source_region": [
+        108.0,
+        684.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-03.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-03",
+      "source_region": [
+        193.0,
+        684.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-04.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-04",
+      "source_region": [
+        23.0,
+        774.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-05.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-05",
+      "source_region": [
+        108.0,
+        774.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-06.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-06",
+      "source_region": [
+        193.0,
+        774.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-07.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-07",
+      "source_region": [
+        23.0,
+        864.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-08.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-08",
+      "source_region": [
+        108.0,
+        864.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "nfts/nft-09.png",
+      "kind": "raster-viewport",
+      "asset_id": "nft-09",
+      "source_region": [
+        193.0,
+        864.0,
+        78.0,
+        83.0
+      ],
+      "width": 78,
+      "height": 83,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-jup.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-jup",
+      "source_region": [
+        906.0,
+        159.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-bonk.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-bonk",
+      "source_region": [
+        906.0,
+        204.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-wif.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-wif",
+      "source_region": [
+        906.0,
+        249.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-ray.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-ray",
+      "source_region": [
+        906.0,
+        294.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-pyth.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-pyth",
+      "source_region": [
+        906.0,
+        339.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-samo.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-samo",
+      "source_region": [
+        906.0,
+        384.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "tokens/token-orca.png",
+      "kind": "raster-viewport",
+      "asset_id": "token-orca",
+      "source_region": [
+        906.0,
+        429.0,
+        31.0,
+        31.0
+      ],
+      "width": 31,
+      "height": 31,
+      "alpha": "source has opaque backdrop"
+    },
+    {
+      "path": "frames/frame-s01.png",
+      "kind": "transparent-frame",
+      "screen_id": "s01",
+      "width": 301,
+      "height": 541,
+      "svg": "frames/frame-s01.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s02.png",
+      "kind": "transparent-frame",
+      "screen_id": "s02",
+      "width": 271,
+      "height": 541,
+      "svg": "frames/frame-s02.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s03.png",
+      "kind": "transparent-frame",
+      "screen_id": "s03",
+      "width": 274,
+      "height": 541,
+      "svg": "frames/frame-s03.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s04.png",
+      "kind": "transparent-frame",
+      "screen_id": "s04",
+      "width": 272,
+      "height": 541,
+      "svg": "frames/frame-s04.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s05.png",
+      "kind": "transparent-frame",
+      "screen_id": "s05",
+      "width": 274,
+      "height": 541,
+      "svg": "frames/frame-s05.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s06.png",
+      "kind": "transparent-frame",
+      "screen_id": "s06",
+      "width": 275,
+      "height": 520,
+      "svg": "frames/frame-s06.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s07.png",
+      "kind": "transparent-frame",
+      "screen_id": "s07",
+      "width": 275,
+      "height": 520,
+      "svg": "frames/frame-s07.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s08.png",
+      "kind": "transparent-frame",
+      "screen_id": "s08",
+      "width": 283,
+      "height": 520,
+      "svg": "frames/frame-s08.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s09.png",
+      "kind": "transparent-frame",
+      "screen_id": "s09",
+      "width": 264,
+      "height": 520,
+      "svg": "frames/frame-s09.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "frames/frame-s10.png",
+      "kind": "transparent-frame",
+      "screen_id": "s10",
+      "width": 288,
+      "height": 520,
+      "svg": "frames/frame-s10.svg",
+      "note": "Original perimeter overlay; interior transparent. Additional bevels remain CSS/XML components."
+    },
+    {
+      "path": "icons/base/back.svg",
+      "kind": "vector-icon",
+      "asset_id": "back",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/menu.svg",
+      "kind": "vector-icon",
+      "asset_id": "menu",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/wallet.svg",
+      "kind": "vector-icon",
+      "asset_id": "wallet",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/coins.svg",
+      "kind": "vector-icon",
+      "asset_id": "coins",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/salvage-coins.svg",
+      "kind": "vector-icon",
+      "asset_id": "salvage-coins",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/trash.svg",
+      "kind": "vector-icon",
+      "asset_id": "trash",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/warning.svg",
+      "kind": "vector-icon",
+      "asset_id": "warning",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/nft.svg",
+      "kind": "vector-icon",
+      "asset_id": "nft",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/skull.svg",
+      "kind": "vector-icon",
+      "asset_id": "skull",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/document.svg",
+      "kind": "vector-icon",
+      "asset_id": "document",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/accounts.svg",
+      "kind": "vector-icon",
+      "asset_id": "accounts",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/info.svg",
+      "kind": "vector-icon",
+      "asset_id": "info",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/check.svg",
+      "kind": "vector-icon",
+      "asset_id": "check",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/check-circle.svg",
+      "kind": "vector-icon",
+      "asset_id": "check-circle",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/spinner.svg",
+      "kind": "vector-icon",
+      "asset_id": "spinner",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/pending.svg",
+      "kind": "vector-icon",
+      "asset_id": "pending",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/chevrons.svg",
+      "kind": "vector-icon",
+      "asset_id": "chevrons",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/chevron.svg",
+      "kind": "vector-icon",
+      "asset_id": "chevron",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/swap.svg",
+      "kind": "vector-icon",
+      "asset_id": "swap",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/fire.svg",
+      "kind": "vector-icon",
+      "asset_id": "fire",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/shield.svg",
+      "kind": "vector-icon",
+      "asset_id": "shield",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/raptor-action.svg",
+      "kind": "vector-icon",
+      "asset_id": "raptor-action",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/skull-crossbones.svg",
+      "kind": "vector-icon",
+      "asset_id": "skull-crossbones",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/boat.svg",
+      "kind": "vector-icon",
+      "asset_id": "boat",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/signal.svg",
+      "kind": "vector-icon",
+      "asset_id": "signal",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/wifi.svg",
+      "kind": "vector-icon",
+      "asset_id": "wifi",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/base/battery.svg",
+      "kind": "vector-icon",
+      "asset_id": "battery",
+      "color": "#56E9FF",
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/accounts_00b9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "accounts",
+      "color": "#00B9FF",
+      "elements": [
+        "s03-category-empty-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/accounts_61f897.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "accounts",
+      "color": "#61F897",
+      "elements": [
+        "s10-result-nft-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/back_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "back",
+      "color": "#56E9FF",
+      "elements": [
+        "s02-back-icon",
+        "s03-back-icon",
+        "s04-back-icon",
+        "s05-back-icon",
+        "s06-back-icon",
+        "s07-back-icon",
+        "s08-back-icon",
+        "s09-back-icon",
+        "s10-back-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/battery_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "battery",
+      "color": "#EAF0FF",
+      "elements": [
+        "s01-battery",
+        "s02-battery",
+        "s03-battery",
+        "s04-battery",
+        "s05-battery",
+        "s06-battery",
+        "s07-battery",
+        "s08-battery",
+        "s09-battery",
+        "s10-battery"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/boat_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "boat",
+      "color": "#56E9FF",
+      "elements": [
+        "s09-operation-notice-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/check_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "check",
+      "color": "#EAF0FF",
+      "elements": [
+        "s10-done-check"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/check-circle_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "check-circle",
+      "color": "#56E9FF",
+      "elements": [
+        "s02-scan-step-1-state",
+        "s02-scan-step-2-state"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/check-circle_61f897.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "check-circle",
+      "color": "#61F897",
+      "elements": [
+        "s09-operation-step-1-state",
+        "s09-operation-step-2-state",
+        "s09-operation-step-3-state",
+        "s09-operation-step-4-state"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/chevron_aec2da.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "chevron",
+      "color": "#AEC2DA",
+      "elements": [
+        "s07-manifest-swaps-chevron",
+        "s07-manifest-dead-chevron",
+        "s07-manifest-empty-chevron"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/chevrons_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "chevrons",
+      "color": "#EAF0FF",
+      "elements": [
+        "s03-review-cleanup-arrow",
+        "s07-clean-wallet-arrow",
+        "s08-confirm-cleanup-arrow"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/coins_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "coins",
+      "color": "#56E9FF",
+      "elements": [
+        "s03-summary-recovery-coins",
+        "s10-success-recovery-coins"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/coins_61f897.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "coins",
+      "color": "#61F897",
+      "elements": [
+        "s07-manifest-swaps-icon",
+        "s10-result-swapped-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/coins_ffc64a.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "coins",
+      "color": "#FFC64A",
+      "elements": [
+        "s03-category-dust-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/document_00b9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "document",
+      "color": "#00B9FF",
+      "elements": [
+        "s07-manifest-empty-icon",
+        "s08-confirm-close-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/fire_ff505c.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "fire",
+      "color": "#FF505C",
+      "elements": [
+        "s08-confirm-burn-icon",
+        "s10-result-burned-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/info_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "info",
+      "color": "#56E9FF",
+      "elements": [
+        "s03-summary-info",
+        "s06-nft-info-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/menu_1885a7.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "menu",
+      "color": "#1885A7",
+      "elements": [
+        "s02-menu-icon",
+        "s03-menu-icon",
+        "s04-menu-icon",
+        "s05-menu-icon",
+        "s06-menu-icon",
+        "s07-menu-icon",
+        "s08-menu-icon",
+        "s09-menu-icon",
+        "s10-menu-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/nft_d78bff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "nft",
+      "color": "#D78BFF",
+      "elements": [
+        "s03-category-nft-icon",
+        "s07-manifest-nfts-icon",
+        "s10-result-closed-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/pending_aec2da.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "pending",
+      "color": "#AEC2DA",
+      "elements": [
+        "s02-scan-step-4-state",
+        "s02-scan-step-5-state",
+        "s02-scan-step-6-state",
+        "s09-operation-step-6-state",
+        "s09-operation-step-7-state",
+        "s09-operation-step-8-state",
+        "s09-operation-step-9-state"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/raptor-action_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "raptor-action",
+      "color": "#EAF0FF",
+      "elements": [
+        "s07-clean-wallet-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/salvage-coins_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "salvage-coins",
+      "color": "#56E9FF",
+      "elements": [
+        "s01-benefit-1-icon",
+        "s01-benefit-3-icon",
+        "s07-manifest-recovery-coins"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/shield_61f897.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "shield",
+      "color": "#61F897",
+      "elements": [
+        "s08-confirm-ignored-icon",
+        "s10-result-ignored-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/signal_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "signal",
+      "color": "#EAF0FF",
+      "elements": [
+        "s01-signal",
+        "s02-signal",
+        "s03-signal",
+        "s04-signal",
+        "s05-signal",
+        "s06-signal",
+        "s07-signal",
+        "s08-signal",
+        "s09-signal",
+        "s10-signal"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/skull_aec2da.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "skull",
+      "color": "#AEC2DA",
+      "elements": [
+        "s03-category-dead-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/skull_ff505c.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "skull",
+      "color": "#FF505C",
+      "elements": [
+        "s05-dead-skull-1",
+        "s05-dead-skull-2",
+        "s05-dead-skull-3",
+        "s05-dead-skull-4",
+        "s05-dead-skull-5",
+        "s05-dead-skull-6",
+        "s05-dead-skull-7",
+        "s07-manifest-dead-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/skull-crossbones_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "skull-crossbones",
+      "color": "#EAF0FF",
+      "elements": [
+        "s08-confirm-cleanup-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/spinner_d78bff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "spinner",
+      "color": "#D78BFF",
+      "elements": [
+        "s02-scan-step-3-state",
+        "s09-operation-step-5-state"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/swap_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "swap",
+      "color": "#56E9FF",
+      "elements": [
+        "s08-confirm-swap-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/trash_56e9ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "trash",
+      "color": "#56E9FF",
+      "elements": [
+        "s01-benefit-2-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/wallet_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "wallet",
+      "color": "#EAF0FF",
+      "elements": [
+        "s01-connect-wallet-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/warning_ff505c.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "warning",
+      "color": "#FF505C",
+      "elements": [
+        "s03-category-scam-icon",
+        "s05-burn-warning-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/warning_ffc64a.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "warning",
+      "color": "#FFC64A",
+      "elements": [
+        "s08-confirm-warning-icon"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "icons/used-colors/wifi_eaf0ff.svg",
+      "kind": "vector-icon-used-color",
+      "asset_id": "wifi",
+      "color": "#EAF0FF",
+      "elements": [
+        "s01-wifi",
+        "s02-wifi",
+        "s03-wifi",
+        "s04-wifi",
+        "s05-wifi",
+        "s06-wifi",
+        "s07-wifi",
+        "s08-wifi",
+        "s09-wifi",
+        "s10-wifi"
+      ],
+      "viewbox": [
+        0,
+        0,
+        24,
+        24
+      ]
+    },
+    {
+      "path": "fonts/NimbusSansNarrow-Regular.otf",
+      "kind": "font",
+      "note": "Exact substitute embedded in HTML; not the unknown original display font."
+    },
+    {
+      "path": "fonts/NimbusSansNarrow-Bold.otf",
+      "kind": "font",
+      "note": "Exact substitute embedded in HTML; not the unknown original display font."
+    },
+    {
+      "path": "styles/background-and-effects.css",
+      "kind": "procedural-css",
+      "note": "Backdrop, button gradients, glows and chamfer are styles, not external images."
+    },
+    {
+      "path": "icons/base/back.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/back.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/menu.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/menu.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/wallet.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/wallet.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/coins.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/coins.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/salvage-coins.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/salvage-coins.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/trash.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/trash.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/warning.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/warning.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/nft.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/nft.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/skull.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/skull.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/document.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/document.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/accounts.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/accounts.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/info.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/info.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/check.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/check.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/check-circle.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/check-circle.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/spinner.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/spinner.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/pending.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/pending.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/chevrons.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/chevrons.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/chevron.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/chevron.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/swap.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/swap.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/fire.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/fire.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/shield.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/shield.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/raptor-action.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/raptor-action.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/skull-crossbones.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/skull-crossbones.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/boat.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/boat.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/signal.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/signal.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/wifi.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/wifi.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/base/battery.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/base/battery.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/accounts_00b9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/accounts_00b9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/accounts_61f897.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/accounts_61f897.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/back_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/back_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/battery_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/battery_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/boat_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/boat_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/check_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/check_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/check-circle_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/check-circle_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/check-circle_61f897.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/check-circle_61f897.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/chevron_aec2da.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/chevron_aec2da.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/chevrons_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/chevrons_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/coins_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/coins_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/coins_61f897.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/coins_61f897.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/coins_ffc64a.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/coins_ffc64a.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/document_00b9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/document_00b9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/fire_ff505c.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/fire_ff505c.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/info_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/info_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/menu_1885a7.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/menu_1885a7.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/nft_d78bff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/nft_d78bff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/pending_aec2da.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/pending_aec2da.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/raptor-action_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/raptor-action_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/salvage-coins_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/salvage-coins_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/shield_61f897.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/shield_61f897.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/signal_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/signal_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/skull_aec2da.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/skull_aec2da.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/skull_ff505c.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/skull_ff505c.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/skull-crossbones_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/skull-crossbones_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/spinner_d78bff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/spinner_d78bff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/swap_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/swap_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/trash_56e9ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/trash_56e9ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/wallet_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/wallet_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/warning_ff505c.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/warning_ff505c.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/warning_ffc64a.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/warning_ffc64a.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    },
+    {
+      "path": "icons/used-colors/wifi_eaf0ff.png",
+      "kind": "raster-icon-export",
+      "svg_source": "icons/used-colors/wifi_eaf0ff.svg",
+      "width": 96,
+      "height": 96,
+      "transparent": true
+    }
+  ],
+  "font_substitute": "Nimbus Sans Narrow"
+}
