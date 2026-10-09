@@ -1,0 +1,297 @@
+{
+  "welcome": {
+    "unit": 1,
+    "brand": {
+      "x": 0,
+      "y": 0,
+      "width": 270,
+      "height": 58
+    },
+    "emblem": {
+      "x": 20,
+      "y": 15,
+      "width": 28,
+      "height": 28
+    },
+    "copy": {
+      "x": 56,
+      "y": 9.359375,
+      "width": 194,
+      "height": 39.28125
+    },
+    "sector": {
+      "x": 56,
+      "y": 35.453125,
+      "width": 194,
+      "height": 13.1875
+    },
+    "brandBaseline": 28.359375,
+    "sectorBaseline": 45.453125,
+    "title": {
+      "x": 0,
+      "y": 0,
+      "width": 366,
+      "height": 112
+    },
+    "swords": {
+      "x": 83,
+      "y": -52.65625,
+      "width": 200,
+      "height": 66.65625
+    },
+    "hero": {
+      "x": 0,
+      "y": 0,
+      "width": 322.078125,
+      "height": 322.078125
+    },
+    "art": {
+      "x": 0,
+      "y": 0,
+      "width": 322.078125,
+      "height": 322.078125
+    },
+    "variant": "large",
+    "nav": null,
+    "icon": null,
+    "navFont": null,
+    "overflow": 0,
+    "pageWidthOverflow": 0
+  },
+  "main": {
+    "unit": 1,
+    "brand": {
+      "x": 0,
+      "y": 0,
+      "width": 270,
+      "height": 58
+    },
+    "emblem": {
+      "x": 20,
+      "y": 15,
+      "width": 28,
+      "height": 28
+    },
+    "copy": {
+      "x": 56,
+      "y": 9.359375,
+      "width": 194,
+      "height": 39.28125
+    },
+    "sector": {
+      "x": 56,
+      "y": 35.453125,
+      "width": 194,
+      "height": 13.1875
+    },
+    "brandBaseline": 28.359375,
+    "sectorBaseline": 45.453125,
+    "title": {
+      "x": 0,
+      "y": 0,
+      "width": 366,
+      "height": 112
+    },
+    "swords": {
+      "x": 83,
+      "y": -52.65625,
+      "width": 200,
+      "height": 66.65625
+    },
+    "hero": {
+      "x": 0,
+      "y": 0,
+      "width": 144,
+      "height": 144
+    },
+    "art": {
+      "x": 0,
+      "y": 0,
+      "width": 144,
+      "height": 144
+    },
+    "variant": "compact",
+    "nav": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 64
+    },
+    "icon": {
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    "navFont": 13,
+    "overflow": 0,
+    "pageWidthOverflow": 0
+  },
+  "cleanup": {
+    "unit": 1,
+    "brand": {
+      "x": 0,
+      "y": 0,
+      "width": 270,
+      "height": 58
+    },
+    "emblem": {
+      "x": 20,
+      "y": 15,
+      "width": 28,
+      "height": 28
+    },
+    "copy": {
+      "x": 56,
+      "y": 9.359375,
+      "width": 194,
+      "height": 39.28125
+    },
+    "sector": {
+      "x": 56,
+      "y": 35.453125,
+      "width": 194,
+      "height": 13.1875
+    },
+    "brandBaseline": 28.359375,
+    "sectorBaseline": 45.453125,
+    "title": null,
+    "swords": null,
+    "hero": {
+      "x": 0,
+      "y": 0,
+      "width": 72,
+      "height": 72
+    },
+    "art": {
+      "x": 0,
+      "y": 0,
+      "width": 72,
+      "height": 72
+    },
+    "variant": "corner",
+    "nav": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 64
+    },
+    "icon": {
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    "navFont": 13,
+    "overflow": 0,
+    "pageWidthOverflow": 0
+  },
+  "scanning": {
+    "unit": 1,
+    "brand": {
+      "x": 0,
+      "y": 0,
+      "width": 270,
+      "height": 58
+    },
+    "emblem": {
+      "x": 20,
+      "y": 15,
+      "width": 28,
+      "height": 28
+    },
+    "copy": {
+      "x": 56,
+      "y": 9.359375,
+      "width": 194,
+      "height": 39.28125
+    },
+    "sector": {
+      "x": 56,
+      "y": 35.453125,
+      "width": 194,
+      "height": 13.1875
+    },
+    "brandBaseline": 28.359375,
+    "sectorBaseline": 45.453125,
+    "title": null,
+    "swords": null,
+    "hero": {
+      "x": 0,
+      "y": 0,
+      "width": 236.359375,
+      "height": 236.359375
+    },
+    "art": {
+      "x": 0,
+      "y": 0,
+      "width": 236.359375,
+      "height": 236.359375
+    },
+    "variant": "large",
+    "nav": null,
+    "icon": null,
+    "navFont": null,
+    "overflow": 0,
+    "pageWidthOverflow": 0
+  },
+  "success": {
+    "unit": 1,
+    "brand": {
+      "x": 0,
+      "y": 0,
+      "width": 270,
+      "height": 58
+    },
+    "emblem": {
+      "x": 20,
+      "y": 15,
+      "width": 28,
+      "height": 28
+    },
+    "copy": {
+      "x": 56,
+      "y": 9.359375,
+      "width": 194,
+      "height": 39.28125
+    },
+    "sector": {
+      "x": 56,
+      "y": 35.453125,
+      "width": 194,
+      "height": 13.1875
+    },
+    "brandBaseline": 28.359375,
+    "sectorBaseline": 45.453125,
+    "title": null,
+    "swords": null,
+    "hero": {
+      "x": 0,
+      "y": 0,
+      "width": 318.609375,
+      "height": 318.609375
+    },
+    "art": {
+      "x": 0,
+      "y": 0,
+      "width": 318.609375,
+      "height": 318.609375
+    },
+    "variant": "large",
+    "nav": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 64
+    },
+    "icon": {
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    "navFont": 13,
+    "overflow": 0,
+    "pageWidthOverflow": 0
+  }
+}

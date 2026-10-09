@@ -1,0 +1,96 @@
+{
+  "source": "dev/image(20261008-075307).png",
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "key": "hero",
+      "name": "hero-raptor-ring",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-ddfd2162-5958-4b52-9cca-e0ce5779d9ce.png",
+      "prompt": "Reconstruct the central detailed black scaled raptor, hat badge and violet circular mechanical porthole from the reference as one transparent composition, excluding labels and sabers.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "scene",
+      "name": "station-scene",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-2235f8f0-2601-43e7-a604-6782a45c10d0.png",
+      "prompt": "Reconstruct the cool black/blue/violet orbital city, upper-left planet and distant ships from the reference with no UI or writing.",
+      "size": [1024, 1536],
+      "mode": "RGB",
+      "alpha": null
+    },
+    {
+      "key": "sabers",
+      "name": "crossed-sabers",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-4430480b-8d26-4ea8-a004-b41e99a7e618.png",
+      "prompt": "Extract/reconstruct the detailed crossed metallic sabers from the reference on transparent background; no other UI.",
+      "size": [2172, 724],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "category.scam.final",
+      "name": "category-scam",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-cdbb41f2-5701-40f6-9b09-8912732cdf9f.png",
+      "prompt": "Use case: background-extraction. Asset type: high resolution transparent game icon. Reference image 1 is the user's original UI. ONLY a bare purple metallic human skull ornament exactly like the tiny SCAM skull at the bottom left of the original reference. Front-facing, anatomically skull-like, ornate polished amethyst and gunmetal bones, subtle violet rim lighting. Absolutely NO hat, NO helmet, NO crown, NO headdress, NO pirate clothing, NO headwear, NO earrings. Just one bare cranium, eye sockets, nose and teeth. Square canvas and genuine transparent background. All edges visible, subject fills 80% of canvas. No typography, no border.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "category.nft",
+      "name": "category-nft",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-6eba1d5b-729a-475e-8f6e-638b0a2b34f4.png",
+      "prompt": "Use case: background-extraction. Asset type: standalone detailed game UI illustration, high resolution square PNG, genuine alpha transparency. Reference image 1 is the user's original UI and establishes the exact art direction and subject. The NFT gold coin ornament near the lower middle-left of the reference. A single front-facing antique gold coin with embossed pirate skull relief, engraved ornamental rim and real brushed metallic patina. Coin entirely visible, circular centered composition. NO letters, NO words, NO numbers, no frame. Match the reference's realistic volumetric materials, tiny engraved details, rich black shadows and controlled lighting, not a flat SVG or vector recreation. Subject fills 80% of a square with transparent margins, all edges visible. No text, no numbers, no watermark, no other UI, no background.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "category.dust",
+      "name": "category-dust",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-4a558b1a-6afb-4304-bcd1-75ebaf1d77f7.png",
+      "prompt": "Use case: background-extraction. Asset type: standalone detailed game UI illustration, high resolution square PNG, genuine alpha transparency. Reference image 1 is the user's original UI and establishes the exact art direction and subject. The DUST crystal ornament near the lower middle-right of the reference. A tight clustered pile of faceted crystalline cubes in emerald mint and cyan, opaque glass-like volume, sharp polished facets and rich shadow detail, stacked as a low small pyramid. Not a single large gemstone. No letters, no frame. Match the reference's realistic volumetric materials, tiny engraved details, rich black shadows and controlled lighting, not a flat SVG or vector recreation. Subject fills 80% of a square with transparent margins, all edges visible. No text, no numbers, no watermark, no other UI, no background.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "category.dead",
+      "name": "category-dead",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-a7df9509-0a56-4a0c-9b84-8c6eab64264f.png",
+      "prompt": "Use case: background-extraction. Asset type: standalone detailed game UI illustration, high resolution square PNG, genuine alpha transparency. Reference image 1 is the user's original UI and establishes the exact art direction and subject. The DEAD TOKEN bone ornament near lower right of the reference. One diagonally inclined realistic silver-gray dog-bone shape with rounded paired ends, dark metallic patina and reflected highlights, bottom left to upper right, entirely visible centered. No letters, no frame. Match the reference's realistic volumetric materials, tiny engraved details, rich black shadows and controlled lighting, not a flat SVG or vector recreation. Subject fills 80% of a square with transparent margins, all edges visible. No text, no numbers, no watermark, no other UI, no background.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "station",
+      "name": "orbital-station",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-4e8276d3-a636-4ce5-b858-db7477e96c00.png",
+      "prompt": "Use case: background-extraction. Asset type: standalone detailed game UI illustration, high resolution square PNG, genuine alpha transparency. Reference image 1 is the user's original UI and establishes the exact art direction and subject. The small decorative spacecraft to right of the scan statistics in the reference. Isolate/reconstruct ONLY a compact angular orbital cargo station/spaceship in 3/4 perspective, dense modular dark-metal cuboid infrastructure, bright violet rail edges and small cyan accents, protruding cylindrical front thruster with violet mechanical segmented tip. Maintain its close resemblance to the reference, all edges visible. No planet, no nebula, no huge surrounding city, no labels, no frame. Match the reference's realistic volumetric materials, tiny engraved details, rich black shadows and controlled lighting, not a flat SVG or vector recreation. Subject fills 80% of a square with transparent margins, all edges visible. No text, no numbers, no watermark, no other UI, no background.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "frame.violet",
+      "name": "frame-violet",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-4c7a4758-3d51-4e2b-b5d8-b9abd5901a16.png",
+      "prompt": "Use case: stylized-concept. Asset type: high resolution square 1024×1024 PNG mechanical UI FRAME ONLY, true transparent outside and CENTER aperture. Reference image 1 supplies materials. A violet-accent rectangular square mechanical border frame for CSS nine-slice scaling. Symmetrical straight horizontal/vertical continuous edge rails around a large empty fully TRANSPARENT rectangular aperture. The frame occupies the outer 96 pixels (~9%) of each edge, with FOUR precise chunky clipped/chamfered corner pieces contained in 128×128 pixel corner regions. All corner geometry must be entirely within the outer128px. Along the middle of every edge use straight continuous regular metallic rails, easy to stretch/repeat. Detailed machined black gunmetal, brushed scratches, chrome/bronze bevel highlights, restrained accent light strips and tiny bolts. Keep entire frame visible with only minimal transparent outer margin. No lettering, NO icons, NO star background, NO image inside, NO black fill in center, no inset extra panel, NO handset frame. This is one text-free reusable UI border asset, not a screen, not a mockup. Real metallic material; no huge bloom.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    },
+    {
+      "key": "frame.cyan",
+      "name": "frame-cyan",
+      "source": "/home/mechanic/.codex/generated_images/01a0d35b-b84e-7753-bd1b-e65a78182e2c/exec-a0374bc1-ee79-41d4-baf8-fff64da21255.png",
+      "prompt": "Use case: stylized-concept. Asset type: high resolution square 1024×1024 PNG mechanical UI FRAME ONLY, true transparent outside and CENTER aperture. Reference image 1 supplies materials. A cyan/mint-accent rectangular square mechanical border frame for CSS nine-slice scaling. Symmetrical straight horizontal/vertical continuous edge rails around a large empty fully TRANSPARENT rectangular aperture. The frame occupies the outer 96 pixels (~9%) of each edge, with FOUR precise chunky clipped/chamfered corner pieces contained in 128×128 pixel corner regions. All corner geometry must be entirely within the outer128px. Along the middle of every edge use straight continuous regular metallic rails, easy to stretch/repeat. Detailed machined black gunmetal, brushed scratches, chrome/bronze bevel highlights, restrained accent light strips and tiny bolts. Keep entire frame visible with only minimal transparent outer margin. No lettering, NO icons, NO star background, NO image inside, NO black fill in center, no inset extra panel, NO handset frame. This is one text-free reusable UI border asset, not a screen, not a mockup. Real metallic material; no huge bloom.",
+      "size": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": [0, 255]
+    }
+  ]
+}

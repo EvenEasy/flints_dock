@@ -278,7 +278,7 @@ test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }
   await accessibility(page);
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
-  await expect(page.getByRole('button', { name: /CLEANUP API REQUIRED/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
   await page.getByRole('checkbox', { name: /mint EPjFW/ }).uncheck();
   await expect(page.getByText('ЗАЛИШИТИ', { exact: true })).toBeVisible();
   await expect(page.getByText('МЕРТВИЙ')).toHaveCount(0);
@@ -343,7 +343,7 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
   expect(await page.locator('main').evaluate((el) => el.scrollTop)).toBe(0);
-  const cta = await page.getByRole('button', { name: /CLEANUP API REQUIRED/ }).boundingBox();
+  const cta = await page.getByRole('button', { name: /очищення недоступне/ }).boundingBox();
   const nav = await page.getByRole('navigation', { name: 'Основна навігація' }).boundingBox();
   expect(cta!.y + cta!.height).toBeLessThanOrEqual(nav!.y);
   await page.getByRole('button', { name: 'СТАНЦІЯ', exact: true }).click();
@@ -388,6 +388,7 @@ test('LiveHashes_CannotCreateScanOrCleanupResults', async ({ page }) => {
 });
 
 test('DesktopFailure_RetryShowsRealPendingStateThenActualSnapshot', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript((analysis) => {
     let calls = 0;
     Reflect.set(window, '__TAURI_INTERNALS__', {
@@ -414,6 +415,7 @@ test('DesktopFailure_RetryShowsRealPendingStateThenActualSnapshot', async ({ pag
   await page.getByRole('button', { name: 'SCAN WALLET' }).click();
   await expect(page.getByRole('alert')).toContainText('RPC configuration is missing.');
   await expect(page.getByText('do-not-display')).toHaveCount(0);
+  await page.screenshot({ path: '.cache/art-review/live-analysis-error.png' });
   await page.getByRole('button', { name: 'RETRY SCAN' }).click();
   await expect(page.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow');
   await expect(page.getByText('ЕТАП 3 ІЗ 5')).toHaveCount(0);

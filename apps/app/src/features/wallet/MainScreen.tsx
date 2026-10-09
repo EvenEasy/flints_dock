@@ -7,16 +7,18 @@ import {
   TitlePedestal,
 } from '../../shared/ui/Design';
 import { RecoverButton } from '../../shared/ui/ActionButton';
-import { designAsset } from '../../shared/assets';
+import { designAsset, mediaSrc } from '../../shared/assets';
+import type { MediaKey } from '../../shared/assets';
+import { ExactAmount } from '../../shared/ui/ExactAmount';
 import { lamportsToSol } from '../../shared/format';
 import { Notice } from '../../shared/ui/Notice';
 
 export type CargoCategory = 'scam' | 'nft' | 'dust' | 'dead_token';
 const categories = [
-  ['scam', 'SCAM', 'scam_skull', 42],
-  ['nft', 'NFT', 'nft_coin', 24],
-  ['dust', 'DUST', 'dust_crystals', 53],
-  ['dead_token', 'DEAD TOKEN', 'dead_bone', 23],
+  ['scam', 'SCAM', 42],
+  ['nft', 'NFT', 24],
+  ['dust', 'DUST', 53],
+  ['dead_token', 'DEAD TOKEN', 23],
 ] as const;
 
 /** Show observed inventory and rent assessments without deriving risk or routes from USD prices. */
@@ -39,9 +41,9 @@ export function MainScreen({
   const rent = lamportsToSol(analysis?.accountSummary?.potentiallyReclaimableLamports);
   return (
     <div className="page page--main">
-      <Brand variant="main" />
+      <Brand name="station" />
       <div className="main-hero">
-        <MechanicalPanel page="main" asset="frame_left_panel" className="station-side">
+        <MechanicalPanel className="station-side">
           <p className="side-title">
             FLINT
             <br />
@@ -55,8 +57,8 @@ export function MainScreen({
           </p>
           <span className="status-led status-led--connected" aria-hidden="true" />
         </MechanicalPanel>
-        <MascotHero label />
-        <MechanicalPanel page="main" asset="frame_right_panel" className="profit-side">
+        <MascotHero variant="compact" label />
+        <MechanicalPanel className="profit-side">
           <p className="side-title">
             ВЧОРА
             <br />
@@ -70,15 +72,15 @@ export function MainScreen({
           </p>
         </MechanicalPanel>
       </div>
-      <TitlePedestal page="main" />
+      <TitlePedestal />
       {!preview && !analysis?.hasUsableResults && (
         <Notice tone="red" alert>
           No usable asset results. Inspect the category diagnostics or rescan.
         </Notice>
       )}
-      <MechanicalPanel page="main" asset="frame_scan_panel" className="scan-summary">
+      <MechanicalPanel tone="cyan" inset="compact" className="scan-summary">
         <h2 className="scan-summary-heading">
-          <SurfaceFrame page="main" asset="frame_scan_tab" />
+          <SurfaceFrame />
           <img src={designAsset('main', 'scan_radar')} alt="" aria-hidden="true" />
           <span>{preview ? 'СКАНУВАННЯ ВАНТАЖНОГО ВІДСІКУ' : 'АНАЛІЗ ВАНТАЖНОГО ВІДСІКУ'}</span>
         </h2>
@@ -96,17 +98,21 @@ export function MainScreen({
                 'РЕЗУЛЬТАТ НЕДОСТУПНИЙ'
               )}
             </p>
-            <strong>{preview ? 142 : (analysis?.accountSummary?.tokenAccounts ?? '—')}</strong>
+            <strong className="type-numeric type-numeric--metric">
+              {preview ? 142 : (analysis?.accountSummary?.tokenAccounts ?? '—')}
+            </strong>
             <p>{preview ? 'ОБ’ЄКТА МУСОРА' : 'ТОКЕН-АКАУНТІВ'}</p>
           </div>
           <div className="scan-rent">
             <p>{preview ? 'ДОСТУПНА ЗДОБИЧ (RENT)' : 'ПОТЕНЦІЙНИЙ RENT'}</p>
-            <strong>{preview ? '0.052' : rent} SOL</strong>
+            <strong>
+              <ExactAmount amount={preview ? '0.052' : rent} />
+            </strong>
             <p>{preview ? 'ДОСТУПНА ДО ПОВЕРНЕННЯ' : 'ОЦІНКА, НЕ ПЛАН ОЧИЩЕННЯ'}</p>
           </div>
           <img
             className="orbital-station"
-            src={designAsset('main', 'orbital_station')}
+            src={mediaSrc('decoration.station')}
             alt=""
             aria-hidden="true"
           />
@@ -114,12 +120,12 @@ export function MainScreen({
       </MechanicalPanel>
       <section className="cargo-manifest" aria-labelledby="manifest-heading">
         <h2 id="manifest-heading">
-          <SurfaceFrame page="main" asset="frame_manifest_tab" />
+          <SurfaceFrame />
           <img src={designAsset('main', 'cargo_cube')} alt="" aria-hidden="true" />
           <span>МАНІФЕСТ ВАНТАЖУ</span>
         </h2>
         <div className="category-grid">
-          {categories.map(([key, label, art, sample]) => (
+          {categories.map(([key, label, sample]) => (
             <button
               className={`category-card category-card--${key}`}
               key={key}
@@ -127,20 +133,32 @@ export function MainScreen({
               onClick={() => onInspect(key)}
               aria-label={`${label}: ${preview ? sample : key === 'nft' ? nftCount : 'класифікація недоступна'}`}
             >
-              <SurfaceFrame page="main" asset={`frame_category_${key}`} />
+              <SurfaceFrame
+                tone={
+                  key === 'nft'
+                    ? 'gold'
+                    : key === 'dust'
+                      ? 'mint'
+                      : key === 'dead_token'
+                        ? 'red'
+                        : 'violet'
+                }
+              />
               <img
                 className="category-art"
-                src={designAsset('main', art)}
+                src={mediaSrc(`category.${key}` as MediaKey)}
                 alt=""
                 aria-hidden="true"
               />
-              <span>{label}</span>
-              <strong>{preview ? sample : key === 'nft' ? nftCount : '—'}</strong>
+              <span className="category-label type-caption">{label}</span>
+              <strong className="type-numeric type-numeric--count">
+                {preview ? sample : key === 'nft' ? nftCount : '—'}
+              </strong>
             </button>
           ))}
         </div>
       </section>
-      <RecoverButton page="main" onClick={onCleanup} />
+      <RecoverButton onClick={onCleanup} />
     </div>
   );
 }

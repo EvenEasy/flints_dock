@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { designAsset } from '../../shared/assets';
 import { Icon } from '../../shared/ui/Icon';
 import { SurfaceFrame } from '../../shared/ui/Design';
+import { ExactAmount } from '../../shared/ui/ExactAmount';
 
 /** Checked means include; unchecked means keep. The row identity is always a mint or preview key. */
 export function AssetRow({
@@ -52,12 +53,14 @@ export function AssetRow({
         <p id={quantityId}>{quantity}</p>
       </div>
       <div className="asset-valuation">
-        <strong>{value}</strong>
+        <strong>
+          {value.endsWith(' SOL') ? <ExactAmount amount={value.slice(0, -4)} size="row" /> : value}
+        </strong>
         {!selected ? (
           <span className="keep-label">ЗАЛИШИТИ</span>
         ) : dead ? (
           <span className="dead-badge">
-            <SurfaceFrame page="cleanup" asset="dead_badge_shell" />
+            <SurfaceFrame />
             <span>МЕРТВИЙ</span>
           </span>
         ) : null}

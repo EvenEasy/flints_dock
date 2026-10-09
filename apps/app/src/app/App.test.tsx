@@ -293,7 +293,7 @@ describe('Real asset selection and available results', () => {
     await connect(user);
     await ready();
     await user.click(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' }));
-    expect(screen.getByRole('button', { name: /CLEANUP API REQUIRED/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
     expect(screen.queryByText('МЕРТВИЙ')).not.toBeInTheDocument();
     expect(screen.queryByText('≈ 0.428 SOL')).not.toBeInTheDocument();
     expect(ipc).toHaveBeenCalledTimes(1);

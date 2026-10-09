@@ -1,14 +1,15 @@
 import { Brand, MascotHero, MechanicalPanel } from '../../shared/ui/Design';
 import { designAsset } from '../../shared/assets';
+import { ExactAmount } from '../../shared/ui/ExactAmount';
 
 /** A result payload is required; mounting this static view never starts an operation. */
 export function SuccessScreen({ displayAmount }: { displayAmount: string }) {
   return (
     <div className="page page--success">
-      <Brand variant="success" />
+      <Brand />
       <MascotHero />
-      <MechanicalPanel page="success" asset="success_title_shell" className="success-title">
-        <h1 id="screen-heading" tabIndex={-1}>
+      <MechanicalPanel className="success-title">
+        <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
           ОЧИЩЕННЯ ЗАВЕРШЕНО
         </h1>
       </MechanicalPanel>
@@ -34,9 +35,14 @@ export function SuccessScreen({ displayAmount }: { displayAmount: string }) {
           alt=""
         />
       </div>
-      <MechanicalPanel page="success" asset="returned_sol_shell" className="returned-sol">
+      <MechanicalPanel tone="cyan" className="returned-sol">
         <p>ПОВЕРНУТО У ГАМАНЕЦЬ</p>
-        <strong>{displayAmount}</strong>
+        <strong>
+          <ExactAmount
+            amount={displayAmount.endsWith(' SOL') ? displayAmount.slice(0, -4) : displayAmount}
+            size="returned"
+          />
+        </strong>
       </MechanicalPanel>
       <div className="success-spacer" aria-hidden="true" />
     </div>

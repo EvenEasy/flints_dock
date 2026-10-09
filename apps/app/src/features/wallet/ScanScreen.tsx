@@ -28,19 +28,19 @@ export function ScanScreen({
 }) {
   return (
     <div className="page page--scan" aria-busy={!preview && !error}>
-      <Brand variant="scan" />
+      <Brand />
       <MascotHero scanning />
-      <MechanicalPanel page="scan" asset="connected_plaque_shell" className="connected-status">
+      <MechanicalPanel className="connected-status">
         <img src={designAsset('scan', 'wallet_outline_icon')} alt="" aria-hidden="true" />
         <span className="status-led status-led--connected" aria-hidden="true" />
         <p>ГАМАНЕЦЬ ПІДКЛЮЧЕНО</p>
       </MechanicalPanel>
-      <MechanicalPanel page="scan" asset="scan_title_shell" className="scan-title">
-        <h1 id="screen-heading" tabIndex={-1}>
+      <MechanicalPanel className="scan-title">
+        <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
           {error ? 'АНАЛІЗ ПЕРЕРВАНО' : 'АНАЛІЗ ГАМАНЦЯ'}
         </h1>
       </MechanicalPanel>
-      <MechanicalPanel page="scan" asset="scan_process_shell" className="scan-process">
+      <MechanicalPanel tone="cyan" className="scan-process">
         {error ? (
           <div className="scan-error">
             <Notice tone="red" alert title="ANALYSIS FAILED">
@@ -56,7 +56,9 @@ export function ScanScreen({
           </div>
         ) : (
           <>
-            <h2 role="status">{preview ? 'ЕТАП 3 ІЗ 5' : 'ОТРИМУЄМО ДАНІ'}</h2>
+            <h2 className="type-section" role="status">
+              {preview ? 'ЕТАП 3 ІЗ 5' : 'ОТРИМУЄМО ДАНІ'}
+            </h2>
             <div
               className="stage-progress"
               role="progressbar"

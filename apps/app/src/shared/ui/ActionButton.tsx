@@ -22,7 +22,7 @@ export function ActionButton({
       className={`action-button action-button--${variant} ${className}`}
       {...props}
     >
-      <SurfaceFrame page="cleanup" asset="recover_action_shell" />
+      <SurfaceFrame tone="mint" />
       <span className="action-content">
         {icon && <Icon name={icon} />}
         <span>{children}</span>
@@ -33,15 +33,11 @@ export function ActionButton({
 
 export function RecoverButton({
   children = 'ПОВЕРНУТИ SOL',
-  page = 'cleanup',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { page?: 'main' | 'cleanup' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button type="button" className="recover-button" {...props}>
-      <SurfaceFrame
-        page={page}
-        asset={page === 'main' ? 'frame_recover_action' : 'recover_action_shell'}
-      />
+      <SurfaceFrame tone="mint" />
       <span>
         <img src={designAsset('cleanup', 'rocket_action_icon')} alt="" aria-hidden="true" />
         <span>{children}</span>

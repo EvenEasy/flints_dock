@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import './styles.css';
+import './styles/typography.css';
+import './styles/components.css';
 import './styles/phone.css';
 import './styles/reference.css';
 

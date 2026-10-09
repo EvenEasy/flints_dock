@@ -1,44 +1,37 @@
-import { designAsset } from '../shared/assets';
+import { mediaSrc } from '../shared/assets';
+import type { MediaKey } from '../shared/assets';
 import { SurfaceFrame } from '../shared/ui/Design';
 import type { DockSection } from './navigation';
 
-const sections = [
-  ['station', 'СТАНЦІЯ', 'nav_home_icon'],
-  ['hangar', 'АНГАР', 'nav_rocket_icon'],
-  ['holds', 'ТРЮМИ', 'nav_cargo_icon'],
-  ['missions', 'МІСІЇ', 'nav_target_icon'],
-  ['profile', 'ПРОФІЛЬ', 'nav_skull_icon'],
-] as const;
+const sections: readonly [DockSection, string, MediaKey][] = [
+  ['station', 'СТАНЦІЯ', 'navigation.station'],
+  ['hangar', 'АНГАР', 'navigation.hangar'],
+  ['holds', 'ТРЮМИ', 'navigation.holds'],
+  ['missions', 'МІСІЇ', 'navigation.missions'],
+  ['profile', 'ПРОФІЛЬ', 'navigation.profile'],
+];
 
-/** Keep the XML's five sections, ordering, and icons across every connected screen. */
+/** Content and geometry are shared; callers explicitly choose the active section. */
 export function BottomNavigation({
   onNavigate,
-  main = false,
+  active,
 }: {
   onNavigate: (section: DockSection) => void;
-  main?: boolean;
+  active: DockSection;
 }) {
   return (
     <nav className="bottom-navigation" aria-label="Основна навігація">
-      <SurfaceFrame
-        page={main ? 'main' : 'cleanup'}
-        asset={main ? 'frame_navigation' : 'navigation_shell'}
-      />
+      <SurfaceFrame />
       {sections.map(([key, label, icon]) => (
         <button
           key={key}
           type="button"
-          aria-current={key === 'station' ? 'page' : undefined}
+          aria-current={key === active ? 'page' : undefined}
           onClick={() => onNavigate(key)}
         >
-          {key === 'station' && (
-            <SurfaceFrame
-              page={main ? 'main' : 'cleanup'}
-              asset={main ? 'frame_nav_selected' : 'navigation_selected_shell'}
-            />
-          )}
-          <img src={designAsset('cleanup', icon)} alt="" aria-hidden="true" />
-          <span>{label}</span>
+          {key === active && <SurfaceFrame className="navigation-selected" />}
+          <img src={mediaSrc(icon)} alt="" aria-hidden="true" />
+          <span className="type-navigation">{label}</span>
         </button>
       ))}
     </nav>

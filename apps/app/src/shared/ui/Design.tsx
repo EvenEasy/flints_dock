@@ -1,168 +1,137 @@
-import type { ReactNode } from 'react';
-import { designAsset } from '../assets';
-import type { DesignPage } from '../assets';
+import type { CSSProperties, ReactNode } from 'react';
+import { mediaSrc } from '../assets';
 
-/** SVG surfaces contain only bevels and lights; all UI text remains in the DOM. */
+export type PanelTone = 'violet' | 'cyan' | 'mint' | 'gold' | 'red';
+export type PanelInset = 'standard' | 'compact' | 'spacious' | 'title';
+
+/** The transparent center and fixed corner slices keep metal edges out of the content slot. */
 export function SurfaceFrame({
-  page,
-  asset,
+  tone = 'violet',
   className = '',
 }: {
-  page: DesignPage;
-  asset: string;
+  tone?: PanelTone;
   className?: string;
 }) {
+  const key = tone === 'cyan' || tone === 'mint' ? 'frame.cyan' : 'frame.violet';
   return (
-    <img
-      className={`surface-frame ${className}`}
-      src={designAsset(page, asset)}
-      alt=""
+    <span
+      className={`surface-frame surface-frame--${tone} ${className}`}
+      data-media={key}
+      style={{ '--frame-art': `url("${mediaSrc(key)}")` } as CSSProperties}
       aria-hidden="true"
     />
   );
 }
 
+/** Tone chooses the surface; inset reserves the frame's thickness independently of page layout. */
 export function MechanicalPanel({
-  page,
-  asset,
+  tone = 'violet',
+  inset = 'standard',
   className = '',
+  decoration,
   children,
 }: {
-  page: DesignPage;
-  asset: string;
+  tone?: PanelTone;
+  inset?: PanelInset;
   className?: string;
+  decoration?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section className={`mechanical-panel ${className}`}>
-      <SurfaceFrame page={page} asset={asset} />
+    <section className={`mechanical-panel panel-inset--${inset} ${className}`}>
+      <SurfaceFrame tone={tone} />
+      {decoration}
       <div className="panel-content">{children}</div>
     </section>
   );
 }
 
-/** The emblem, portrait, ring, and hat badge are separate original XML resources. */
-export function Brand({ variant = 'welcome' }: { variant?: DesignPage }) {
-  const isMain = variant === 'main';
+/** Both allowed names use identical frame, emblem, text slots, and sector baseline. */
+export function Brand({ name = 'dock' }: { name?: 'dock' | 'station' }) {
   return (
-    <header className={`brand brand--${variant}`}>
-      <SurfaceFrame
-        page={variant === 'scan' ? 'welcome' : variant}
-        asset={isMain ? 'frame_brand' : 'brand_shell'}
-      />
-      <img
-        className="brand-emblem"
-        src={designAsset(isMain ? 'main' : 'welcome', isMain ? 'flint_emblem' : 'logo_flint')}
-        alt=""
-        aria-hidden="true"
-      />
+    <header className="brand" data-brand={name}>
+      <SurfaceFrame />
+      <img className="brand-emblem" src={mediaSrc('brand.emblem')} alt="" aria-hidden="true" />
       <div className="brand-copy">
-        <p>{isMain ? 'FLINT’S STATION' : 'FLINT’S DOCK'}</p>
-        <p>SECTOR 9G</p>
+        <p className="type-brand">{name === 'station' ? 'FLINT’S STATION' : 'FLINT’S DOCK'}</p>
+        <p className="type-sector">SECTOR 9G</p>
       </div>
     </header>
   );
 }
 
+/** The artwork already includes portrait, ring, and hat badge; they must not be overlaid twice. */
 export function MascotHero({
-  corner = false,
+  variant = 'large',
   scanning = false,
   label = false,
 }: {
-  corner?: boolean;
+  variant?: 'large' | 'compact' | 'corner';
   scanning?: boolean;
   label?: boolean;
 }) {
   return (
-    <div className={`mascot-hero ${corner ? 'mascot-hero--corner' : ''}`} aria-hidden="true">
-      <img className="hero-ring" src={designAsset('welcome', 'porthole_ring')} alt="" />
-      {label && <span className="mascot-label">МАСКОТ</span>}
-      <img className="hero-portrait" src={designAsset('welcome', 'raptor_portrait_art')} alt="" />
-      <img className="hero-badge" src={designAsset('welcome', 'solana_hat_badge')} alt="" />
-      {scanning && <img className="hero-beam" src={designAsset('scan', 'scan_beam_art')} alt="" />}
-    </div>
-  );
-}
-
-/** Recompose the documented scenery without baking any page text into an image. */
-export function SceneBackground({ page }: { page: DesignPage }) {
-  if (page === 'main')
-    return (
-      <div className="scene scene--main" aria-hidden="true">
-        <img className="scene-full" src={designAsset('main', 'background_space_city')} alt="" />
-      </div>
-    );
-  const cleanup = page === 'cleanup';
-  return (
-    <div className={`scene scene--${page}`} aria-hidden="true">
-      <img className="scene-full" src={designAsset('welcome', 'space_nebula_stars')} alt="" />
-      <img
-        className="scene-planet"
-        src={designAsset(
-          cleanup ? 'cleanup' : 'welcome',
-          cleanup ? 'cleanup_planet' : 'planet_violet',
-        )}
-        alt=""
-      />
-      <img
-        className="scene-city"
-        src={designAsset(
-          cleanup ? 'cleanup' : 'welcome',
-          cleanup ? 'cleanup_orbital_city' : 'orbital_city',
-        )}
-        alt=""
-      />
-      <img
-        className="scene-ships"
-        src={designAsset(
-          cleanup ? 'cleanup' : 'welcome',
-          cleanup ? 'cleanup_ships' : 'ships_fleet',
-        )}
-        alt=""
-      />
-      <img
-        className="scene-full"
-        src={designAsset(
-          cleanup ? 'cleanup' : 'welcome',
-          cleanup ? 'cleanup_perimeter' : 'perimeter_hull',
-        )}
-        alt=""
-      />
-      {!cleanup && (
+    <div
+      className={`mascot-hero mascot-hero--${variant}`}
+      data-hero-variant={variant}
+      aria-hidden="true"
+    >
+      <div className="hero-stage">
         <img
-          className={`scene-floor ${page === 'success' ? 'scene-floor--success' : ''}`}
-          src={designAsset(
-            page === 'success' ? 'success' : 'welcome',
-            page === 'success' ? 'success_dock_scene' : 'dock_floor_foreground',
-          )}
+          className="hero-art"
+          data-media="hero.raptor"
+          src={mediaSrc('hero.raptor')}
           alt=""
+          width={1254}
+          height={1254}
         />
-      )}
-      {page === 'scan' && (
-        <img className="scene-flagship" src={designAsset('scan', 'bottom_flagship')} alt="" />
-      )}
+        {label && <span className="mascot-label type-caption">МАСКОТ</span>}
+        {scanning && <img className="hero-beam" src={mediaSrc('hero.scanBeam')} alt="" />}
+      </div>
     </div>
   );
 }
 
-export function TitlePedestal({ page }: { page: 'welcome' | 'main' }) {
+/** One text-free raster scene contains its planet and ships, so no duplicate SVG scenery is added. */
+export function SceneBackground() {
+  return (
+    <div className="scene" aria-hidden="true">
+      <img
+        className="scene-art"
+        data-media="scene.station"
+        src={mediaSrc('scene.station')}
+        alt=""
+        width={1024}
+        height={1536}
+      />
+    </div>
+  );
+}
+
+/** A width-based decorative anchor keeps the swords independent of title wrapping and panel height. */
+export function TitlePedestal() {
   return (
     <MechanicalPanel
-      page={page}
-      asset={page === 'main' ? 'frame_title_pedestal' : 'title_pedestal_shell'}
+      inset="title"
       className="title-pedestal"
+      decoration={
+        <div className="pedestal-anchor" aria-hidden="true">
+          <img
+            className="crossed-sabers"
+            data-media="decoration.sabers"
+            src={mediaSrc('decoration.sabers')}
+            alt=""
+            width={2172}
+            height={724}
+          />
+        </div>
+      }
     >
-      <img
-        className="crossed-sabers"
-        src={designAsset('welcome', 'crossed_sabers_art')}
-        alt=""
-        aria-hidden="true"
-      />
-      <p className="eyebrow">ОРБІТАЛЬНИЙ</p>
-      <h1 id="screen-heading" tabIndex={-1}>
+      <p className="eyebrow type-section">ОРБІТАЛЬНИЙ</p>
+      <h1 id="screen-heading" className="type-display" tabIndex={-1}>
         ДОК ФЛІНТА
       </h1>
-      <p className="tagline">
+      <p className="tagline type-caption">
         <span>ЧИСТИМО ТРЮМИ. ДОБУВАЄМО ЦІННЕ.</span>
       </p>
     </MechanicalPanel>

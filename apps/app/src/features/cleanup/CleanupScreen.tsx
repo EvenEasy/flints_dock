@@ -29,15 +29,15 @@ export function CleanupScreen({
     analysis?.nfts?.classic.items != null;
   return (
     <div className="page page--cleanup">
-      <Brand variant="cleanup" />
-      <MascotHero corner />
+      <Brand />
+      <MascotHero variant="corner" />
       <header className="cleanup-header">
-        <h1 id="screen-heading" tabIndex={-1}>
+        <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
           ОЧИЩЕННЯ
         </h1>
         <p>Зніми галочку з активів, які хочеш залишити.</p>
       </header>
-      <MechanicalPanel page="cleanup" asset="manifest_shell" className="asset-manifest">
+      <MechanicalPanel className="asset-manifest">
         <h2 className="manifest-columns">
           <span>АКТИВ</span>
           <span>ВАРТІСТЬ В SOL</span>
@@ -80,7 +80,7 @@ export function CleanupScreen({
           </p>
         )}
       </MechanicalPanel>
-      <MechanicalPanel page="cleanup" asset="summary_shell" className="selection-summary">
+      <MechanicalPanel className="selection-summary">
         <p className="selection-count">
           ВИБРАНО:{' '}
           <strong>
@@ -93,15 +93,14 @@ export function CleanupScreen({
         </div>
       </MechanicalPanel>
       {!preview && (
-        <Notice tone="amber" title="CLEANUP API REQUIRED">
-          Desktop API does not expose cleanup plans, swap quotes, or execution. Your selection is
-          local; no assets are changed.
+        <Notice tone="amber" title="ОЧИЩЕННЯ ПОКИ НЕДОСТУПНЕ">
+          API очищення ще недоступне. Вибір збережено; активи не змінюються.
         </Notice>
       )}
       <RecoverButton
         disabled={!preview || selectedCount === 0}
         onClick={onPreviewComplete}
-        aria-label={preview ? 'ПОВЕРНУТИ SOL' : 'ПОВЕРНУТИ SOL — CLEANUP API REQUIRED'}
+        aria-label={preview ? 'ПОВЕРНУТИ SOL' : 'ПОВЕРНУТИ SOL — очищення недоступне'}
       />
     </div>
   );

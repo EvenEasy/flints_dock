@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { SceneBackground } from '../shared/ui/Design';
-import type { DesignPage } from '../shared/assets';
 import { displayOptions, PHONE_ASPECT_RATIO, PHONE_MIN_WIDTH } from './display';
 import { BottomNavigation } from './BottomNavigation';
 import type { DockSection, ScreenId } from './navigation';
@@ -28,7 +27,6 @@ export function AppShell({
   );
   const reference =
     preview && new URLSearchParams(window.location.search).get('layout') === 'reference';
-  const page: DesignPage = screen === 'scanning' ? 'scan' : screen;
   const connectedPage = ['main', 'cleanup', 'success'].includes(screen);
   return (
     <div
@@ -57,7 +55,7 @@ export function AppShell({
         </button>
       )}
       <section aria-label="Wallet app screen" className={`dock-screen dock-screen--${screen}`}>
-        <SceneBackground page={page} />
+        <SceneBackground />
 
         <main
           id="main-content"
@@ -68,7 +66,7 @@ export function AppShell({
         >
           {children}
         </main>
-        {connectedPage && <BottomNavigation main={screen === 'main'} onNavigate={onSection} />}
+        {connectedPage && <BottomNavigation active="station" onNavigate={onSection} />}
       </section>
     </div>
   );

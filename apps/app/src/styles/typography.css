@@ -1,0 +1,87 @@
+/* These registered lengths are computed once at the dock boundary. Nested art/list
+   containers cannot silently change inherited cqw scales or text proportions. */
+@property --ui-unit {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 1px;
+}
+:root,
+.screen-content,
+.bottom-navigation {
+  --font-family: 'Dock Condensed', 'Arial Narrow', sans-serif;
+  --ui-unit: 1px;
+  --font-brand: 800 calc(22 * var(--ui-unit)) / 1.05 var(--font-family);
+  --font-sector: 700 calc(11 * var(--ui-unit)) / 1.2 var(--font-family);
+  --font-display: 900 calc(34 * var(--ui-unit)) / 1.05 var(--font-family);
+  --font-screen: 800 calc(30 * var(--ui-unit)) / 1.08 var(--font-family);
+  --font-section: 800 calc(20 * var(--ui-unit)) / 1.15 var(--font-family);
+  --font-body: 400 calc(16 * var(--ui-unit)) / 1.4 var(--font-family);
+  --font-caption: 600 calc(13 * var(--ui-unit)) / 1.25 var(--font-family);
+  --font-navigation: 700 calc(13 * var(--ui-unit)) / 1.15 var(--font-family);
+  --font-numeric: 800 calc(30 * var(--ui-unit)) / 1.05 var(--font-family);
+  --tracking-brand: calc(0.25 * var(--ui-unit));
+  --tracking-sector: calc(2 * var(--ui-unit));
+  --tracking-display: calc(0.4 * var(--ui-unit));
+  --tracking-screen: calc(0.3 * var(--ui-unit));
+  --tracking-section: calc(0.3 * var(--ui-unit));
+  --tracking-body: 0;
+  --tracking-caption: calc(0.2 * var(--ui-unit));
+  --tracking-navigation: 0;
+  --tracking-numeric: 0;
+}
+/* Role declarations are local, never a global h1 override. */
+.type-brand {
+  font: var(--font-brand);
+  letter-spacing: var(--tracking-brand);
+}
+.type-sector {
+  font: var(--font-sector);
+  letter-spacing: var(--tracking-sector);
+}
+.type-display {
+  font: var(--font-display);
+  letter-spacing: var(--tracking-display);
+}
+.type-screen {
+  font: var(--font-screen);
+  letter-spacing: var(--tracking-screen);
+}
+.type-section {
+  font: var(--font-section);
+  letter-spacing: var(--tracking-section);
+}
+.type-body {
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+.type-caption {
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+}
+.type-navigation {
+  font: var(--font-navigation);
+  letter-spacing: var(--tracking-navigation);
+}
+.type-numeric {
+  font: var(--font-numeric);
+  letter-spacing: var(--tracking-numeric);
+  font-variant-numeric: tabular-nums;
+}
+.type-numeric--row {
+  --font-numeric: 700 calc(18 * var(--ui-unit)) / 1.15 var(--font-family);
+}
+.type-numeric--metric {
+  --font-numeric: 900 calc(38 * var(--ui-unit)) / 1.05 var(--font-family);
+}
+.type-numeric--returned {
+  --font-numeric: 900 calc(52 * var(--ui-unit)) / 1.05 var(--font-family);
+}
+/* Shorthands containing var() are resolved on each role, using the inherited registered unit. */
+.screen-content,
+.bottom-navigation {
+  font: var(--font-body);
+}
+
+.type-numeric--count {
+  --font-numeric: 800 calc(24 * var(--ui-unit)) / 1.05 var(--font-family);
+}
