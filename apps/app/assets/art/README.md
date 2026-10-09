@@ -70,3 +70,31 @@ than the original bespoke winged pedestal. Replace semantic registry entries wit
 licensed original layers when available; do not overlay rings or scene parts
 already included in a composite image. The exact reference font is also unknown;
 local Roboto Condensed is the XML-recommended Cyrillic substitute.
+
+## WebKitGTK derivatives (2026-10-09)
+
+This pass generated no new artwork. All ten original PNGs and their provenance
+remain unchanged. `sizes/` contains 78 prefiltered PNG derivatives of those
+originals, retaining intrinsic aspect ratio and alpha. They are not rasterized SVGs.
+
+A native WebKitGTK 2.54.1 A/B comparison reproduced bright/grainy undersampling
+when a 1254px illustration was reduced to 300px, including a plain image with no
+component effects. Pixel-identical lossless WebP and compositing transforms did
+not fix it. A LANCZOS-prefiltered 300px copy rendered correctly in the same native
+window. The source images had no ICC/gamma profile; alpha edges were inspected.
+No GPU override or pixelated/crisp-edges rendering was added.
+
+`RasterArt` chooses the nearest larger derivative from actual paint size × DPR.
+Frames use the painted border width divided by the 26% slice, not the full panel
+width. Existing nine-slice geometry is retained. The opaque scene uses cover;
+transparent illustrations use contain. Sources remain local and shared by semantic
+key. Chromium DPR 1/2 and fractional DPR 1.25, native Wayland DPR 1 and native X11
+DPR 2 were checked. Native fractional scaling remains unverified.
+
+Regenerate with development-only Pillow (not a runtime/npm dependency):
+
+```sh
+python3 scripts/prepare-art.py
+```
+
+See [native diagnosis and screenshots](../../docs/desktop-verification.md).

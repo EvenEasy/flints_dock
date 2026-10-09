@@ -9,6 +9,7 @@ pub enum ErrorCode {
     InvalidWalletAddress,
     InvalidConfiguration,
     InvalidWalletIdentity,
+    CleanupRejected,
 }
 
 /// Frontend-safe failure envelope; category read failures live in scanner statuses.
@@ -21,6 +22,13 @@ pub struct AppError {
 }
 
 impl AppError {
+    pub(crate) fn cleanup(message: &str) -> Self {
+        Self {
+            code: ErrorCode::CleanupRejected,
+            message: concise_reason(message),
+            details: None,
+        }
+    }
     /// Identity failures must not echo credential values, file contents, or loader debug output.
     pub(crate) fn invalid_identity(message: &str) -> Self {
         Self {

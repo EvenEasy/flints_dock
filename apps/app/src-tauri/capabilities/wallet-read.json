@@ -1,13 +1,16 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "wallet-read",
-  "description": "Local wallet identity and read-only analysis for the main window. No transaction execution.",
+  "description": "Local wallet inspection and explicitly approved cleanup in the main window only.",
   "windows": [
     "main"
   ],
   "permissions": [
     "allow-analyze-wallet",
     "allow-connect-wallet",
-    "allow-disconnect-wallet"
+    "allow-disconnect-wallet",
+    "allow-prepare-cleanup",
+    "allow-execute-cleanup",
+    "allow-get-cleanup-job"
   ]
 }

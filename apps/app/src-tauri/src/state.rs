@@ -1,13 +1,16 @@
 use crate::error::AppError;
-use dock_flints_core::infra::wallet::WalletIdentity;
+use crate::{cleanup::DesktopStore, journal::Journal};
 use dock_flints_core::infra::{jupiter::Jupiter, solana};
 use solana_rpc_client::nonblocking::rpc_client::RpcClient;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 /// Shared clients and an optional local identity; signer material never enters response DTOs.
 pub struct AppState {
     pub(crate) rpc: RpcClient,
-    pub(crate) identity: Mutex<Option<WalletIdentity>>,
+    pub(crate) store: Arc<Mutex<DesktopStore>>,
+    pub(crate) journal: Arc<Journal>,
+    pub(crate) das: Option<dock_flints_core::infra::solana::scan::das::DasClient>,
+    pub(crate) dust_threshold_usd: f64,
     pub(crate) jupiter: Option<Jupiter>,
     pub(crate) pricing_error: Option<String>,
 }
@@ -55,11 +58,50 @@ impl AppState {
             ),
         };
         Ok(Self {
-            identity: Mutex::new(None),
+            store: Default::default(),
+            journal: Arc::new(Journal::open(
+                std::env::var_os("DOCK_FLINTS_JOURNAL_PATH")
+                    .map(std::path::PathBuf::from)
+                    .unwrap_or_else(|| {
+                        std::env::var_os("XDG_DATA_HOME")
+                            .map(std::path::PathBuf::from)
+                            .unwrap_or_else(|| {
+                                std::path::PathBuf::from(
+                                    std::env::var_os("HOME").unwrap_or_default(),
+                                )
+                                .join(".local/share")
+                            })
+                            .join("dock-flints/signatures.json")
+                    }),
+            )?),
+            das: std::env::var("DOCK_FLINTS_DAS_URL")
+                .ok()
+                .map(dock_flints_core::infra::solana::scan::das::DasClient::new)
+                .transpose()
+                .map_err(|_| {
+                    AppError::configuration("DOCK_FLINTS_DAS_URL", "Invalid DAS endpoint")
+                })?,
+            dust_threshold_usd: std::env::var("DOCK_FLINTS_DUST_USD")
+                .unwrap_or_else(|_| "0.01".into())
+                .parse::<f64>()
+                .ok()
+                .filter(|n| n.is_finite() && *n > 0.0)
+                .ok_or_else(|| {
+                    AppError::configuration(
+                        "DOCK_FLINTS_DUST_USD",
+                        "Dust USD threshold must be finite and positive",
+                    )
+                })?,
             rpc: solana::client(url, timeout_seconds),
             jupiter,
             pricing_error,
         })
+    }
+
+    /// Override the durable nonsensitive journal location for an isolated desktop instance or test.
+    pub fn with_journal(mut self, path: std::path::PathBuf) -> Result<Self, AppError> {
+        self.journal = Arc::new(Journal::open(path)?);
+        Ok(self)
     }
 
     fn url_error() -> AppError {

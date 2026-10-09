@@ -7,7 +7,8 @@ import {
   TitlePedestal,
 } from '../../shared/ui/Design';
 import { RecoverButton } from '../../shared/ui/ActionButton';
-import { designAsset, mediaSrc } from '../../shared/assets';
+import { designAsset } from '../../shared/assets';
+import { RasterArt } from '../../shared/ui/RasterArt';
 import type { MediaKey } from '../../shared/assets';
 import { ExactAmount } from '../../shared/ui/ExactAmount';
 import { lamportsToSol } from '../../shared/format';
@@ -35,9 +36,10 @@ export function MainScreen({
 }) {
   const nftKnown =
     analysis?.nfts && (analysis.nfts.classic.items !== null || analysis.nfts.core.items !== null);
-  const nftCount = nftKnown
+  const observedNfts = nftKnown
     ? (analysis!.nfts!.classic.items?.length ?? 0) + (analysis!.nfts!.core.items?.length ?? 0)
-    : '—';
+    : 0;
+  const nftCount = observedNfts > 0 ? `${observedNfts}+` : '—';
   const rent = lamportsToSol(analysis?.accountSummary?.potentiallyReclaimableLamports);
   return (
     <div className="page page--main">
@@ -110,9 +112,9 @@ export function MainScreen({
             </strong>
             <p>{preview ? 'ДОСТУПНА ДО ПОВЕРНЕННЯ' : 'ОЦІНКА, НЕ ПЛАН ОЧИЩЕННЯ'}</p>
           </div>
-          <img
+          <RasterArt
+            media="decoration.station"
             className="orbital-station"
-            src={mediaSrc('decoration.station')}
             alt=""
             aria-hidden="true"
           />
@@ -131,7 +133,14 @@ export function MainScreen({
               key={key}
               type="button"
               onClick={() => onInspect(key)}
-              aria-label={`${label}: ${preview ? sample : key === 'nft' ? nftCount : 'класифікація недоступна'}`}
+              aria-label={`${label}: ${preview ? sample : analysis?.categories?.categories[key]?.status.status === 'complete' ? analysis.categories.categories[key].count : analysis?.categories?.categories[key]?.count ? `${analysis.categories.categories[key].count}+ · неповно` : key === 'nft' ? nftCount : 'класифікація недоступна'}`}
+              title={
+                !preview && analysis?.categories?.categories[key]?.status.status !== 'complete'
+                  ? 'Перевірка неповна або недоступна'
+                  : key === 'scam'
+                    ? 'Провайдер позначив активи як підозрілі'
+                    : undefined
+              }
             >
               <SurfaceFrame
                 tone={
@@ -144,15 +153,23 @@ export function MainScreen({
                         : 'violet'
                 }
               />
-              <img
+              <RasterArt
                 className="category-art"
-                src={mediaSrc(`category.${key}` as MediaKey)}
+                media={`category.${key}` as MediaKey}
                 alt=""
                 aria-hidden="true"
               />
               <span className="category-label type-caption">{label}</span>
               <strong className="type-numeric type-numeric--count">
-                {preview ? sample : key === 'nft' ? nftCount : '—'}
+                {preview
+                  ? sample
+                  : analysis?.categories?.categories[key]?.status.status === 'complete'
+                    ? analysis.categories.categories[key].count
+                    : analysis?.categories?.categories[key]?.count
+                      ? `${analysis.categories.categories[key].count}+`
+                      : key === 'nft'
+                        ? nftCount
+                        : '—'}
               </strong>
             </button>
           ))}

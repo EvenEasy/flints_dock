@@ -74,7 +74,10 @@ fn quote_validates_identity_amount_slippage_and_exact_sol_units() {
     }
     let mut empty = build();
     empty.route_plan.clear();
-    assert!(matches!(empty.quote(&req), Err(SwapError::NoRoute(_))));
+    assert!(matches!(
+        empty.quote(&req),
+        Err(SwapError::InvalidResponse(_))
+    ));
     let mut illiquid = build();
     illiquid.out_amount = "0".into();
     assert!(matches!(

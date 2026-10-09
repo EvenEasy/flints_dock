@@ -1289,12 +1289,19 @@ dependencies = [
 name = "dock-flints-app"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
+ "bincode",
  "dock-flints-core",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "solana-commitment-config",
+ "solana-keypair",
  "solana-pubkey 4.4.0",
  "solana-rpc-client",
+ "solana-rpc-client-api",
+ "solana-signer",
+ "solana-transaction",
  "tauri",
  "tauri-build",
  "tokio",

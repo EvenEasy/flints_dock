@@ -28,6 +28,29 @@ pub trait CleanupExecutor {
         signer: &Keypair,
         limits: &SwapLimits,
     ) -> impl std::future::Future<Output = Result<OperationReceipt>> + Send;
+
+    /// Default mock/CLI boundary; RPC overrides this to journal before submission.
+    fn perform_observed(
+        &self,
+        operation: CleanupOperation,
+        asset: &CleanupAsset,
+        fresh: Option<PreparedSwap>,
+        signer: &Keypair,
+        limits: &SwapLimits,
+        _observer: &dyn crate::core::progress::CleanupObserver,
+    ) -> impl std::future::Future<Output = Result<OperationReceipt>> + Send {
+        self.perform(operation, asset, fresh, signer, limits)
+    }
+
+    /// Retrieve metadata for a confirmed failed transaction, which can still charge fees.
+    fn failed_receipt(
+        &self,
+        _operation: CleanupOperation,
+        _signature: &str,
+        _owner: &Pubkey,
+    ) -> impl std::future::Future<Output = Option<OperationReceipt>> + Send {
+        async { None }
+    }
 }
 
 /// Discover backing accounts and return a read-only, account-scoped cleanup plan.

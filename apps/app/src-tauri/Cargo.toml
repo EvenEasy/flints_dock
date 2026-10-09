@@ -14,6 +14,10 @@ serde_json.workspace = true
 reqwest.workspace = true
 solana-pubkey.workspace = true
 solana-rpc-client.workspace = true
+solana-keypair.workspace = true
+solana-signer.workspace = true
+solana-rpc-client-api.workspace = true
+solana-commitment-config.workspace = true
 
 [build-dependencies]
 tauri-build.workspace = true
@@ -25,3 +29,6 @@ custom-protocol = ["tauri/custom-protocol"]
 tokio.workspace = true
 tauri = { workspace = true, features = ["test"] }
 
+base64.workspace = true
+bincode.workspace = true
+solana-transaction.workspace = true

@@ -144,7 +144,21 @@ export function InventoryDialog({
       {view === 'cnfts' && (
         <>
           <CategoryNotice status={analysis?.cnfts?.status} />
-          {!analysis?.cnfts && <p>Compressed NFT enumeration is unavailable.</p>}
+          {analysis?.cnfts?.items ? (
+            <ul className="collectible-list">
+              {analysis.cnfts.items.map((asset) => (
+                <li key={asset.id}>
+                  <strong>{asset.name}</strong>
+                  <code>{asset.id}</code>
+                </li>
+              ))}
+              {analysis.cnfts.items.length === 0 && (
+                <li>Стиснених NFT не знайдено в отриманих сторінках.</li>
+              )}
+            </ul>
+          ) : (
+            <p>Перелік стиснених NFT недоступний.</p>
+          )}
         </>
       )}
       {analysis && <InventoryDetails analysis={analysis} />}

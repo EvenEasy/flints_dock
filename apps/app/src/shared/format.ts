@@ -49,3 +49,10 @@ export function shortAddress(value: string): string {
 export function looksLikeAddress(value: string): boolean {
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value);
 }
+
+/** Format signed transaction deltas exactly, including negative fees. */
+export function signedLamportsToSol(value: string | null | undefined): string {
+  if (value == null) return '—';
+  const amount = BigInt(value);
+  return `${amount < 0n ? '-' : '+'}${lamportsToSol((amount < 0n ? -amount : amount).toString())}`;
+}

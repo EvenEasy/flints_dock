@@ -32,16 +32,14 @@ impl PriceProvider for Jupiter {
 
         // Price V3 takes at most 50 IDs; each mint is requested once per run.
         for batch in unique.chunks(50) {
-            let response = async {
-                self.get("/price/v3")
-                    .query(&[("ids", batch.join(","))])
-                    .send()
-                    .await?
-                    .error_for_status()?
-                    .json::<Value>()
-                    .await
-            }
-            .await;
+            let response = self
+                .mint_json(
+                    "/price/v3",
+                    "ids",
+                    batch,
+                    std::time::Duration::from_secs(30),
+                )
+                .await;
             match response {
                 Ok(value) if value.is_object() => {
                     successes += 1;
@@ -52,7 +50,7 @@ impl PriceProvider for Jupiter {
                     }
                 }
                 Ok(_) => errors.push("Jupiter returned an unexpected response shape".to_owned()),
-                Err(error) => errors.push(error.without_url().to_string()),
+                Err(error) => errors.push(error),
             }
         }
 

@@ -32,7 +32,7 @@ pub struct CleanupEntry {
 }
 
 /// Bind the wallet, selected accounts, action estimates and discovery status to a preview.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CleanupPlan {
     pub wallet: String,
     pub discovery_status: ScanStatus,
@@ -43,7 +43,7 @@ pub struct CleanupPlan {
 }
 
 /// Count planned actions and total estimated swap output and recoverable lamports.
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct CleanupSummary {
     pub token_accounts: usize,
     pub empty: usize,
@@ -107,7 +107,7 @@ fn optional_integer<T: ToString, S: serde::Serializer>(
 }
 
 /// Preserve the outcome and any completed operations for a single account.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct AccountCleanupResult {
     pub token_account: String,
     pub mint: String,
@@ -119,7 +119,7 @@ pub struct AccountCleanupResult {
 }
 
 /// Summarize completed, failed and skipped accounts with observed balance changes.
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct CleanupReport {
     pub results: Vec<AccountCleanupResult>,
     pub closed: usize,
@@ -129,6 +129,9 @@ pub struct CleanupReport {
     pub known_swap_net_lamports: i128,
     #[serde(serialize_with = "integer_string")]
     pub known_reclaimed_lamports: u128,
+    /// Signed wallet delta across every observed job transaction, including standalone fees.
+    #[serde(serialize_with = "integer_string")]
+    pub known_net_wallet_lamports: i128,
     pub accounting_complete: bool,
 }
 

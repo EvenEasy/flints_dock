@@ -123,6 +123,7 @@ pub struct BalanceDto {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletAnalysisDto {
+    pub categories: Option<super::categories::CategoriesDto>,
     pub owner: String,
     pub commitment: String,
     pub selected: SelectedCategoriesDto,
@@ -202,11 +203,12 @@ impl From<WalletSnapshot> for WalletAnalysisDto {
         });
         let cnfts = selected.cnfts.then(|| CompressedNftsDto {
             status: status("compressed_nfts").into(),
-            items: (),
+            items: None,
         });
 
         // Expose exact diagnostics only for inventory that was actually available.
         Self {
+            categories: None,
             owner: snapshot.owner,
             commitment: snapshot.commitment,
             selected: selected.into(),

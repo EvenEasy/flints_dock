@@ -19,7 +19,7 @@ async function geometry(page: Page) {
     const unit = parseFloat(getComputedStyle(main).getPropertyValue('--ui-unit'));
     function bounds(selector: string, root?: string) {
       const el = document.querySelector(selector);
-      if (!el) return null;
+      if (!el || el.getClientRects().length === 0) return null;
       const box = el.getBoundingClientRect();
       const origin = (root ? document.querySelector(root)! : el).getBoundingClientRect();
       return {
@@ -90,20 +90,28 @@ for (const viewport of viewports) {
           page.locator('.hero-ring, .hero-portrait, .hero-badge, .scene-planet, .scene-ships'),
         ).toHaveCount(0);
         await expect(page.locator('.hero-art')).toHaveCount(1);
-        expect(
-          await page
-            .locator('.hero-art')
-            .evaluate(
-              (el) => el instanceof HTMLImageElement && el.complete && el.naturalWidth === 1254,
-            ),
-        ).toBe(true);
-        expect(
-          await page
-            .locator('.scene-art')
-            .evaluate(
-              (el) => el instanceof HTMLImageElement && el.complete && el.naturalWidth === 1024,
-            ),
-        ).toBe(true);
+        // ResizeObserver can select a different derivative after the fonts settle.
+        await expect
+          .poll(() =>
+            page
+              .locator('.hero-art')
+              .evaluate(
+                (el) =>
+                  el instanceof HTMLImageElement &&
+                  el.complete &&
+                  el.naturalWidth >= el.getBoundingClientRect().width * devicePixelRatio,
+              ),
+          )
+          .toBe(true);
+        await expect
+          .poll(() =>
+            page
+              .locator('.scene-art')
+              .evaluate(
+                (el) => el instanceof HTMLImageElement && el.complete && el.naturalWidth > 0,
+              ),
+          )
+          .toBe(true);
         const measured = await geometry(page);
         if (mode === 'reference') {
           const canvas = await page.locator('.dock-screen').boundingBox();
@@ -216,13 +224,15 @@ test('LongExactValuesAndNames_WrapWithoutLossOrOverlap', async ({ page }) => {
   );
   const amountBox = await page.locator('.scan-rent .exact-amount').boundingBox();
   const stationBox = await page.locator('.orbital-station').boundingBox();
-  expect(amountBox!.x + amountBox!.width).toBeLessThanOrEqual(stationBox!.x + 1);
+  const summaryBox = await page.locator('.scan-summary').boundingBox();
+  expect(amountBox!.x + amountBox!.width).toBeLessThanOrEqual(summaryBox!.x + summaryBox!.width);
+  if (stationBox) expect(amountBox!.x + amountBox!.width).toBeLessThanOrEqual(stationBox.x + 1);
   await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
   await expect(page.locator('.asset-identity > strong')).toHaveText(asset.metadata.name!);
   await expect(page.locator('.asset-identity')).toHaveAttribute('title', asset.mint);
   await expect(page.getByText('МЕРТВИЙ', { exact: true })).toHaveCount(0);
   await expect(page.getByText('НЕ ОЦІНЕНО', { exact: true })).toHaveCount(2);
-  await expect(page.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
   expect(await page.locator('.asset-row').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
     true,
   );
@@ -241,7 +251,7 @@ test('EmptyInventory_IsDistinctFromUnavailableEstimate', async ({ page }) => {
   await expect(page.getByRole('checkbox')).toHaveCount(0);
   await expect(page.getByText('No token assets found in this category.')).toBeVisible();
   await expect(page.getByText('НЕ ОЦІНЕНО', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
   expect(
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
@@ -282,4 +292,17 @@ test('LocalCyrillicFont_LoadingPreservesBrandAndNavigationSlots', async ({ page 
   expect(
     await page.evaluate(() => document.fonts.check('800 22px "Dock Condensed"', 'ЧИСТИМО ТРЮМИ')),
   ).toBe(true);
+});
+
+// The compact desktop composition must reserve enough space for the complete hero.
+test('ShortDesktopHeroDoesNotExtendUnderTheTitle', async ({ page }) => {
+  await page.setViewportSize({ width: 1100, height: 760 });
+  await page.goto('/?preview=1#main');
+  await page.evaluate(() => document.fonts.ready);
+  const allocated = await page.locator('.main-hero').boundingBox();
+  const hero = await page.locator('.hero-stage').boundingBox();
+  const title = await page.locator('.title-pedestal').boundingBox();
+  expect(hero!.height).toBeGreaterThan(60);
+  expect(hero!.y + hero!.height).toBeLessThanOrEqual(allocated!.y + allocated!.height + 1);
+  expect(hero!.y + hero!.height).toBeLessThanOrEqual(title!.y + 1);
 });

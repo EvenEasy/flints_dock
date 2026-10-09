@@ -1,5 +1,8 @@
+import { useRef } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { mediaSrc } from '../assets';
+import { RasterArt } from './RasterArt';
+import { useRasterSource } from './useRasterSource';
 
 export type PanelTone = 'violet' | 'cyan' | 'mint' | 'gold' | 'red';
 export type PanelInset = 'standard' | 'compact' | 'spacious' | 'title';
@@ -13,11 +16,18 @@ export function SurfaceFrame({
   className?: string;
 }) {
   const key = tone === 'cyan' || tone === 'mint' ? 'frame.cyan' : 'frame.violet';
+  const frame = useRef<HTMLSpanElement>(null);
+  const src = useRasterSource(key, frame, true);
   return (
     <span
+      ref={frame}
       className={`surface-frame surface-frame--${tone} ${className}`}
       data-media={key}
-      style={{ '--frame-art': `url("${mediaSrc(key)}")` } as CSSProperties}
+      style={
+        {
+          '--frame-art': `url("${src}")`,
+        } as CSSProperties
+      }
       aria-hidden="true"
     />
   );
@@ -77,10 +87,10 @@ export function MascotHero({
       aria-hidden="true"
     >
       <div className="hero-stage">
-        <img
+        <RasterArt
+          media="hero.raptor"
           className="hero-art"
           data-media="hero.raptor"
-          src={mediaSrc('hero.raptor')}
           alt=""
           width={1254}
           height={1254}
@@ -96,10 +106,10 @@ export function MascotHero({
 export function SceneBackground() {
   return (
     <div className="scene" aria-hidden="true">
-      <img
+      <RasterArt
+        media="scene.station"
         className="scene-art"
         data-media="scene.station"
-        src={mediaSrc('scene.station')}
         alt=""
         width={1024}
         height={1536}
@@ -116,10 +126,10 @@ export function TitlePedestal() {
       className="title-pedestal"
       decoration={
         <div className="pedestal-anchor" aria-hidden="true">
-          <img
+          <RasterArt
+            media="decoration.sabers"
             className="crossed-sabers"
             data-media="decoration.sabers"
-            src={mediaSrc('decoration.sabers')}
             alt=""
             width={2172}
             height={724}

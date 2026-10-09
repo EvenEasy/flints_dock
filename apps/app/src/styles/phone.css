@@ -4,6 +4,8 @@
   min-height: 0;
 }
 .phone-layout .dock-screen {
+  /* Shared decoration responds to the full screen, including the navigation slot. */
+  container-type: size;
   width: min(
     100%,
     var(--screen-width),
@@ -79,7 +81,7 @@
   }
 }
 /* Short screens surrender decorative space first; typography and touch targets are unchanged. */
-@container content (max-height: 640px) {
+@container dock (max-height: 840px) {
   .phone-layout .main-hero {
     min-height: 0;
   }
@@ -100,4 +102,16 @@
   .phone-layout .success-spacer {
     display: none;
   }
+}
+
+.phone-layout .page--success:has(.cleanup-report) {
+  grid-template-areas: 'brand' 'hero' 'title' 'amount' 'report';
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+}
+.phone-layout .page--success > .cleanup-report {
+  grid-area: report;
+  max-height: min(100px, 14cqh);
+}
+.phone-layout .page--success:has(.cleanup-report) .success-spacer {
+  display: none;
 }

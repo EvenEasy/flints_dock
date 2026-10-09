@@ -1,68 +1,50 @@
 # Visual verification
 
-All five screens were opened and visually inspected in Chromium, in phone and
-reference modes. These screenshots were captured from rendered DOM, not used as
-application backgrounds. Phone images are 390×844; reference images use the XML's
-1024×1536 canvas (853×1280 for main). All sample amounts and stage progress in
-these images are explicit design preview data, never a real cleanup result.
+This report describes the current desktop-cleanup implementation. For native
+runtime diagnosis, executed checks and limits see
+[desktop verification](desktop-verification.md).
 
-| Screen  | Phone                                        | Reference canvas                                 |
-| ------- | -------------------------------------------- | ------------------------------------------------ |
-| Welcome | [Screenshot](screenshots/phone-welcome.png)  | [Screenshot](screenshots/reference-welcome.png)  |
-| Main    | [Screenshot](screenshots/phone-main.png)     | [Screenshot](screenshots/reference-main.png)     |
-| Cleanup | [Screenshot](screenshots/phone-cleanup.png)  | [Screenshot](screenshots/reference-cleanup.png)  |
-| Scan    | [Screenshot](screenshots/phone-scanning.png) | [Screenshot](screenshots/reference-scanning.png) |
-| Success | [Screenshot](screenshots/phone-success.png)  | [Screenshot](screenshots/reference-success.png)  |
+All five design screens were rendered and visually inspected in Chromium in phone
+and reference modes. Sample values/progress in these screens are explicitly
+**design preview**, never live cleanup results. Screenshots are evidence, not
+application backgrounds; texts remain DOM elements.
 
-[Centered desktop, 1440×900](screenshots/desktop-main.png).
+| Screen | Phone 390×844 | Reference mode at 390×844 viewport |
+| --- | --- | --- |
+| Welcome | [Screenshot](screenshots/phone-welcome.png) | [Screenshot](screenshots/reference-welcome.png) |
+| Main | [Screenshot](screenshots/phone-main.png) | [Screenshot](screenshots/reference-main.png) |
+| Cleanup | [Screenshot](screenshots/phone-cleanup.png) | [Screenshot](screenshots/reference-cleanup.png) |
+| Scan | [Screenshot](screenshots/phone-scanning.png) | [Screenshot](screenshots/reference-scanning.png) |
+| Success | [Screenshot](screenshots/phone-success.png) | [Screenshot](screenshots/reference-success.png) |
 
-Additional states use mocked Tauri IPC fixtures, not a connected real wallet:
-[long names/amounts](screenshots/live-long-values.png),
-[empty inventory/unavailable estimate](screenshots/live-empty.png),
-and [analysis failure](screenshots/live-analysis-error.png).
+The final complete Playwright run passed 80 cases. Phone/reference comparisons
+cover 360×800, 390×844, 430×932 and desktop 1440×900. Existing 320–1280px widths and
+short 360×640 / desktop 1280×720 are also covered. DOM geometry checks compare
+brand slots/baselines, equal hero variants, title/sword anchors and bottom
+navigation. Hidden compact ornaments have no painted bounds. The short 1100×760
+case explicitly verifies that the hero does not extend under the title.
 
-## Checks performed
+Asset assertions wait for ResizeObserver-selected derivatives to load after font
+settling. Local Cyrillic font loading is held/released in a separate test to check
+slot stability. Exact sums and full asset names remain available through titles
+and normal wrapped text. Lists scroll independently; primary actions/navigation
+do not cover content. Category counts distinguish complete, partial and unknown;
+missing valuation never labels a token dead.
 
-- `npm run check`: TypeScript, ESLint, 44 unit tests, and production build passed.
-- `npm run format:check`: passed.
-- All 75 Playwright cases passed in bounded groups (40 layout/accessibility and
-  35 component/behavior cases). After the final station-gutter/API-copy changes,
-  the 35 behavior cases and 8 affected main layout/accessibility cases passed again.
-  Final proportional-reference/nav-bound checks also passed in the 35-case group.
-- The single long suite invocation was terminated with SIGTERM before completion;
-  the grouped runs cover every case and completed successfully.
-- Phone/reference at 360×800, 390×844, 430×932 and desktop 1440×900; existing
-  320–1280px width checks and short 360×640 / desktop 1280×720 checks also passed.
-- No whole-page scrolling at tested phone sizes. Long cleanup lists scroll locally;
-  action and navigation remain separate. Reference remains an opt-in inspection
-  canvas. Narrow canvases retain their XML aspect ratio; larger canvases scroll
-  when their height exceeds the viewport. Scaled nav buttons remain inside the frame.
-- WCAG axe checks, keyboard focus, dialog focus restoration, native checkbox
-  include/keep behavior, navigation, unavailable estimates and error/retry states.
-- Exact maximum-u64 lamport amount, full long names/symbols and mint identity;
-  no numeric coercion or precision loss, no decorative station/value overlap.
-- Font loading was deliberately held pending, then released. Brand/emblem/sector
-  and navigation slots remained stable before/after local Cyrillic font load.
-- Assets remain local; no remote wallet-metadata images or external runtime font
-  requests. No Rust, frontend contract or transaction API was changed.
+[Measurements](measurements/) store the normalized DOM comparisons. Native
+screenshots and actual mock-chain IPC results are linked from the desktop report.
+Browser IPC mocks are not evidence of on-chain execution. Production UI retains
+the phone aspect ratio; the XML reference canvas is only an opt-in preview.
 
-Normalized DOM measurements for all requested viewport/mode pairs are saved in
-[measurements](measurements/). They compare the brand's bounds/insets/baselines,
-centered emblem/text slots, square hero stage/art, fixed sword anchor relative to
-the title, and navigation bounds/icon sizes/type. Normalizing by `--ui-unit`
-accounts for the intentionally different XML reference canvas widths.
-
-Reproduce the grouped runs:
+Reproduce:
 
 ```sh
-PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright npm run test:e2e -- --grep 'Preview_'
-PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright npm run test:e2e -- --grep-invert 'Preview_'
+npm run test:e2e
 ```
 
-Native Tauri execution, a real signer and live Solana/Jupiter responses were not
-verified in this browser environment. IPC tests preserve the existing contract;
-they are not evidence of a successful on-chain cleanup. Real cleanup stays
-disabled until the desktop API exposes plans, quotes and execution results.
+If Chromium is not installed for the pinned Playwright version, run
+`npx playwright install chromium` first. Playwright WebKit and native WebKitGTK
+are separate runtimes; only checks actually executed are reported.
 
-See [art inventory and missing originals](../assets/art/README.md). Generated
-reconstructions are more detailed but do not claim exact original production art.
+[Art inventory and missing originals](../assets/art/README.md) records original
+sources, existing generated reconstructions and technical PNG derivatives.

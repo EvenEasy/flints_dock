@@ -9,6 +9,9 @@ export function useWalletAnalysis() {
   const [error, setError] = useState<ReadError | null>(null);
   const [loading, setLoading] = useState(false);
   const generation = useRef(0);
+  const [progress, setProgress] = useState<
+    import('../../../frontend-contract/cleanup').CleanupProgress | null
+  >(null);
 
   useEffect(
     () => () => {
@@ -22,8 +25,14 @@ export function useWalletAnalysis() {
     setAnalysis(null);
     setError(null);
     setLoading(true);
+    setProgress(null);
     try {
-      const result = await readWallet(request);
+      const result = await readWallet(request, (event) => {
+        if (generation.current === current)
+          setProgress((previous) =>
+            previous && previous.sequence >= event.sequence ? previous : event,
+          );
+      });
       if (generation.current !== current) return false;
       setAnalysis(result);
       return true;
@@ -43,5 +52,5 @@ export function useWalletAnalysis() {
     setLoading(false);
   }, []);
 
-  return { analysis, error, loading, scan, reset };
+  return { analysis, error, loading, progress, scan, reset };
 }

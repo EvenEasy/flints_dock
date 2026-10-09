@@ -21,7 +21,7 @@ fn invalid(reason: impl ToString) -> SwapError {
     SwapError::InvalidRequest(reason.to_string())
 }
 fn rpc_error(reason: impl ToString) -> SwapError {
-    SwapError::Rpc(reason.to_string())
+    SwapError::Rpc(super::safe_error(reason))
 }
 fn pubkey(value: &str) -> Result<Pubkey> {
     value.parse().map_err(invalid)
@@ -145,7 +145,7 @@ pub fn transaction_accounting(
     closed_account: Option<&str>,
 ) -> (Option<i128>, Option<u64>) {
     let meta = &value["meta"];
-    if !meta.is_object() || !meta["err"].is_null() {
+    if !meta.is_object() {
         return (None, None);
     }
     let Some(keys) = value["transaction"]["message"]["accountKeys"].as_array() else {
@@ -173,9 +173,17 @@ pub fn transaction_accounting(
     };
     let delta = balances(owner).map(|(before, after)| i128::from(after) - i128::from(before));
     let reclaimed = closed_account
+        .filter(|_| meta["err"].is_null())
         .and_then(balances)
         .and_then(|(before, after)| (after == 0).then_some(before));
-    (delta, reclaimed)
+    (
+        delta,
+        if closed_account.is_some() && !meta["err"].is_null() && delta.is_some() {
+            Some(0)
+        } else {
+            reclaimed
+        },
+    )
 }
 async fn receipt(
     rpc: &RpcClient,
@@ -254,7 +262,45 @@ impl CleanupExecutor for RpcClient {
         signer: &Keypair,
         limits: &SwapLimits,
     ) -> Result<OperationReceipt> {
+        self.perform_observed(operation, asset, fresh, signer, limits, &())
+            .await
+    }
+
+    async fn failed_receipt(
+        &self,
+        operation: CleanupOperation,
+        signature: &str,
+        owner: &Pubkey,
+    ) -> Option<OperationReceipt> {
+        Some(receipt(self, operation, signature.into(), owner, "").await)
+    }
+
+    async fn perform_observed(
+        &self,
+        operation: CleanupOperation,
+        asset: &CleanupAsset,
+        fresh: Option<PreparedSwap>,
+        signer: &Keypair,
+        limits: &SwapLimits,
+        observer: &dyn crate::core::progress::CleanupObserver,
+    ) -> Result<OperationReceipt> {
         let owner = signer.pubkey();
+        let context = crate::core::progress::PendingSubmission {
+            wallet: owner.to_string(),
+            account: asset.account.address.clone(),
+            mint: asset.account.mint.clone(),
+            operation,
+            signature: String::new(),
+            expiry: 0,
+        };
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "confirmation".into(),
+            completed: 0,
+            total: 0,
+            operation: Some(operation),
+            account: Some(context.account.clone()),
+            status: "simulation/preflight/confirmation".into(),
+        });
 
         // Recheck state after quote latency; never transfer or burn a newly changed balance.
         let current = self
@@ -273,20 +319,22 @@ impl CleanupExecutor for RpcClient {
         }
         let signature = match operation {
             CleanupOperation::Burn => {
-                super::transactions::send_instructions(
+                super::transactions::send_instructions_observed(
                     self,
                     signer,
                     &[burn_instruction(&current, &owner)?],
                     limits,
+                    Some((observer, &context)),
                 )
                 .await?
             }
             CleanupOperation::Close => {
-                super::transactions::send_instructions(
+                super::transactions::send_instructions_observed(
                     self,
                     signer,
                     &[close_instruction(&current, &owner)?],
                     limits,
+                    Some((observer, &context)),
                 )
                 .await?
             }
@@ -318,10 +366,40 @@ impl CleanupExecutor for RpcClient {
                     }
                 }
                 let (prefix, suffix) = source_instructions(&current, &owner, ata_state.is_some())?;
-                super::swap::submit_with_instructions(self, fresh, signer, limits, &prefix, &suffix)
-                    .await?
+                super::swap::submit_with_instructions_observed(
+                    self,
+                    fresh,
+                    signer,
+                    limits,
+                    &prefix,
+                    &suffix,
+                    Some((observer, &context)),
+                )
+                .await?
             }
         };
         Ok(receipt(self, operation, signature, &owner, &asset.account.address).await)
+    }
+}
+
+#[cfg(test)]
+mod accounting_tests {
+    use super::*;
+    #[test]
+    fn confirmed_failure_fees_and_loaded_addresses_have_exact_signed_delta() {
+        let value = json!({"transaction":{"message":{"accountKeys":["payer"]}},"meta":{"err":{"InstructionError":[0,"Custom"]},"preBalances":[18446744073709551615u64, 2039280],"postBalances":[18446744073709546615u64, 2039280],"loadedAddresses":{"writable":["source"],"readonly":[]}}});
+        assert_eq!(
+            transaction_accounting(&value, "payer", Some("source")),
+            (Some(-5000), Some(0))
+        );
+        let mut value = value;
+        value["meta"]["err"] = Value::Null;
+        value["meta"]["postBalances"] = json!([18446744073709551615u64, 0]);
+        assert_eq!(
+            transaction_accounting(&value, "payer", Some("source")),
+            (Some(0), Some(2039280))
+        );
+        value["meta"]["postBalances"] = Value::Null;
+        assert_eq!(transaction_accounting(&value, "payer", None).0, None);
     }
 }

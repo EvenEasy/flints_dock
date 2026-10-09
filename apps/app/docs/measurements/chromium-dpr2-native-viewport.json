@@ -1,0 +1,60 @@
+{
+  "viewport": [
+    960,
+    526
+  ],
+  "dpr": 2,
+  "scale": 1,
+  "images": [
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/station-scene-768.png",
+      "natural": [
+        768,
+        1152
+      ],
+      "width": 360,
+      "height": 478,
+      "loaded": true
+    },
+    {
+      "src": "inline functional SVG",
+      "natural": [
+        133,
+        150
+      ],
+      "width": 28,
+      "height": 28,
+      "loaded": true
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/hero-raptor-ring-128.png",
+      "natural": [
+        128,
+        128
+      ],
+      "width": 61.578125,
+      "height": 61.578125,
+      "loaded": true
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/crossed-sabers-384.png",
+      "natural": [
+        384,
+        128
+      ],
+      "width": 0,
+      "height": 0,
+      "loaded": true
+    },
+    {
+      "src": "inline functional SVG",
+      "natural": [
+        167,
+        150
+      ],
+      "width": 28,
+      "height": 28,
+      "loaded": true
+    }
+  ]
+}

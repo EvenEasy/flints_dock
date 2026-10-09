@@ -9,13 +9,22 @@ use std::collections::BTreeMap;
 /// The optional provider enriches USD prices only when enabled. Independent reads do not
 /// form an atomic snapshot; failures are retained per scanner rather than discarding usable
 /// results.
-pub async fn scan_wallet<P: PriceProvider>(
+pub async fn scan_wallet_observed<P: PriceProvider>(
     rpc: &impl WalletReader,
     owner: &Pubkey,
     options: &ScanOptions,
     provider: Option<&P>,
+    observer: &dyn crate::core::progress::CleanupObserver,
 ) -> WalletSnapshot {
     let selected = options.selection;
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: "discovery".into(),
+        completed: 0,
+        total: 3,
+        operation: None,
+        account: None,
+        status: "running".into(),
+    });
 
     // Run independent selected discovery paths concurrently and share their results.
     let (native, token_scan, core) = tokio::join!(
@@ -78,6 +87,15 @@ pub async fn scan_wallet<P: PriceProvider>(
             }
         }
     }
+
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: "classification".into(),
+        completed: 1,
+        total: 3,
+        operation: None,
+        account: None,
+        status: "running".into(),
+    });
 
     // Classify the shared account inventory before projecting the requested asset views.
     if let Some(scan) = token_scan {
@@ -151,12 +169,34 @@ pub async fn scan_wallet<P: PriceProvider>(
             .insert("compressed_nfts".into(), rpc.compressed_nfts(owner));
     }
 
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: "pricing".into(),
+        completed: 2,
+        total: 3,
+        operation: None,
+        account: None,
+        status: if options.no_prices {
+            "skipped"
+        } else {
+            "running"
+        }
+        .into(),
+    });
+
     // Enrich priceable categories only after exact blockchain holdings are assembled.
     if selected.needs_prices() {
         let report =
             crate::app::pricing::price_portfolio(&mut portfolio, options.no_prices, provider).await;
         portfolio.scanners.insert("prices".into(), report);
     }
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: "snapshot".into(),
+        completed: 3,
+        total: 3,
+        operation: None,
+        account: None,
+        status: "complete".into(),
+    });
     portfolio
 }
 
@@ -187,4 +227,14 @@ pub trait WalletReader {
 
     /// Report cNFT discovery capability without substituting an unverified empty inventory.
     fn compressed_nfts(&self, owner: &Pubkey) -> ScanStatus;
+}
+
+/// Preserve unobserved scanning for existing CLI and external callers.
+pub async fn scan_wallet<P: PriceProvider>(
+    rpc: &impl WalletReader,
+    owner: &Pubkey,
+    options: &ScanOptions,
+    provider: Option<&P>,
+) -> WalletSnapshot {
+    scan_wallet_observed(rpc, owner, options, provider, &()).await
 }

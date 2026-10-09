@@ -2,6 +2,7 @@
 const files = import.meta.glob<string>(
   [
     '../../assets/art/*.{png,webp}',
+    '../../assets/art/sizes/*.png',
     '../../assets/design/*_icon.svg',
     '../../assets/design/main-flint_emblem.svg',
     '../../assets/design/main-pirate_skull_crossbones.svg',
@@ -61,4 +62,19 @@ export function designAsset(page: DesignPage, key: string): string {
   const asset = files[`../../assets/design/${page}-${key}.svg`];
   if (!asset) throw new Error(`Missing local design asset: ${page}/${key}`);
   return asset;
+}
+
+/** Generated sizes preserve original artwork and alpha; pick near the actual device-pixel size. */
+export function rasterSrc(key: MediaKey, pixels: number): string {
+  const file = mediaRegistry[key].file;
+  if (!file.startsWith('art/')) return mediaSrc(key);
+  const stem = file.slice(4).replace(/\.(png|webp)$/, '');
+  const widths = key.startsWith('frame.')
+    ? [64, 96, 128, 192, 256, 384, 512]
+    : [32, 48, 64, 128, 256, 384, 512, 768];
+  for (const width of widths) {
+    const candidate = files[`../../assets/art/sizes/${stem}-${width}.png`];
+    if (width >= pixels && candidate) return candidate;
+  }
+  return mediaSrc(key);
 }

@@ -330,6 +330,8 @@
 
 .main-hero {
   display: grid;
+  /* Constrain the grid row to its flex allocation; auto rows overflow contained hero art. */
+  grid-template-rows: minmax(0, 1fr);
   grid-template-columns: minmax(0, 1fr) minmax(0, 2.6fr) minmax(0, 1fr);
   align-items: center;
   gap: calc(4 * var(--ui-unit));
@@ -856,7 +858,7 @@
 
 /* Compact vertical composition reduces art and frame padding, never role sizes.
    The same rule applies to every instance within a short content viewport. */
-@container content (max-height: 640px) {
+@container dock (max-height: 840px) {
   .title-pedestal {
     height: calc(100 * var(--ui-unit));
     margin-top: 0;
@@ -907,4 +909,51 @@
 .selection-estimate p,
 .returned-sol p {
   letter-spacing: var(--tracking-caption);
+}
+
+/* Evidence and execution diagnostics use existing typography, with local overflow. */
+.cleanup-status {
+  max-height: 80px;
+  overflow: auto;
+  flex: none;
+}
+.progress-account {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.category-results {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+.category-results li,
+.cleanup-report {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.category-results code {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cleanup-report {
+  max-height: 100px;
+  overflow: auto;
+}
+.cleanup-report summary {
+  cursor: pointer;
+}
+.page--processing .mascot-hero {
+  min-height: 0;
+}
+
+.medallion-status {
+  position: absolute;
+  inset: 25%;
+  display: grid;
+  place-items: center;
+  color: var(--color-amber, #ffcb6b);
+  font-size: clamp(24px, 8cqw, 44px);
+  font-weight: 800;
 }

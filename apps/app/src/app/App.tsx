@@ -13,6 +13,12 @@ import { useWalletAnalysis } from '../features/wallet/useWalletAnalysis';
 import { ScanScreen } from '../features/wallet/ScanScreen';
 import { MainScreen } from '../features/wallet/MainScreen';
 import type { CargoCategory } from '../features/wallet/MainScreen';
+import { useCleanup } from '../features/cleanup/useCleanup';
+import { CleanupProcessingScreen } from '../features/cleanup/CleanupProcessingScreen';
+import { selectableAssets } from '../features/assets/presentation';
+import { CategoryDialog } from '../features/assets/CategoryDialog';
+import { ActionButton } from '../shared/ui/ActionButton';
+import { signedLamportsToSol } from '../shared/format';
 import { CleanupScreen } from '../features/cleanup/CleanupScreen';
 import { SuccessScreen } from '../features/cleanup/SuccessScreen';
 import { InventoryDialog } from '../features/assets/InventoryDialog';
@@ -28,11 +34,12 @@ export function App() {
       ? screenFromHash()
       : 'welcome',
   );
-  const [dialog, setDialog] = useState<'connect' | 'menu' | 'inventory' | 'capability' | null>(
-    null,
-  );
+  const [dialog, setDialog] = useState<
+    'connect' | 'menu' | 'inventory' | 'capability' | 'category' | 'approval' | null
+  >(null);
   const [inventoryView, setInventoryView] = useState<'tokens' | 'nfts'>('tokens');
   const [capability, setCapability] = useState('');
+  const [category, setCategory] = useState<CargoCategory>('scam');
   const activeRequest = useRef(0);
   const hasSnapshot = useRef(false);
   const hasScanRequest = useRef(false);
@@ -44,12 +51,22 @@ export function App() {
   const [ignoredMints, setIgnoredMints] = useState<ReadonlySet<string>>(
     () => new Set(preview ? previewExcluded : []),
   );
-  const { analysis, error, scan, reset } = useWalletAnalysis();
+  const { analysis, error, progress: scanProgress, scan, reset } = useWalletAnalysis();
+  const selected = selectableAssets(analysis)
+    .filter((asset) => !ignoredMints.has(asset.mint))
+    .map((asset) => asset.mint);
+  const cleanup = useCleanup(
+    connection?.sessionId,
+    !preview && screen === 'cleanup',
+    selected,
+    ignoredMints,
+  );
+  const resultAvailable = useRef(false);
 
   const navigate = useCallback(
     (next: ScreenId) => {
       // A URL or navigation callback cannot create a successful on-chain cleanup result.
-      const allowed = next === 'success' && !preview ? 'main' : next;
+      const allowed = next === 'success' && !preview && !resultAvailable.current ? 'main' : next;
       setScreen(allowed);
       setDialog(null);
       if (window.location.hash !== `#${allowed}`) window.location.hash = allowed;
@@ -72,7 +89,10 @@ export function App() {
       if (!preview) {
         if (next === 'scanning' && !hasScanRequest.current)
           allowed = hasSnapshot.current ? 'main' : 'welcome';
-        else if (next === 'success') allowed = hasSnapshot.current ? 'main' : 'welcome';
+        else if (next === 'success' && !resultAvailable.current)
+          allowed = hasSnapshot.current ? 'main' : 'welcome';
+        else if (next === 'processing' && !cleanup.running)
+          allowed = hasSnapshot.current ? 'main' : 'welcome';
         else if (!hasSnapshot.current && next !== 'welcome' && next !== 'scanning')
           allowed = 'welcome';
       }
@@ -86,7 +106,7 @@ export function App() {
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
-  }, [preview, reset]);
+  }, [preview, reset, cleanup.running]);
 
   // Preserve the initial skip-link tab order, then focus headings after screen changes.
   useEffect(() => {
@@ -106,6 +126,7 @@ export function App() {
       }
       setConnection(null);
     }
+    resultAvailable.current = false;
     activeRequest.current += 1;
     hasSnapshot.current = false;
     hasScanRequest.current = false;
@@ -122,6 +143,7 @@ export function App() {
   }
 
   function exitPreview() {
+    resultAvailable.current = false;
     activeRequest.current += 1;
     hasSnapshot.current = false;
     hasScanRequest.current = false;
@@ -135,6 +157,7 @@ export function App() {
   }
 
   async function startScan(request: AnalyzeWalletRequest) {
+    resultAvailable.current = false;
     const current = ++activeRequest.current;
     hasSnapshot.current = false;
     hasScanRequest.current = true;
@@ -152,6 +175,7 @@ export function App() {
   }
 
   function dismissScan() {
+    resultAvailable.current = false;
     activeRequest.current += 1;
     hasSnapshot.current = false;
     hasScanRequest.current = false;
@@ -167,12 +191,14 @@ export function App() {
       setSessionError(readableError(failure).message);
       return;
     }
+    resultAvailable.current = false;
     activeRequest.current += 1;
     hasSnapshot.current = false;
     hasScanRequest.current = false;
     lastRequest.current = null;
     reset();
     setConnection(null);
+    resultAvailable.current = false;
     setSessionError(null);
     setAddress('');
     setIgnoredMints(new Set());
@@ -180,6 +206,7 @@ export function App() {
   }
 
   function toggleMint(mint: string) {
+    cleanup.invalidate();
     setIgnoredMints((previous) => {
       const next = new Set(previous);
       if (next.has(mint)) next.delete(mint);
@@ -197,7 +224,7 @@ export function App() {
     } else {
       setCapability(
         section === 'hangar'
-          ? 'Swap routes and execution are not exposed by the desktop API.'
+          ? 'Окремий swap-екран ще недоступний. TOKEN → SOL працює в очищенні.'
           : 'Mission data is not exposed by the desktop API.',
       );
       setDialog('capability');
@@ -205,16 +232,23 @@ export function App() {
   }
 
   function inspectCategory(category: CargoCategory) {
-    if (category === 'nft') {
-      setInventoryView('nfts');
-      setDialog('inventory');
-    } else {
-      setCapability(
-        preview
-          ? 'Reference category counts are design samples. Inspect the cleanup preview to explore sample assets.'
-          : 'Risk, dust, and dead-token classifications are not supplied by this snapshot. Missing Jupiter USD prices do not establish that a token is dead or unswappable.',
-      );
+    if (preview) {
+      setCapability('Демонстраційні категорії лише для перегляду дизайну.');
       setDialog('capability');
+    } else {
+      setCategory(category);
+      setDialog('category');
+    }
+  }
+
+  async function executeApprovedCleanup() {
+    setDialog(null);
+    navigate('processing');
+    const result = await cleanup.execute();
+    if (result && result.status !== 'running') {
+      resultAvailable.current = true;
+      navigate('success');
+      if (lastRequest.current) await scan(lastRequest.current);
     }
   }
 
@@ -226,6 +260,7 @@ export function App() {
       <ScanScreen
         preview={preview}
         error={error}
+        progress={scanProgress}
         onRetry={() => {
           if (lastRequest.current) void startScan(lastRequest.current);
         }}
@@ -237,7 +272,7 @@ export function App() {
       <MainScreen
         preview={preview}
         analysis={analysis}
-        onCleanup={() => navigate('cleanup')}
+        onCleanup={() => navigate(cleanup.running ? 'processing' : 'cleanup')}
         onInspect={inspectCategory}
       />
     ),
@@ -247,12 +282,44 @@ export function App() {
         analysis={analysis}
         ignoredMints={ignoredMints}
         onToggleMint={toggleMint}
+        plan={cleanup.plan}
+        preparing={cleanup.preparing}
+        planningProgress={cleanup.planningProgress}
+        error={cleanup.error}
+        canSign={connection?.canSign}
+        onExecute={() => setDialog('approval')}
+        onRetry={cleanup.refresh}
         onPreviewComplete={() => {
           if (preview) navigate('success');
         }}
       />
     ),
-    success: <SuccessScreen displayAmount="+0.428 SOL" />,
+    processing: (
+      <CleanupProcessingScreen
+        progress={cleanup.progress}
+        skippedStages={cleanup.skippedStages}
+        error={cleanup.error}
+        onRecover={() => {
+          void cleanup.recover().then(async (result) => {
+            if (result && result.status !== 'running') {
+              resultAvailable.current = true;
+              navigate('success');
+              if (lastRequest.current) await scan(lastRequest.current);
+            }
+          });
+        }}
+      />
+    ),
+    success: (
+      <SuccessScreen
+        displayAmount={
+          preview
+            ? '+0.428 SOL'
+            : signedLamportsToSol(cleanup.job?.report?.known_net_wallet_lamports)
+        }
+        job={preview ? null : cleanup.job}
+      />
+    ),
   }[screen];
 
   return (
@@ -281,6 +348,7 @@ export function App() {
         <ConnectWalletDialog
           initialAddress={address}
           onConnected={(wallet) => {
+            resultAvailable.current = false;
             setConnection(wallet);
             setAddress(wallet.walletAddress);
             setSessionError(null);
@@ -318,6 +386,36 @@ export function App() {
           initialView={inventoryView}
           onClose={() => setDialog(null)}
         />
+      )}
+      {dialog === 'category' && (
+        <CategoryDialog
+          name={category}
+          category={analysis?.categories?.categories[category]}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog === 'approval' && cleanup.plan && (
+        <Dialog title="ПОГОДИТИ ОЧИЩЕННЯ" onClose={() => setDialog(null)}>
+          <p>
+            Свап: {cleanup.plan.swapCount} · Закрити акаунти: {cleanup.plan.closeCount}
+          </p>
+          {cleanup.plan.requiresBurn && (
+            <Notice tone="red">
+              Спалити баланс {cleanup.plan.burnCount} акаунтів. Цю дію неможливо скасувати.
+            </Notice>
+          )}
+          <p className="type-caption">
+            Виконуються лише вибрані активи. Підключення гаманця не є згодою на транзакції.
+          </p>
+          <ActionButton
+            disabled={cleanup.running || !cleanup.plan.canExecute}
+            onClick={() => {
+              void executeApprovedCleanup();
+            }}
+          >
+            ПОГОДЖУЮ СВАП{cleanup.plan.requiresBurn ? ', BURN' : ''} ТА CLOSE
+          </ActionButton>
+        </Dialog>
       )}
       {dialog === 'capability' && (
         <Dialog title="МОЖЛИВІСТЬ НЕДОСТУПНА" onClose={() => setDialog(null)}>

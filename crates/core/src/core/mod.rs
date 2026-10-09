@@ -1,9 +1,11 @@
 //! Provider-independent data and pure rules. No transport, CLI or signing.
 pub mod amount;
 pub mod asset;
+pub mod categories;
 pub mod classification;
 pub mod cleanup;
 pub mod error;
+pub mod progress;
 pub mod swap;
 pub mod wallet;
 pub use asset::*;

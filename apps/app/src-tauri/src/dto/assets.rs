@@ -3,7 +3,7 @@ use dock_flints_core::core;
 use serde::Serialize;
 
 /// Independent IPC scanner status; incomplete categories retain a bounded diagnostic.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(tag = "status", content = "reason", rename_all = "camelCase")]
 pub enum ScanStatusDto {
     Complete,
@@ -355,12 +355,12 @@ pub struct NftsDto {
     pub core: AssetListDto<CoreAssetDto>,
 }
 
-/// cNFT inventory is unavailable in the current core; `items` always serializes to null.
+/// Owner-verified DAS inventory; missing/failed discovery remains null, partial pages remain usable.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CompressedNftsDto {
     pub status: ScanStatusDto,
-    pub items: (),
+    pub items: Option<Vec<dock_flints_core::core::categories::CompressedAsset>>,
 }
 
 /// Unrecognized assets retain addresses and diagnostics, not untyped raw account blobs.

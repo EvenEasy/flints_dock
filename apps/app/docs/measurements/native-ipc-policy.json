@@ -1,0 +1,23 @@
+{
+  "readonly": {
+    "canSign": false,
+    "closeCount": 2,
+    "canExecute": false,
+    "reject": "Read-only wallet cannot execute cleanup"
+  },
+  "none": {
+    "closeCount": 0,
+    "canExecute": false,
+    "reject": "No selected eligible accounts; nothing will be submitted"
+  },
+  "emptySelected": {
+    "closeCount": 0,
+    "canExecute": false,
+    "reject": "No selected eligible accounts; nothing will be submitted"
+  },
+  "ignoredMint": {
+    "closeCount": 0,
+    "canExecute": false,
+    "reject": "No selected eligible accounts; nothing will be submitted"
+  }
+}

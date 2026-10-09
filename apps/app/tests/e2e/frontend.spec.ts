@@ -278,7 +278,7 @@ test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }
   await accessibility(page);
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
-  await expect(page.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
   await page.getByRole('checkbox', { name: /mint EPjFW/ }).uncheck();
   await expect(page.getByText('ЗАЛИШИТИ', { exact: true })).toBeVisible();
   await expect(page.getByText('МЕРТВИЙ')).toHaveCount(0);
@@ -343,7 +343,7 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
   expect(await page.locator('main').evaluate((el) => el.scrollTop)).toBe(0);
-  const cta = await page.getByRole('button', { name: /очищення недоступне/ }).boundingBox();
+  const cta = await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).boundingBox();
   const nav = await page.getByRole('navigation', { name: 'Основна навігація' }).boundingBox();
   expect(cta!.y + cta!.height).toBeLessThanOrEqual(nav!.y);
   await page.getByRole('button', { name: 'СТАНЦІЯ', exact: true }).click();
@@ -417,7 +417,8 @@ test('DesktopFailure_RetryShowsRealPendingStateThenActualSnapshot', async ({ pag
   await expect(page.getByText('do-not-display')).toHaveCount(0);
   await page.screenshot({ path: '.cache/art-review/live-analysis-error.png' });
   await page.getByRole('button', { name: 'RETRY SCAN' }).click();
-  await expect(page.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow');
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+  await expect(page.getByRole('status')).toContainText('ОТРИМУЄМО ДАНІ');
   await expect(page.getByText('ЕТАП 3 ІЗ 5')).toHaveCount(0);
   await page.evaluate(() => (Reflect.get(window, '__resolveAnalysis') as () => void)());
   await expect(page.getByText('АНАЛІЗ ЗАВЕРШЕНО', { exact: true })).toBeVisible();

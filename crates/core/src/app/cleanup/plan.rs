@@ -91,13 +91,14 @@ pub fn request(
 /// Return a read-only cleanup plan for the supplied backing accounts.
 /// Protection and eligibility checks precede route lookup; only an explicit `NoRoute`
 /// permits a burn classification. Provider failures remain unsupported, never burn fallbacks.
-pub async fn build_plan(
+pub async fn build_plan_observed(
     wallet: &Pubkey,
     assets: Vec<CleanupAsset>,
     discovery_status: ScanStatus,
     unparsed_accounts: Vec<UnknownAsset>,
     provider: &impl SwapProvider,
     options: &CleanupOptions,
+    observer: &dyn crate::core::progress::CleanupObserver,
 ) -> CleanupPlan {
     let mut plan = CleanupPlan {
         wallet: wallet.to_string(),
@@ -107,7 +108,16 @@ pub async fn build_plan(
         summary: CleanupSummary::default(),
         selection: options.selection.clone(),
     };
-    for asset in assets {
+    let total = assets.len();
+    for (index, asset) in assets.into_iter().enumerate() {
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "planning".into(),
+            completed: index,
+            total,
+            operation: None,
+            account: Some(asset.account.address.clone()),
+            status: "running".into(),
+        });
         let mut entry = CleanupEntry {
             asset,
             category: CleanupCategory::Unsupported,
@@ -178,4 +188,25 @@ pub async fn build_plan(
         }
     }
     plan
+}
+
+/// CLI-compatible read-only planning without a host progress channel.
+pub async fn build_plan(
+    wallet: &Pubkey,
+    assets: Vec<CleanupAsset>,
+    discovery_status: ScanStatus,
+    unparsed_accounts: Vec<UnknownAsset>,
+    provider: &impl SwapProvider,
+    options: &CleanupOptions,
+) -> CleanupPlan {
+    build_plan_observed(
+        wallet,
+        assets,
+        discovery_status,
+        unparsed_accounts,
+        provider,
+        options,
+        &(),
+    )
+    .await
 }

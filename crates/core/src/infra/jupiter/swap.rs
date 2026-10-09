@@ -83,7 +83,9 @@ impl BuildResponse {
             ));
         }
         if self.route_plan.is_empty() {
-            return Err(SwapError::NoRoute("empty route plan".into()));
+            return Err(SwapError::InvalidResponse(
+                "successful build contained an empty route plan".into(),
+            ));
         }
         let amount = |text: &str| {
             text.parse::<u64>()
@@ -175,30 +177,27 @@ impl SwapProvider for Jupiter {
     async fn build_swap(&self, request: &SwapRequest) -> Result<PreparedSwap> {
         request.validate()?;
         let requested_at = Instant::now();
-        let response = self
-            .get("/swap/v2/build")
-            .query(&[
-                ("inputMint", request.mint.to_string()),
-                ("outputMint", WRAPPED_SOL.into()),
-                ("amount", request.raw_amount.to_string()),
-                ("taker", request.wallet.to_string()),
-                ("slippageBps", request.slippage_bps.to_string()),
-                ("wrapAndUnwrapSol", "true".into()),
-                ("nativeDestinationAccount", request.wallet.to_string()),
-            ])
-            .send()
+        let (status, value) = self
+            .json_get(
+                "/swap/v2/build",
+                &[
+                    ("inputMint", request.mint.to_string()),
+                    ("outputMint", WRAPPED_SOL.into()),
+                    ("amount", request.raw_amount.to_string()),
+                    ("taker", request.wallet.to_string()),
+                    ("slippageBps", request.slippage_bps.to_string()),
+                    ("wrapAndUnwrapSol", "true".into()),
+                    ("nativeDestinationAccount", request.wallet.to_string()),
+                ],
+                std::time::Duration::ZERO,
+            )
             .await
-            .map_err(|e| SwapError::Api(e.without_url().to_string()))?;
-
-        // Decode provider failure details before attempting successful-response conversion.
-        let status = response.status();
-        let value: serde_json::Value = response
-            .json()
-            .await
-            .map_err(|e| SwapError::Api(e.without_url().to_string()))?;
-        if !status.is_success() || value.get("error").is_some() || value.get("errorCode").is_some()
+            .map_err(SwapError::Api)?;
+        if !(200..300).contains(&status)
+            || value.get("error").is_some()
+            || value.get("errorCode").is_some()
         {
-            return Err(api_error(status.as_u16(), &value));
+            return Err(api_error(status, &value));
         }
         let build: BuildResponse =
             serde_json::from_value(value).map_err(|e| SwapError::InvalidResponse(e.to_string()))?;

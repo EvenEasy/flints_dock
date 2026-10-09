@@ -18,28 +18,44 @@ pub async fn connect_wallet(
     let identity = tauri::async_runtime::spawn_blocking(move || request.into_identity())
         .await
         .map_err(|_| AppError::invalid_identity("Local wallet loading could not be completed"))??;
+    let mut store = state
+        .store
+        .lock()
+        .map_err(|_| AppError::cleanup("Session unavailable"))?;
+    if store.active_job.is_some() {
+        return Err(AppError::cleanup(
+            "Cleanup is active; wait for confirmation before changing wallet",
+        ));
+    }
+    let session_id = crate::cleanup::new_id();
     let response = WalletConnectionDto {
+        session_id: session_id.clone(),
         wallet_address: identity.address.to_string(),
         source_kind,
         can_sign: identity.signer().is_ok(),
     };
-
-    // Replacing the session drops the previous signer; only the backend retains private material.
-    *state
-        .identity
-        .lock()
-        .map_err(|_| AppError::configuration("walletSession", "Wallet session is unavailable"))? =
-        Some(identity);
+    store.plans.clear();
+    store.revision = 0;
+    store.session = Some(crate::cleanup::Session {
+        id: session_id,
+        identity: std::sync::Arc::new(identity),
+    });
     Ok(response)
 }
 
-/// Forget the local signer; no files, balances, or blockchain accounts are changed.
+/// Disconnect cannot discard a signer while an approved operation is in flight.
 #[tauri::command]
 pub fn disconnect_wallet(state: tauri::State<'_, AppState>) -> Result<(), AppError> {
-    *state
-        .identity
+    let mut store = state
+        .store
         .lock()
-        .map_err(|_| AppError::configuration("walletSession", "Wallet session is unavailable"))? =
-        None;
+        .map_err(|_| AppError::cleanup("Session unavailable"))?;
+    if store.active_job.is_some() {
+        return Err(AppError::cleanup(
+            "Cleanup is active; wait for confirmation before disconnecting",
+        ));
+    }
+    store.session = None;
+    store.plans.clear();
     Ok(())
 }

@@ -15,12 +15,14 @@ const steps = [
 /** Preview reproduces stage three; live IPC is one pending snapshot, not five invented progress events. */
 export function ScanScreen({
   preview,
+  progress,
   error,
   onRetry,
   onReconnect,
   onDismiss,
 }: {
   preview: boolean;
+  progress?: import('../../../frontend-contract/cleanup').CleanupProgress | null;
   error: ReadError | null;
   onRetry: () => void;
   onReconnect: () => void;
@@ -57,74 +59,93 @@ export function ScanScreen({
         ) : (
           <>
             <h2 className="type-section" role="status">
-              {preview ? 'ЕТАП 3 ІЗ 5' : 'ОТРИМУЄМО ДАНІ'}
+              {preview
+                ? 'ЕТАП 3 ІЗ 5'
+                : progress
+                  ? ({
+                      discovery: 'ЗАВАНТАЖЕННЯ АКТИВІВ',
+                      classification: 'ПЕРЕВІРКА АКТИВІВ',
+                      pricing: 'ОЦІНКА ВАРТОСТІ',
+                      'risk/routing/DAS': 'МАРШРУТИ ТА РИЗИК',
+                      completed: 'ГОТОВО',
+                    }[progress.stage] ?? 'ОТРИМУЄМО ДАНІ')
+                  : 'ОТРИМУЄМО ДАНІ'}
             </h2>
-            <div
-              className="stage-progress"
-              role="progressbar"
-              aria-label="Завершені етапи аналізу"
-              aria-valuemin={0}
-              aria-valuemax={5}
-              aria-valuenow={preview ? 2 : undefined}
-              aria-valuetext={
-                preview
-                  ? 'Завершено 2 етапи з 5; виконується третій'
-                  : 'Очікуємо готовий результат аналізу'
-              }
-            >
-              {steps.map((step, index) => (
-                <img
-                  key={step}
-                  src={designAsset(
-                    'scan',
-                    `progress_capsule_${preview ? (index < 2 ? 'complete' : index === 2 ? 'active' : 'pending') : index === 0 ? 'complete' : 'pending'}`,
-                  )}
-                  alt=""
-                  aria-hidden="true"
-                />
-              ))}
-            </div>
-            <ol className="analysis-steps">
-              {steps.map((step, index) => {
-                const state = preview
-                  ? index < 2
-                    ? 'complete'
-                    : index === 2
-                      ? 'active'
-                      : 'pending'
-                  : index === 0
-                    ? 'complete'
-                    : index === 1
-                      ? 'active'
-                      : 'pending';
-                return (
-                  <li key={step} data-state={state}>
-                    <img
-                      src={designAsset(
-                        'scan',
-                        state === 'complete'
-                          ? 'step_check_circle'
+            {preview && (
+              <div
+                className="stage-progress"
+                role="progressbar"
+                aria-label="Завершені етапи аналізу"
+                aria-valuemin={0}
+                aria-valuemax={5}
+                aria-valuenow={preview ? 2 : undefined}
+                aria-valuetext={
+                  preview
+                    ? 'Завершено 2 етапи з 5; виконується третій'
+                    : 'Очікуємо готовий результат аналізу'
+                }
+              >
+                {steps.map((step, index) => (
+                  <img
+                    key={step}
+                    src={designAsset(
+                      'scan',
+                      `progress_capsule_${preview ? (index < 2 ? 'complete' : index === 2 ? 'active' : 'pending') : index === 0 ? 'complete' : 'pending'}`,
+                    )}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+            )}
+            {preview && (
+              <ol className="analysis-steps">
+                {steps.map((step, index) => {
+                  const state = preview
+                    ? index < 2
+                      ? 'complete'
+                      : index === 2
+                        ? 'active'
+                        : 'pending'
+                    : index === 0
+                      ? 'complete'
+                      : index === 1
+                        ? 'active'
+                        : 'pending';
+                  return (
+                    <li key={step} data-state={state}>
+                      <img
+                        src={designAsset(
+                          'scan',
+                          state === 'complete'
+                            ? 'step_check_circle'
+                            : state === 'active'
+                              ? 'step_active_spinner'
+                              : 'step_pending_circle',
+                        )}
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      <span>{step}</span>
+                      <strong>
+                        {state === 'complete'
+                          ? 'ГОТОВО'
                           : state === 'active'
-                            ? 'step_active_spinner'
-                            : 'step_pending_circle',
-                      )}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                    <span>{step}</span>
-                    <strong>
-                      {state === 'complete'
-                        ? 'ГОТОВО'
-                        : state === 'active'
-                          ? 'ВИКОНУЄТЬСЯ'
-                          : preview
-                            ? 'ОЧІКУЄ'
-                            : 'БЕЗ ДАНИХ ЕТАПУ'}
-                    </strong>
-                  </li>
-                );
-              })}
-            </ol>
+                            ? 'ВИКОНУЄТЬСЯ'
+                            : preview
+                              ? 'ОЧІКУЄ'
+                              : 'БЕЗ ДАНИХ ЕТАПУ'}
+                      </strong>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+            {!preview && progress && (
+              <p role="status" className="type-caption">
+                {progress.status} · {progress.completed} / {progress.total} етапів
+              </p>
+            )}
             <p className="automatic-note">Результати відкриються автоматично</p>
             {!preview && (
               <button className="text-button scan-dismiss" type="button" onClick={onDismiss}>

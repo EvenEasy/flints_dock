@@ -512,3 +512,30 @@ legend {
     transition: none !important;
   }
 }
+
+/* Development-only comparison fixture has no effects on production phone composition. */
+.graphics-diagnostics {
+  padding: 20px;
+  background: #03060b;
+}
+.graphics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 340px));
+  gap: 20px;
+}
+.graphics-grid img {
+  object-fit: contain;
+}
+.graphics-hero {
+  width: 300px;
+  height: 300px;
+}
+.graphics-grid .category-card {
+  display: inline-grid;
+  width: 72px;
+  height: 96px;
+  margin: 4px;
+}
+.graphics-grid .mechanical-panel {
+  margin-block: 12px;
+}

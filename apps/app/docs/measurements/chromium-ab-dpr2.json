@@ -1,0 +1,199 @@
+{
+  "viewport": {
+    "width": 1100,
+    "height": 760
+  },
+  "dpr": 2,
+  "scale": 1,
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "images": [
+    {
+      "src": "http://127.0.0.1:1420/assets/art/hero-raptor-ring.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 20,
+      "y": 86,
+      "width": 300,
+      "height": 300,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/hero-raptor-ring-768.png",
+      "naturalWidth": 768,
+      "naturalHeight": 768,
+      "x": 380,
+      "y": 86,
+      "width": 300,
+      "height": 300,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/category-scam.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 20,
+      "y": 438,
+      "width": 72,
+      "height": 72,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/category-nft.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 92,
+      "y": 438,
+      "width": 72,
+      "height": 72,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/category-dust.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 164,
+      "y": 438,
+      "width": 72,
+      "height": 72,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/category-dead.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 236,
+      "y": 438,
+      "width": 72,
+      "height": 72,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/category-scam-128.png",
+      "naturalWidth": 128,
+      "naturalHeight": 128,
+      "x": 399,
+      "y": 475,
+      "width": 42,
+      "height": 36,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/category-nft-128.png",
+      "naturalWidth": 128,
+      "naturalHeight": 128,
+      "x": 479,
+      "y": 475,
+      "width": 42,
+      "height": 36,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/category-dust-128.png",
+      "naturalWidth": 128,
+      "naturalHeight": 128,
+      "x": 559,
+      "y": 475,
+      "width": 42,
+      "height": 36,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/sizes/category-dead-128.png",
+      "naturalWidth": 128,
+      "naturalHeight": 128,
+      "x": 639,
+      "y": 475,
+      "width": 42,
+      "height": 36,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/frame-violet.png",
+      "naturalWidth": 1254,
+      "naturalHeight": 1254,
+      "x": 20,
+      "y": 596,
+      "width": 300,
+      "height": 300,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    },
+    {
+      "src": "http://127.0.0.1:1420/assets/art/station-scene.png",
+      "naturalWidth": 1024,
+      "naturalHeight": 1536,
+      "x": 20,
+      "y": 948,
+      "width": 200,
+      "height": 300,
+      "transform": "none",
+      "filter": "none",
+      "objectFit": "contain"
+    }
+  ],
+  "frames": [
+    {
+      "width": 72,
+      "height": 102,
+      "slice": "26%",
+      "border": "12px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-96.png\")"
+    },
+    {
+      "width": 72,
+      "height": 102,
+      "slice": "26%",
+      "border": "12px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-96.png\")"
+    },
+    {
+      "width": 72,
+      "height": 102,
+      "slice": "26%",
+      "border": "12px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-96.png\")"
+    },
+    {
+      "width": 72,
+      "height": 102,
+      "slice": "26%",
+      "border": "12px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-96.png\")"
+    },
+    {
+      "width": 340,
+      "height": 63,
+      "slice": "26%",
+      "border": "20px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-192.png\")"
+    },
+    {
+      "width": 340,
+      "height": 82,
+      "slice": "26%",
+      "border": "20px",
+      "source": "url(\"http://127.0.0.1:1420/assets/art/sizes/frame-violet-192.png\")"
+    }
+  ]
+}

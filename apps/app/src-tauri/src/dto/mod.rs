@@ -2,4 +2,6 @@
 pub mod assets;
 pub mod wallet;
 
+pub mod categories;
+pub mod cleanup;
 pub mod identity;

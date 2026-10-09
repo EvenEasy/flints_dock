@@ -25,7 +25,10 @@ export function hasDesktopRuntime(): boolean {
 }
 
 /** Use the existing typed IPC boundary. A browser never falls back to direct RPC/HTTP. */
-export async function readWallet(request: AnalyzeWalletRequest): Promise<WalletAnalysis> {
+export async function readWallet(
+  request: AnalyzeWalletRequest,
+  onProgress?: (event: import('../../../frontend-contract/cleanup').CleanupProgress) => void,
+): Promise<WalletAnalysis> {
   if (!hasDesktopRuntime()) {
     throw {
       code: 'desktop_required',
@@ -33,7 +36,7 @@ export async function readWallet(request: AnalyzeWalletRequest): Promise<WalletA
         'Live wallet analysis requires the Tauri desktop app. Stop npm run dev and run npm run desktop from apps/app, then use the desktop window. Browser mode supports Design preview only.',
     } satisfies ReadError;
   }
-  return analyzeWallet(request);
+  return analyzeWallet(request, onProgress);
 }
 
 /** Show bounded plain-text errors; do not serialize arbitrary provider/debug objects into UI. */

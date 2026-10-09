@@ -15,12 +15,13 @@ fn same_account(expected: &CleanupAsset, actual: &CleanupAsset) -> bool {
 async fn run_entry(
     entry: &CleanupEntry,
     result: &mut AccountCleanupResult,
-    owner: &Pubkey,
     signer: &Keypair,
     provider: &impl SwapProvider,
     executor: &impl CleanupExecutor,
     options: &CleanupOptions,
+    observer: &dyn crate::core::progress::CleanupObserver,
 ) -> Result<()> {
+    let owner = &signer.pubkey();
     let current = executor
         .refresh(&entry.asset.account.address, owner)
         .await?
@@ -38,6 +39,24 @@ async fn run_entry(
         return Err(changed(&reason));
     }
 
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: match entry.category {
+            CleanupCategory::Swappable => "swap",
+            CleanupCategory::Burnable => "burn",
+            _ => "close",
+        }
+        .into(),
+        completed: 0,
+        total: 0,
+        operation: Some(match entry.category {
+            CleanupCategory::Swappable => CleanupOperation::Swap,
+            CleanupCategory::Burnable => CleanupOperation::Burn,
+            _ => CleanupOperation::Close,
+        }),
+        account: Some(entry.asset.account.address.clone()),
+        status: "running".into(),
+    });
+
     // Follow the approved category without converting a failed swap into a burn.
     match entry.category {
         CleanupCategory::Swappable => {
@@ -54,12 +73,13 @@ async fn run_entry(
                     return Err(SwapError::PreviewChanged);
                 }
                 match executor
-                    .perform(
+                    .perform_observed(
                         CleanupOperation::Swap,
                         &current,
                         Some(fresh),
                         signer,
                         &options.swap_limits,
+                        observer,
                     )
                     .await
                 {
@@ -90,12 +110,13 @@ async fn run_entry(
             }
             result.operations.push(
                 executor
-                    .perform(
+                    .perform_observed(
                         CleanupOperation::Burn,
                         &current,
                         None,
                         signer,
                         &options.swap_limits,
+                        observer,
                     )
                     .await?,
             );
@@ -119,14 +140,23 @@ async fn run_entry(
     if let Some(reason) = unsupported_reason(&empty, &owner.to_string()) {
         return Err(changed(&reason));
     }
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: "close".into(),
+        completed: 0,
+        total: 0,
+        operation: Some(CleanupOperation::Close),
+        account: Some(empty.account.address.clone()),
+        status: "running".into(),
+    });
     result.operations.push(
         executor
-            .perform(
+            .perform_observed(
                 CleanupOperation::Close,
                 &empty,
                 None,
                 signer,
                 &options.swap_limits,
+                observer,
             )
             .await?,
     );
@@ -146,12 +176,13 @@ async fn run_entry(
 /// Rejects a mismatched signer; individual failures retain receipts and do not stop unrelated
 /// mints.
 /// Uncertain submissions block further actions for that mint, without automatic resubmission.
-pub async fn execute_plan(
+pub async fn execute_plan_observed(
     plan: &CleanupPlan,
     provider: &impl SwapProvider,
     executor: &impl CleanupExecutor,
     signer: &Keypair,
     options: &CleanupOptions,
+    observer: &dyn crate::core::progress::CleanupObserver,
 ) -> Result<CleanupReport> {
     let owner = signer.pubkey();
     if owner.to_string() != plan.wallet {
@@ -162,9 +193,37 @@ pub async fn execute_plan(
         ..Default::default()
     };
 
+    for (stage, operation, count) in [
+        ("swap", CleanupOperation::Swap, plan.summary.swappable),
+        ("burn", CleanupOperation::Burn, plan.summary.burnable),
+        (
+            "close",
+            CleanupOperation::Close,
+            plan.summary.accounts_to_close,
+        ),
+    ] {
+        if count == 0 {
+            observer.progress(crate::core::progress::CleanupProgress {
+                stage: stage.into(),
+                completed: 0,
+                total: 0,
+                operation: Some(operation),
+                account: None,
+                status: "skipped".into(),
+            });
+        }
+    }
     // One account and one transaction at a time. Partial successes are retained.
     let mut unresolved_mints = std::collections::BTreeSet::new();
-    for entry in &plan.entries {
+    for (index, entry) in plan.entries.iter().enumerate() {
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "planning".into(),
+            completed: index,
+            total: plan.entries.len(),
+            operation: None,
+            account: Some(entry.asset.account.address.clone()),
+            status: "running".into(),
+        });
         let mut result = AccountCleanupResult {
             token_account: entry.asset.account.address.clone(),
             mint: entry.asset.account.mint.clone(),
@@ -203,11 +262,15 @@ pub async fn execute_plan(
             match run_entry(
                 entry,
                 &mut result,
-                &owner,
                 signer,
                 provider,
                 executor,
                 options,
+                &EntryObserver {
+                    observer,
+                    completed: index,
+                    total: plan.entries.len(),
+                },
             )
             .await
             {
@@ -224,8 +287,24 @@ pub async fn execute_plan(
                         result.uncertain_signature = Some(signature.clone());
                         report.accounting_complete = false;
                     }
-                    if matches!(error, SwapError::TransactionFailed { .. }) {
-                        report.accounting_complete = false;
+                    if let SwapError::TransactionFailed { signature, .. } = &error {
+                        let operation = result
+                            .operations
+                            .last()
+                            .map(|r| r.operation)
+                            .map(|_| CleanupOperation::Close)
+                            .unwrap_or(match entry.category {
+                                CleanupCategory::Swappable => CleanupOperation::Swap,
+                                CleanupCategory::Burnable => CleanupOperation::Burn,
+                                _ => CleanupOperation::Close,
+                            });
+                        if let Some(receipt) =
+                            executor.failed_receipt(operation, signature, &owner).await
+                        {
+                            result.operations.push(receipt);
+                        } else {
+                            report.accounting_complete = false;
+                        }
                     }
                     result.reason = error.to_string();
                     report.failed += 1;
@@ -237,6 +316,11 @@ pub async fn execute_plan(
 
         // Sum observed receipts only; estimates never replace missing transaction accounting.
         for receipt in &result.operations {
+            if let Some(delta) = receipt.wallet_delta_lamports {
+                report.known_net_wallet_lamports += delta;
+            } else {
+                report.accounting_complete = false;
+            }
             if receipt.operation == CleanupOperation::Swap {
                 if let Some(delta) = receipt.wallet_delta_lamports {
                     report.known_swap_net_lamports += delta;
@@ -268,5 +352,50 @@ pub async fn execute_plan(
             uncertain_signature: None,
         });
     }
+    observer.progress(crate::core::progress::CleanupProgress {
+        stage: if report.failed == 0 {
+            "completed"
+        } else if report.closed > 0 {
+            "partial"
+        } else {
+            "failed"
+        }
+        .into(),
+        completed: plan.entries.len(),
+        total: plan.entries.len(),
+        operation: None,
+        account: None,
+        status: "finished".into(),
+    });
     Ok(report)
+}
+
+/// Execute sequentially without a host observer, preserving the CLI API.
+pub async fn execute_plan(
+    plan: &CleanupPlan,
+    provider: &impl SwapProvider,
+    executor: &impl CleanupExecutor,
+    signer: &Keypair,
+    options: &CleanupOptions,
+) -> Result<CleanupReport> {
+    execute_plan_observed(plan, provider, executor, signer, options, &()).await
+}
+
+struct EntryObserver<'a> {
+    observer: &'a dyn crate::core::progress::CleanupObserver,
+    completed: usize,
+    total: usize,
+}
+impl crate::core::progress::CleanupObserver for EntryObserver<'_> {
+    fn progress(&self, mut event: crate::core::progress::CleanupProgress) {
+        event.completed = self.completed;
+        event.total = self.total;
+        self.observer.progress(event);
+    }
+    fn before_send(&self, submission: crate::core::progress::PendingSubmission) -> Result<()> {
+        self.observer.before_send(submission)
+    }
+    fn confirmed(&self, signature: &str, failed: bool) {
+        self.observer.confirmed(signature, failed);
+    }
 }

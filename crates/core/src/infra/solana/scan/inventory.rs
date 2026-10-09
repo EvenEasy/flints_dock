@@ -82,7 +82,9 @@ impl WalletReader for RpcClient {
         format!("{:?} (independent requests)", self.commitment().commitment)
     }
     async fn native_balance(&self, owner: &Pubkey) -> Result<u64, String> {
-        self.get_balance(owner).await.map_err(|e| e.to_string())
+        self.get_balance(owner)
+            .await
+            .map_err(crate::infra::solana::safe_error)
     }
     async fn token_inventory(&self, owner: &Pubkey, nfts_only: bool) -> TokenInventory {
         scan_tokens(self, owner, nfts_only).await

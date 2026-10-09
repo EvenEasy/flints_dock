@@ -32,6 +32,7 @@ pub enum WalletSourceKindDto {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletConnectionDto {
+    pub session_id: String,
     pub wallet_address: String,
     pub source_kind: WalletSourceKindDto,
     pub can_sign: bool,

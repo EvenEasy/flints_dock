@@ -12,11 +12,15 @@ use std::time::Duration;
 /// Submit the signed transaction and return its confirmed signature.
 /// `expiry` is the last valid block height. A timeout, transport failure or unobserved
 /// expiry returns `Uncertain` with the original signature; no new transaction is built.
-pub async fn send_confirm(
+pub async fn send_confirm_observed(
     rpc: &RpcClient,
     transaction: &VersionedTransaction,
     expiry: u64,
     limits: &SwapLimits,
+    observer: Option<(
+        &dyn crate::core::progress::CleanupObserver,
+        &crate::core::progress::PendingSubmission,
+    )>,
 ) -> Result<String> {
     // Keep our locally computed signature even if an RPC timeout obscures send success.
     let signature = transaction.signatures[0];
@@ -24,6 +28,13 @@ pub async fn send_confirm(
         signature: signature.to_string(),
         reason,
     };
+
+    if let Some((observer, context)) = observer {
+        let mut submission = context.clone();
+        submission.signature = signature.to_string();
+        submission.expiry = expiry;
+        observer.before_send(submission)?;
+    }
 
     // Submit the existing signed transaction with preflight enabled and bounded RPC retries.
     let sent = rpc
@@ -37,9 +48,20 @@ pub async fn send_confirm(
             },
         )
         .await
-        .map_err(|e| uncertain(e.to_string()))?;
+        .map_err(|e| uncertain(super::safe_error(e)))?;
     if sent != signature {
         return Err(uncertain("RPC returned a different signature".into()));
+    }
+
+    if let Some((observer, context)) = observer {
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "confirmation".into(),
+            completed: 0,
+            total: 0,
+            operation: Some(context.operation),
+            account: Some(context.account.clone()),
+            status: "running".into(),
+        });
     }
 
     // Poll the original signature until confirmed success, confirmed failure or expiry.
@@ -48,12 +70,15 @@ pub async fn send_confirm(
             let statuses = rpc
                 .get_signature_statuses_with_history(&[signature])
                 .await
-                .map_err(|e| uncertain(e.to_string()))?;
+                .map_err(|e| uncertain(super::safe_error(e)))?;
 
             // Accept a result only at the requested commitment level.
             if let Some(Some(status)) = statuses.value.first()
                 && status.satisfies_commitment(CommitmentConfig::confirmed())
             {
+                if let Some((observer, _)) = observer {
+                    observer.confirmed(&signature.to_string(), status.err.is_some());
+                }
                 if let Some(error) = &status.err {
                     return Err(SwapError::TransactionFailed {
                         signature: signature.to_string(),
@@ -67,7 +92,7 @@ pub async fn send_confirm(
             if rpc
                 .get_block_height()
                 .await
-                .map_err(|e| uncertain(e.to_string()))?
+                .map_err(|e| uncertain(super::safe_error(e)))?
                 > expiry
             {
                 return Err(uncertain(
@@ -96,7 +121,7 @@ pub async fn simulate(rpc: &RpcClient, transaction: &VersionedTransaction) -> Re
             },
         )
         .await
-        .map_err(|e| SwapError::Simulation(e.to_string()))?
+        .map_err(|e| SwapError::Simulation(super::safe_error(e)))?
         .value;
     if let Some(error) = result.err {
         return Err(SwapError::Simulation(error.to_string()));
@@ -110,16 +135,20 @@ pub async fn simulate(rpc: &RpcClient, transaction: &VersionedTransaction) -> Re
 /// Build, sign, simulate and confirm local burn or close instructions.
 /// Returns the confirmed signature and applies the same preflight, expiry and uncertainty
 /// rules as swaps. Instruction eligibility must be checked by the caller.
-pub async fn send_instructions(
+pub async fn send_instructions_observed(
     rpc: &RpcClient,
     signer: &Keypair,
     instructions: &[Instruction],
     limits: &SwapLimits,
+    observer: Option<(
+        &dyn crate::core::progress::CleanupObserver,
+        &crate::core::progress::PendingSubmission,
+    )>,
 ) -> Result<String> {
     let (hash, expiry) = rpc
         .get_latest_blockhash_with_commitment(CommitmentConfig::confirmed())
         .await
-        .map_err(|e| SwapError::Rpc(e.to_string()))?;
+        .map_err(|e| SwapError::Rpc(super::safe_error(e)))?;
     let compile = |units| -> Result<VersionedTransaction> {
         let mut all = vec![super::swap::compute_limit(units)];
         all.extend_from_slice(instructions);
@@ -136,10 +165,29 @@ pub async fn send_instructions(
     if rpc
         .get_block_height()
         .await
-        .map_err(|e| SwapError::Rpc(e.to_string()))?
+        .map_err(|e| SwapError::Rpc(super::safe_error(e)))?
         > expiry
     {
         return Err(SwapError::Expired);
     }
-    send_confirm(rpc, &transaction, expiry, limits).await
+    send_confirm_observed(rpc, &transaction, expiry, limits, observer).await
+}
+
+/// CLI-compatible submission without a host journal.
+pub async fn send_confirm(
+    rpc: &RpcClient,
+    transaction: &VersionedTransaction,
+    expiry: u64,
+    limits: &SwapLimits,
+) -> Result<String> {
+    send_confirm_observed(rpc, transaction, expiry, limits, None).await
+}
+/// CLI-compatible local instruction execution.
+pub async fn send_instructions(
+    rpc: &RpcClient,
+    signer: &Keypair,
+    instructions: &[Instruction],
+    limits: &SwapLimits,
+) -> Result<String> {
+    send_instructions_observed(rpc, signer, instructions, limits, None).await
 }

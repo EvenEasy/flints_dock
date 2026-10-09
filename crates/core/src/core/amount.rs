@@ -49,6 +49,43 @@ pub fn aggregate_tokens(classified: &[TokenAsset]) -> Vec<TokenAsset> {
     assets.into_values().chain(unknown).collect()
 }
 
+/// Aggregate every asset kind by mint/program for evidence categories; CLI token filtering stays separate.
+/// Any missing valuation or conflicting kind/decimals makes that aggregate unvalued or unknown.
+pub fn aggregate_holdings(classified: &[TokenAsset]) -> Vec<TokenAsset> {
+    let mut holdings: BTreeMap<(String, TokenProgram), TokenAsset> = BTreeMap::new();
+    for token in classified {
+        let key = (token.mint.clone(), token.program);
+        if let Some(holding) = holdings.get_mut(&key) {
+            let prior_amount = holding.total_raw_amount;
+            holding.total_raw_amount += token.total_raw_amount;
+            holding.accounts.extend(token.accounts.iter().cloned());
+            holding.accounts.sort();
+            holding.accounts.dedup();
+            if holding.kind != token.kind {
+                holding.kind = AssetKind::Unknown;
+            }
+            if holding.decimals != token.decimals {
+                holding.decimals = None;
+            }
+            holding.balance = holding
+                .decimals
+                .map(|d| exact_amount(holding.total_raw_amount, d));
+            if prior_amount == 0 {
+                holding.value_usd = token.value_usd;
+            } else if token.total_raw_amount > 0 {
+                holding.value_usd = holding
+                    .value_usd
+                    .zip(token.value_usd)
+                    .map(|(a, b)| a + b)
+                    .filter(|v| v.is_finite());
+            }
+        } else {
+            holdings.insert(key, token.clone());
+        }
+    }
+    holdings.into_values().collect()
+}
+
 /// Return account counts and actual lamports potentially recoverable through closure.
 /// Recovery is conditional on the stored eligibility assessment, not a fixed rent estimate.
 pub fn summarize_accounts(accounts: &[TokenAccount]) -> AccountSummary {

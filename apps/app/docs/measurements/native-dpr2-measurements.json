@@ -1,0 +1,78 @@
+{
+  "viewport": [
+    960,
+    526
+  ],
+  "dpr": 2,
+  "scale": 1,
+  "images": [
+    {
+      "src": "tauri://localhost/assets/station-scene-768-ht-ANoL1.png",
+      "natural": [
+        768,
+        1152
+      ],
+      "width": 360,
+      "height": 478,
+      "loaded": true
+    },
+    {
+      "src": "inline functional SVG",
+      "natural": [
+        133,
+        150
+      ],
+      "width": 28,
+      "height": 28,
+      "loaded": true
+    },
+    {
+      "src": "tauri://localhost/assets/hero-raptor-ring-256-CQI3Io99.png",
+      "natural": [
+        256,
+        256
+      ],
+      "width": 83.96875,
+      "height": 83.96875,
+      "loaded": true
+    },
+    {
+      "src": "tauri://localhost/assets/crossed-sabers-384-CFWz2BBh.png",
+      "natural": [
+        384,
+        128
+      ],
+      "width": 0,
+      "height": 0,
+      "loaded": true
+    },
+    {
+      "src": "inline functional SVG",
+      "natural": [
+        166,
+        150
+      ],
+      "width": 28,
+      "height": 28,
+      "loaded": true
+    }
+  ],
+  "frames": [
+    {
+      "slice": "26%",
+      "source": "url(\"tauri://localhost/assets/frame-violet-128-CWOFNR_8.png\")"
+    },
+    {
+      "slice": "26%",
+      "source": "url(\"tauri://localhost/assets/frame-violet-192-B_d7RSkd.png\")"
+    },
+    {
+      "slice": "26%",
+      "source": "url(\"tauri://localhost/assets/frame-violet-192-B_d7RSkd.png\")"
+    },
+    {
+      "slice": "26%",
+      "source": "url(\"tauri://localhost/assets/frame-violet-192-B_d7RSkd.png\")"
+    }
+  ]
+}

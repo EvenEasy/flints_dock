@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { GraphicsDiagnostics } from './dev/GraphicsDiagnostics';
 import { App } from './app/App';
 import './styles.css';
 import './styles/typography.css';
@@ -12,6 +13,10 @@ const root = document.getElementById('root');
 if (!root) throw new Error('Application root is missing');
 createRoot(root).render(
   <StrictMode>
-    <App />
+    {import.meta.env.DEV && new URLSearchParams(location.search).get('diagnostics') === 'art' ? (
+      <GraphicsDiagnostics />
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );

@@ -60,6 +60,7 @@ describe('Wallet contract and local session', () => {
     await connect(user);
     await ready();
     expect(ipc).toHaveBeenCalledExactlyOnceWith('analyze_wallet', {
+      progress: expect.anything(),
       request: {
         walletAddress: address,
         noPrices: false,
@@ -124,7 +125,7 @@ describe('Wallet contract and local session', () => {
     const user = userEvent.setup();
     render(<App />);
     await connect(user);
-    expect(screen.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow');
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     expect(screen.queryByText('ЕТАП 3 ІЗ 5')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'DISMISS SCAN' }));
     await act(async () => resolve(wallet()));
@@ -168,6 +169,7 @@ describe('Wallet contract and local session', () => {
     expect(ipc.mock.calls[1]).toEqual([
       'analyze_wallet',
       {
+        progress: expect.anything(),
         request: {
           walletAddress: address,
           selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
@@ -293,7 +295,7 @@ describe('Real asset selection and available results', () => {
     await connect(user);
     await ready();
     await user.click(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' }));
-    expect(screen.getByRole('button', { name: /очищення недоступне/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' })).toBeDisabled();
     expect(screen.queryByText('МЕРТВИЙ')).not.toBeInTheDocument();
     expect(screen.queryByText('≈ 0.428 SOL')).not.toBeInTheDocument();
     expect(ipc).toHaveBeenCalledTimes(1);
@@ -446,6 +448,7 @@ describe('Jupiter price presentation', () => {
     await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
     await ready();
     expect(ipc).toHaveBeenCalledWith('analyze_wallet', {
+      progress: expect.anything(),
       request: expect.objectContaining({ noPrices: true }),
     });
     await inventory(user);

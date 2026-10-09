@@ -14,6 +14,8 @@ export function selectableAssets(analysis: WalletAnalysis | null): SelectableAss
   const byMint = new Map<string, SelectableAsset>();
   // allTokens includes account assets omitted by the semantic fungible-token view.
   for (const token of [...(analysis?.tokens?.items ?? []), ...(analysis?.allTokens?.items ?? [])]) {
+    // Prefer the backend's aggregated semantic holding over a later per-account projection.
+    if (byMint.has(token.mint)) continue;
     byMint.set(token.mint, {
       key: token.mint,
       mint: token.mint,
@@ -30,6 +32,16 @@ export function selectableAssets(analysis: WalletAnalysis | null): SelectableAss
         name: nft.metadata.name ?? shortAddress(nft.mint),
         quantity: '1 NFT',
         program: 'NFT',
+      });
+  }
+  for (const account of analysis?.tokenAccounts ?? []) {
+    if (!byMint.has(account.mint))
+      byMint.set(account.mint, {
+        key: account.mint,
+        mint: account.mint,
+        name: shortAddress(account.mint),
+        quantity: account.rawAmount === '0' ? 'Порожній токен-акаунт' : `${account.rawAmount} raw`,
+        program: account.program,
       });
   }
   return [...byMint.values()];

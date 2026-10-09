@@ -31,14 +31,9 @@
       "x": 0,
       "y": 0,
       "width": 336,
-      "height": 112
+      "height": 100
     },
-    "swords": {
-      "x": 68,
-      "y": -52.65625,
-      "width": 200,
-      "height": 66.65625
-    },
+    "swords": null,
     "hero": {
       "x": 0,
       "y": 0,
@@ -90,25 +85,20 @@
       "x": 0,
       "y": 0,
       "width": 336,
-      "height": 112
+      "height": 100
     },
-    "swords": {
-      "x": 68,
-      "y": -52.65625,
-      "width": 200,
-      "height": 66.65625
-    },
+    "swords": null,
     "hero": {
       "x": 0,
       "y": 0,
-      "width": 144,
-      "height": 144
+      "width": 156.421875,
+      "height": 156.421875
     },
     "art": {
       "x": 0,
       "y": 0,
-      "width": 144,
-      "height": 144
+      "width": 156.421875,
+      "height": 156.421875
     },
     "variant": "compact",
     "nav": {
@@ -219,14 +209,14 @@
     "hero": {
       "x": 0,
       "y": 0,
-      "width": 192.359375,
-      "height": 192.359375
+      "width": 208.359375,
+      "height": 208.359375
     },
     "art": {
       "x": 0,
       "y": 0,
-      "width": 192.359375,
-      "height": 192.359375
+      "width": 208.359375,
+      "height": 208.359375
     },
     "variant": "large",
     "nav": null,
@@ -268,14 +258,14 @@
     "hero": {
       "x": 0,
       "y": 0,
-      "width": 271.34375,
-      "height": 271.34375
+      "width": 287.34375,
+      "height": 287.34375
     },
     "art": {
       "x": 0,
       "y": 0,
-      "width": 271.34375,
-      "height": 271.34375
+      "width": 287.34375,
+      "height": 287.34375
     },
     "variant": "large",
     "nav": {

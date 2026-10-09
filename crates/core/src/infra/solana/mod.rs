@@ -45,7 +45,8 @@ pub async fn token_accounts(
                 {"encoding": "base64", "commitment": "confirmed"}
             ]),
         )
-        .await?;
+        .await
+        .map_err(|error| anyhow::anyhow!(safe_error(error)))?;
     Ok(response.value)
 }
 
@@ -60,19 +61,19 @@ pub async fn program_accounts(
     program: &Pubkey,
     filters: Vec<RpcFilterType>,
 ) -> anyhow::Result<Vec<(Pubkey, UiAccount)>> {
-    Ok(rpc
-        .get_program_ui_accounts_with_config(
-            program,
-            RpcProgramAccountsConfig {
-                filters: Some(filters),
-                account_config: RpcAccountInfoConfig {
-                    encoding: Some(UiAccountEncoding::Base64),
-                    ..Default::default()
-                },
+    rpc.get_program_ui_accounts_with_config(
+        program,
+        RpcProgramAccountsConfig {
+            filters: Some(filters),
+            account_config: RpcAccountInfoConfig {
+                encoding: Some(UiAccountEncoding::Base64),
                 ..Default::default()
             },
-        )
-        .await?)
+            ..Default::default()
+        },
+    )
+    .await
+    .map_err(|error| anyhow::anyhow!(safe_error(error)))
 }
 
 /// Keep each requested address mapped to an account, absence or retrieval error.
@@ -101,7 +102,7 @@ pub async fn multiple_accounts(rpc: &RpcClient, keys: &[Pubkey]) -> AccountBatch
                     .iter()
                     .map(|key| (*key, Err("RPC returned wrong account count".into()))),
             ),
-            Err(error) => output.extend(chunk.iter().map(|key| (*key, Err(error.to_string())))),
+            Err(error) => output.extend(chunk.iter().map(|key| (*key, Err(safe_error(&error))))),
         }
     }
     output
@@ -117,4 +118,30 @@ pub fn client(
         std::time::Duration::from_secs(timeout_seconds),
         solana_commitment_config::CommitmentConfig::confirmed(),
     )
+}
+
+/// Remove endpoint URLs from transport errors, including path/query credentials, before reporting.
+pub fn safe_error(reason: impl ToString) -> String {
+    let mut value = reason.to_string();
+    while let Some(start) = value.find("https://").or_else(|| value.find("http://")) {
+        let end = value[start..]
+            .char_indices()
+            .find(|(_, ch)| ch.is_whitespace() || matches!(ch, '"' | '\'' | ')' | '>'))
+            .map(|(i, _)| start + i)
+            .unwrap_or(value.len());
+        value.replace_range(start..end, "[RPC endpoint]");
+    }
+    value
+}
+#[cfg(test)]
+mod credential_tests {
+    #[test]
+    fn rpc_errors_do_not_expose_url_credentials() {
+        let error = super::safe_error(
+            "error for url (https://user:secret@rpc.invalid/private-key?api-key=secret): HTTP 403",
+        );
+        assert!(!error.contains("secret"));
+        assert!(!error.contains("private-key"));
+        assert!(error.contains("HTTP 403"));
+    }
 }

@@ -116,10 +116,10 @@ export interface Nfts {
   core: AssetList<CoreAsset>;
 }
 
-/** The current core requires a historical owner index and cannot enumerate cNFTs. */
+/** Only owner-verified, unburned compressed assets returned by the configured Rust DAS adapter. */
 export interface CompressedNfts {
   status: ScanStatus;
-  items: null;
+  items: { id: string; name: string }[] | null;
 }
 
 export interface UnknownAsset {

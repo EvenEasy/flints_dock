@@ -27,7 +27,7 @@ export function AppShell({
   );
   const reference =
     preview && new URLSearchParams(window.location.search).get('layout') === 'reference';
-  const connectedPage = ['main', 'cleanup', 'success'].includes(screen);
+  const connectedPage = ['main', 'cleanup', 'processing', 'success'].includes(screen);
   return (
     <div
       className={`app-viewport ${display.backdrop ? 'app-backdrop' : ''} ${reference ? 'reference-mode' : 'phone-layout'}`}

@@ -21,7 +21,7 @@ fn invalid(reason: impl ToString) -> SwapError {
     SwapError::InvalidResponse(reason.to_string())
 }
 fn rpc_error(reason: impl ToString) -> SwapError {
-    SwapError::Rpc(reason.to_string())
+    SwapError::Rpc(super::safe_error(reason))
 }
 
 /// Build the compute-budget instruction for the chosen unit allowance.
@@ -200,13 +200,17 @@ impl SwapExecutor for RpcClient {
 /// Simulate and confirm a fresh swap with atomic source-account instructions.
 /// Returns its signature on confirmation; expiry or simulation errors occur before submission,
 /// while send/confirmation ambiguity preserves the signature in `Uncertain`.
-pub async fn submit_with_instructions(
+pub async fn submit_with_instructions_observed(
     rpc: &RpcClient,
     fresh: PreparedSwap,
     signer: &Keypair,
     limits: &SwapLimits,
     prefix: &[Instruction],
     suffix: &[Instruction],
+    observer: Option<(
+        &dyn crate::core::progress::CleanupObserver,
+        &crate::core::progress::PendingSubmission,
+    )>,
 ) -> Result<String> {
     fresh.ensure_fresh(limits)?;
     let expiry = fresh.build.last_valid_block_height;
@@ -222,5 +226,17 @@ pub async fn submit_with_instructions(
         return Err(SwapError::Expired);
     }
     fresh.ensure_fresh(limits)?;
-    super::transactions::send_confirm(rpc, &transaction, expiry, limits).await
+    super::transactions::send_confirm_observed(rpc, &transaction, expiry, limits, observer).await
+}
+
+/// Preserve the CLI swap boundary without installing host persistence.
+pub async fn submit_with_instructions(
+    rpc: &RpcClient,
+    fresh: PreparedSwap,
+    signer: &Keypair,
+    limits: &SwapLimits,
+    prefix: &[Instruction],
+    suffix: &[Instruction],
+) -> Result<String> {
+    submit_with_instructions_observed(rpc, fresh, signer, limits, prefix, suffix, None).await
 }

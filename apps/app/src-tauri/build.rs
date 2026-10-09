@@ -5,6 +5,9 @@ fn main() {
             "analyze_wallet",
             "connect_wallet",
             "disconnect_wallet",
+            "prepare_cleanup",
+            "execute_cleanup",
+            "get_cleanup_job",
         ]),
     ))
     .expect("failed to build the Tauri application manifest");

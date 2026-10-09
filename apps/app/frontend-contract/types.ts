@@ -24,7 +24,8 @@ export interface AppError {
     | 'invalid_request'
     | 'invalid_wallet_address'
     | 'invalid_configuration'
-    | 'invalid_wallet_identity';
+    | 'invalid_wallet_identity'
+    | 'cleanup_rejected';
   message: string;
   details: Record<string, string> | null;
 }
@@ -42,7 +43,7 @@ export interface CategorySelection extends Partial<SelectedCategories> {
   all?: boolean;
 }
 
-/** Addresses only. The desktop API never accepts a keypair, seed, or execution mode. */
+/** Read-only analysis accepts only a public address; identity and cleanup have separate commands. */
 export interface AnalyzeWalletRequest {
   walletAddress: string;
   selection?: CategorySelection;
@@ -63,6 +64,7 @@ export interface Balance {
 
 /** Never coerce exact amounts to Number. Use BigInt for integer arithmetic if needed. */
 export interface WalletAnalysis {
+  categories?: import('./categories').WalletCategories | null;
   owner: string;
   commitment: string;
   selected: SelectedCategories;
@@ -92,6 +94,7 @@ export interface ConnectWalletRequest {
 
 /** Public information only; the connected keypair remains in Rust memory. */
 export interface WalletConnection {
+  sessionId?: string;
   walletAddress: string;
   sourceKind: WalletSource['kind'];
   canSign: boolean;
