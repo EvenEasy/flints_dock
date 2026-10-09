@@ -30,12 +30,12 @@ async function connect(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'SCAN WALLET' }));
 }
 async function ready() {
-  return screen.findByRole('button', { name: 'ПОВЕРНУТИ SOL' });
+  return screen.findByRole('button', { name: 'RECOVER SOL' });
 }
 async function inventory(user: ReturnType<typeof userEvent.setup>) {
   if (screen.queryByRole('dialog'))
     await user.click(screen.getByRole('button', { name: 'Close dialog' }));
-  await user.click(screen.getByRole('button', { name: 'ТРЮМИ' }));
+  await user.click(screen.getByRole('button', { name: 'HOLDS' }));
 }
 
 // These tests exercise actual contract requests; JSX assertions follow the five replacement screens.
@@ -67,7 +67,7 @@ describe('Wallet contract and local session', () => {
         selection: { balance: true, tokens: true, allTokens: true, nfts: true, cnfts: true },
       },
     });
-    await user.click(screen.getByRole('button', { name: 'ПРОФІЛЬ' }));
+    await user.click(screen.getByRole('button', { name: 'PROFILE' }));
     expect(screen.getByText('12.345678901 SOL')).toBeVisible();
     await inventory(user);
     expect(screen.getAllByText('900,719,925,474.099312345')).toHaveLength(2);
@@ -95,7 +95,7 @@ describe('Wallet contract and local session', () => {
     await connect(user);
     expect(await screen.findByRole('alert')).toHaveTextContent('RPC configuration is missing.');
     expect(screen.queryByText('do-not-display')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'АНАЛІЗ ПЕРЕРВАНО' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ANALYSIS INTERRUPTED' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'CHANGE WALLET' }));
     await user.click(screen.getByRole('radio', { name: 'Public key (read only)' }));
     expect(screen.getByRole('textbox', { name: 'WALLET PUBLIC KEY' })).toHaveValue(address);
@@ -126,11 +126,11 @@ describe('Wallet contract and local session', () => {
     render(<App />);
     await connect(user);
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    expect(screen.queryByText('ЕТАП 3 ІЗ 5')).not.toBeInTheDocument();
+    expect(screen.queryByText('STEP 3 OF 5')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'DISMISS SCAN' }));
     await act(async () => resolve(wallet()));
     expect(screen.getByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
-    expect(screen.queryByText('АНАЛІЗ ЗАВЕРШЕНО')).not.toBeInTheDocument();
+    expect(screen.queryByText('ANALYSIS COMPLETE')).not.toBeInTheDocument();
   });
   it('PartialSnapshot_SurvivesHashChangeAndPreservesFailureState', async () => {
     desktop(() =>
@@ -145,7 +145,7 @@ describe('Wallet contract and local session', () => {
     await ready();
     await act(async () => window.dispatchEvent(new HashChangeEvent('hashchange')));
     expect(screen.getByRole('alert')).toHaveTextContent('No usable asset results');
-    expect(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'RECOVER SOL' })).toBeVisible();
   });
   it('Seed_IsTransferredOnceAndNeverStored', async () => {
     const seed = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
@@ -179,7 +179,7 @@ describe('Wallet contract and local session', () => {
     ]);
     expect(screen.queryByDisplayValue(seed)).not.toBeInTheDocument();
     expect(window.localStorage.length).toBe(0);
-    await user.click(screen.getByRole('button', { name: 'ПРОФІЛЬ' }));
+    await user.click(screen.getByRole('button', { name: 'PROFILE' }));
     expect(screen.getByText('LOCAL SIGNER CONNECTED')).toBeVisible();
   });
   it('KeypairPath_IsReadOnlyByRust', async () => {
@@ -240,7 +240,7 @@ describe('Wallet contract and local session', () => {
     render(<App />);
     await connect(user);
     await ready();
-    await user.click(screen.getByRole('button', { name: 'ПРОФІЛЬ' }));
+    await user.click(screen.getByRole('button', { name: 'PROFILE' }));
     await user.click(screen.getByRole('button', { name: 'DISCONNECT WALLET' }));
     expect(await screen.findByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
     expect(ipc.mock.calls.map((call) => call[0])).toEqual([
@@ -272,7 +272,7 @@ describe('Real asset selection and available results', () => {
     render(<App />);
     await connect(user);
     await ready();
-    await user.click(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' }));
+    await user.click(screen.getByRole('button', { name: 'RECOVER SOL' }));
     const first = screen.getByRole('checkbox', { name: `Include Same name mint ${address}` });
     const second = screen.getByRole('checkbox', { name: `Include Same name mint ${secondMint}` });
     expect(first).toBeChecked();
@@ -280,8 +280,8 @@ describe('Real asset selection and available results', () => {
     await user.click(first);
     expect(first).not.toBeChecked();
     expect(second).toBeChecked();
-    await user.click(screen.getByRole('button', { name: 'СТАНЦІЯ' }));
-    await user.click(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' }));
+    await user.click(screen.getByRole('button', { name: 'STATION' }));
+    await user.click(screen.getByRole('button', { name: 'RECOVER SOL' }));
     expect(
       screen.getByRole('checkbox', { name: `Include Same name mint ${address}` }),
     ).not.toBeChecked();
@@ -294,9 +294,9 @@ describe('Real asset selection and available results', () => {
     render(<App />);
     await connect(user);
     await ready();
-    await user.click(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' }));
-    expect(screen.getByRole('button', { name: 'ПОВЕРНУТИ SOL' })).toBeDisabled();
-    expect(screen.queryByText('МЕРТВИЙ')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'RECOVER SOL' }));
+    expect(screen.getByRole('button', { name: 'RECOVER SOL' })).toBeDisabled();
+    expect(screen.queryByText('DEAD')).not.toBeInTheDocument();
     expect(screen.queryByText('≈ 0.428 SOL')).not.toBeInTheDocument();
     expect(ipc).toHaveBeenCalledTimes(1);
   });
@@ -371,8 +371,8 @@ describe('Real asset selection and available results', () => {
       window.location.hash = 'success';
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
-    expect(screen.queryByText('ОЧИЩЕННЯ ЗАВЕРШЕНО')).not.toBeInTheDocument();
-    expect(screen.getByText('АНАЛІЗ ЗАВЕРШЕНО')).toBeVisible();
+    expect(screen.queryByText('CLEANUP COMPLETE')).not.toBeInTheDocument();
+    expect(screen.getByText('ANALYSIS COMPLETE')).toBeVisible();
   });
 });
 
@@ -384,7 +384,7 @@ describe('Live route guards', () => {
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
     expect(screen.getByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
-    expect(screen.queryByText('ГАМАНЕЦЬ ПІДКЛЮЧЕНО')).not.toBeInTheDocument();
+    expect(screen.queryByText('WALLET CONNECTED')).not.toBeInTheDocument();
   });
 });
 
@@ -404,11 +404,11 @@ describe('Reference preview', () => {
     window.history.replaceState(null, '', '/?preview=1#cleanup');
     const user = userEvent.setup();
     render(<App />);
-    expect(screen.getByText('4 АКТИВИ')).toBeVisible();
+    expect(screen.getByText('4 ASSETS')).toBeVisible();
     expect(screen.getByRole('checkbox', { name: /Include USD Coin/ })).not.toBeChecked();
     expect(screen.getByRole('checkbox', { name: /Include Bonk/ })).toBeChecked();
     await user.click(screen.getByRole('checkbox', { name: /Include Bonk/ }));
-    expect(screen.getByText('3 АКТИВІВ')).toBeVisible();
+    expect(screen.getByText('3 ASSETS')).toBeVisible();
     expect(ipc).not.toHaveBeenCalled();
   });
 });
@@ -421,7 +421,7 @@ describe('Jupiter price presentation', () => {
     render(<App />);
     await connect(user);
     await ready();
-    await user.click(screen.getByRole('button', { name: 'ПРОФІЛЬ' }));
+    await user.click(screen.getByRole('button', { name: 'PROFILE' }));
     expect(screen.getByText('1 SOL = $120.50')).toBeVisible();
     expect(screen.getByText('≈ $1,487.65')).toBeVisible();
     await inventory(user);

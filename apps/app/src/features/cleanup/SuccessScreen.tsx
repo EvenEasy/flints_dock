@@ -19,9 +19,9 @@ export function SuccessScreen({
         <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
           {job && job.status !== 'completed'
             ? job.status === 'partial'
-              ? 'ОЧИЩЕННЯ ЧАСТКОВЕ'
-              : 'ОЧИЩЕННЯ НЕ ЗАВЕРШЕНО'
-            : 'ОЧИЩЕННЯ ЗАВЕРШЕНО'}
+              ? 'PARTIAL CLEANUP'
+              : 'CLEANUP INCOMPLETE'
+            : 'CLEANUP COMPLETE'}
         </h1>
       </MechanicalPanel>
       <div className="success-medallion" aria-hidden="true">
@@ -53,10 +53,10 @@ export function SuccessScreen({
       <MechanicalPanel tone="cyan" className="returned-sol">
         <p>
           {!job
-            ? 'ПОВЕРНУТО У ГАМАНЕЦЬ'
+            ? 'RETURNED TO WALLET'
             : job?.report?.accounting_complete === false
-              ? 'ВІДОМА ЗМІНА SOL · ОБЛІК НЕПОВНИЙ'
-              : 'ЧИСТА ЗМІНА SOL У ГАМАНЦІ'}
+              ? 'KNOWN SOL CHANGE · ACCOUNTING INCOMPLETE'
+              : 'NET WALLET SOL CHANGE'}
         </p>
         <strong>
           <ExactAmount
@@ -68,7 +68,7 @@ export function SuccessScreen({
       {job && (
         <details className="cleanup-report type-caption">
           <summary>
-            Звіт · закрито {job.report?.closed ?? 0} · помилок {job.report?.failed ?? 0}
+            Report · closed {job.report?.closed ?? 0} · failed {job.report?.failed ?? 0}
           </summary>
           {job.error && <p>{job.error}</p>}
           {job.report?.results.map((result) => (
@@ -83,7 +83,7 @@ export function SuccessScreen({
                 </p>
               ))}
               {result.uncertain_signature && (
-                <p>Невизначена signature: {result.uncertain_signature}</p>
+                <p>Unresolved signature: {result.uncertain_signature}</p>
               )}
             </div>
           ))}

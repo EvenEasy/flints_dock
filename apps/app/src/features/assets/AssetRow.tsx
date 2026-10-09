@@ -57,11 +57,11 @@ export function AssetRow({
           {value.endsWith(' SOL') ? <ExactAmount amount={value.slice(0, -4)} size="row" /> : value}
         </strong>
         {!selected ? (
-          <span className="keep-label">ЗАЛИШИТИ</span>
+          <span className="keep-label">KEEP</span>
         ) : dead ? (
           <span className="dead-badge">
             <SurfaceFrame />
-            <span>МЕРТВИЙ</span>
+            <span>DEAD</span>
           </span>
         ) : null}
       </div>

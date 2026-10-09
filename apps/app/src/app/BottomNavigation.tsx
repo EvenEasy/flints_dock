@@ -4,11 +4,11 @@ import { SurfaceFrame } from '../shared/ui/Design';
 import type { DockSection } from './navigation';
 
 const sections: readonly [DockSection, string, MediaKey][] = [
-  ['station', 'СТАНЦІЯ', 'navigation.station'],
-  ['hangar', 'АНГАР', 'navigation.hangar'],
-  ['holds', 'ТРЮМИ', 'navigation.holds'],
-  ['missions', 'МІСІЇ', 'navigation.missions'],
-  ['profile', 'ПРОФІЛЬ', 'navigation.profile'],
+  ['station', 'STATION', 'navigation.station'],
+  ['hangar', 'HANGAR', 'navigation.hangar'],
+  ['holds', 'HOLDS', 'navigation.holds'],
+  ['missions', 'MISSIONS', 'navigation.missions'],
+  ['profile', 'PROFILE', 'navigation.profile'],
 ];
 
 /** Content and geometry are shared; callers explicitly choose the active section. */
@@ -20,7 +20,7 @@ export function BottomNavigation({
   active: DockSection;
 }) {
   return (
-    <nav className="bottom-navigation" aria-label="Основна навігація">
+    <nav className="bottom-navigation" aria-label="Main navigation">
       <SurfaceFrame />
       {sections.map(([key, label, icon]) => (
         <button

@@ -53,24 +53,24 @@ export function MainScreen({
           </p>
           <img src={designAsset('main', 'pirate_skull_crossbones')} alt="" aria-hidden="true" />
           <p className="side-status">
-            СТАНЦІЯ
+            STATION
             <br />
-            АКТИВНА
+            ACTIVE
           </p>
           <span className="status-led status-led--connected" aria-hidden="true" />
         </MechanicalPanel>
         <MascotHero variant="compact" label />
         <MechanicalPanel className="profit-side">
           <p className="side-title">
-            ВЧОРА
+            YESTERDAY
             <br />
-            СМІТТЯ
+            JUNK
           </p>
           <img src={designAsset('main', 'rocket_icon')} alt="" aria-hidden="true" />
           <p className="side-title">
-            СЬОГОДНІ
+            TODAY
             <br />
-            ПРОФІТ
+            PROFIT
           </p>
         </MechanicalPanel>
       </div>
@@ -84,33 +84,34 @@ export function MainScreen({
         <h2 className="scan-summary-heading">
           <SurfaceFrame />
           <img src={designAsset('main', 'scan_radar')} alt="" aria-hidden="true" />
-          <span>{preview ? 'СКАНУВАННЯ ВАНТАЖНОГО ВІДСІКУ' : 'АНАЛІЗ ВАНТАЖНОГО ВІДСІКУ'}</span>
+          <span>{preview ? 'CARGO HOLD SCAN' : 'CARGO HOLD ANALYSIS'}</span>
         </h2>
         <div className="scan-summary-content">
           <div className="scan-total">
             <p>
               {preview ? (
                 <>
-                  СКАНУВАННЯ ЗАВЕРШЕНО
-                  <br />В ТРЮМАХ ВИЯВЛЕНО
+                  SCAN COMPLETE
+                  <br />
+                  FOUND IN THE HOLDS
                 </>
               ) : analysis?.hasUsableResults ? (
-                'АНАЛІЗ ЗАВЕРШЕНО'
+                'ANALYSIS COMPLETE'
               ) : (
-                'РЕЗУЛЬТАТ НЕДОСТУПНИЙ'
+                'RESULT UNAVAILABLE'
               )}
             </p>
             <strong className="type-numeric type-numeric--metric">
               {preview ? 142 : (analysis?.accountSummary?.tokenAccounts ?? '—')}
             </strong>
-            <p>{preview ? 'ОБ’ЄКТА МУСОРА' : 'ТОКЕН-АКАУНТІВ'}</p>
+            <p>{preview ? 'UNWANTED ASSETS' : 'TOKEN ACCOUNTS'}</p>
           </div>
           <div className="scan-rent">
-            <p>{preview ? 'ДОСТУПНА ЗДОБИЧ (RENT)' : 'ПОТЕНЦІЙНИЙ RENT'}</p>
+            <p>{preview ? 'RECLAIMABLE RENT' : 'POTENTIAL RENT'}</p>
             <strong>
               <ExactAmount amount={preview ? '0.052' : rent} />
             </strong>
-            <p>{preview ? 'ДОСТУПНА ДО ПОВЕРНЕННЯ' : 'ОЦІНКА, НЕ ПЛАН ОЧИЩЕННЯ'}</p>
+            <p>{preview ? 'AVAILABLE TO RECLAIM' : 'ESTIMATE · NOT A CLEANUP PLAN'}</p>
           </div>
           <RasterArt
             media="decoration.station"
@@ -124,7 +125,7 @@ export function MainScreen({
         <h2 id="manifest-heading">
           <SurfaceFrame />
           <img src={designAsset('main', 'cargo_cube')} alt="" aria-hidden="true" />
-          <span>МАНІФЕСТ ВАНТАЖУ</span>
+          <span>CARGO MANIFEST</span>
         </h2>
         <div className="category-grid">
           {categories.map(([key, label, sample]) => (
@@ -133,12 +134,12 @@ export function MainScreen({
               key={key}
               type="button"
               onClick={() => onInspect(key)}
-              aria-label={`${label}: ${preview ? sample : analysis?.categories?.categories[key]?.status.status === 'complete' ? analysis.categories.categories[key].count : analysis?.categories?.categories[key]?.count ? `${analysis.categories.categories[key].count}+ · неповно` : key === 'nft' ? nftCount : 'класифікація недоступна'}`}
+              aria-label={`${label}: ${preview ? sample : analysis?.categories?.categories[key]?.status.status === 'complete' ? analysis.categories.categories[key].count : analysis?.categories?.categories[key]?.count ? `${analysis.categories.categories[key].count}+ · incomplete` : key === 'nft' ? nftCount : 'classification unavailable'}`}
               title={
                 !preview && analysis?.categories?.categories[key]?.status.status !== 'complete'
-                  ? 'Перевірка неповна або недоступна'
+                  ? 'Check incomplete or unavailable'
                   : key === 'scam'
-                    ? 'Провайдер позначив активи як підозрілі'
+                    ? 'Flagged as suspicious by the provider'
                     : undefined
               }
             >

@@ -40,7 +40,7 @@ export function selectableAssets(analysis: WalletAnalysis | null): SelectableAss
         key: account.mint,
         mint: account.mint,
         name: shortAddress(account.mint),
-        quantity: account.rawAmount === '0' ? 'Порожній токен-акаунт' : `${account.rawAmount} raw`,
+        quantity: account.rawAmount === '0' ? 'Empty token account' : `${account.rawAmount} raw`,
         program: account.program,
       });
   }

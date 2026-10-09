@@ -1,9 +1,9 @@
 export const screens = [
-  { id: 'welcome', label: 'Підключення' },
-  { id: 'scanning', label: 'Аналіз гаманця' },
-  { id: 'main', label: 'Станція' },
-  { id: 'cleanup', label: 'Очищення' },
-  { id: 'success', label: 'Очищення завершено' },
+  { id: 'welcome', label: 'Connection' },
+  { id: 'scanning', label: 'Wallet analysis' },
+  { id: 'main', label: 'Station' },
+  { id: 'cleanup', label: 'Cleanup' },
+  { id: 'success', label: 'Cleanup complete' },
 ] as const;
 export type ScreenId = (typeof screens)[number]['id'] | 'processing';
 export type DockSection = 'station' | 'hangar' | 'holds' | 'missions' | 'profile';

@@ -15,11 +15,11 @@ export function WelcomeScreen({ onConnect }: { onConnect: () => void }) {
       <MascotHero />
       <TitlePedestal />
       <MechanicalPanel className="connect-module">
-        <h2 className="type-section">ПІДКЛЮЧИ ГАМАНЕЦЬ</h2>
+        <h2 className="type-section">CONNECT A WALLET</h2>
         <p className="connect-description">
-          Підключи Solana-гаманець,
+          Connect your Solana wallet
           <br />
-          щоб знайти зайві активи та повернути SOL.
+          to find unwanted assets and reclaim SOL.
         </p>
         <button className="connect-button" type="button" onClick={onConnect}>
           <SurfaceFrame />
@@ -30,7 +30,7 @@ export function WelcomeScreen({ onConnect }: { onConnect: () => void }) {
         </button>
         <p className="wallet-status">
           <span className="status-led" aria-hidden="true" />
-          ГАМАНЕЦЬ НЕ ПІДКЛЮЧЕНО
+          WALLET NOT CONNECTED
         </p>
       </MechanicalPanel>
     </div>

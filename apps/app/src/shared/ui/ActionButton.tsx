@@ -32,7 +32,7 @@ export function ActionButton({
 }
 
 export function RecoverButton({
-  children = 'ПОВЕРНУТИ SOL',
+  children = 'RECOVER SOL',
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (

@@ -224,7 +224,7 @@ export function App() {
     } else {
       setCapability(
         section === 'hangar'
-          ? 'Окремий swap-екран ще недоступний. TOKEN → SOL працює в очищенні.'
+          ? 'A separate swap screen is unavailable. Use cleanup for TOKEN → SOL.'
           : 'Mission data is not exposed by the desktop API.',
       );
       setDialog('capability');
@@ -233,7 +233,7 @@ export function App() {
 
   function inspectCategory(category: CargoCategory) {
     if (preview) {
-      setCapability('Демонстраційні категорії лише для перегляду дизайну.');
+      setCapability('Sample categories are for design preview only.');
       setDialog('capability');
     } else {
       setCategory(category);
@@ -395,17 +395,18 @@ export function App() {
         />
       )}
       {dialog === 'approval' && cleanup.plan && (
-        <Dialog title="ПОГОДИТИ ОЧИЩЕННЯ" onClose={() => setDialog(null)}>
+        <Dialog title="APPROVE CLEANUP" onClose={() => setDialog(null)}>
           <p>
-            Свап: {cleanup.plan.swapCount} · Закрити акаунти: {cleanup.plan.closeCount}
+            Swap: {cleanup.plan.swapCount} · Close accounts: {cleanup.plan.closeCount}
           </p>
           {cleanup.plan.requiresBurn && (
             <Notice tone="red">
-              Спалити баланс {cleanup.plan.burnCount} акаунтів. Цю дію неможливо скасувати.
+              Burn the full balance of {cleanup.plan.burnCount} accounts. This cannot be undone.
             </Notice>
           )}
           <p className="type-caption">
-            Виконуються лише вибрані активи. Підключення гаманця не є згодою на транзакції.
+            Only selected assets will be processed. Connecting a wallet does not authorize
+            transactions.
           </p>
           <ActionButton
             disabled={cleanup.running || !cleanup.plan.canExecute}
@@ -413,12 +414,12 @@ export function App() {
               void executeApprovedCleanup();
             }}
           >
-            ПОГОДЖУЮ СВАП{cleanup.plan.requiresBurn ? ', BURN' : ''} ТА CLOSE
+            APPROVE SWAP{cleanup.plan.requiresBurn ? ', BURN' : ''} AND CLOSE
           </ActionButton>
         </Dialog>
       )}
       {dialog === 'capability' && (
-        <Dialog title="МОЖЛИВІСТЬ НЕДОСТУПНА" onClose={() => setDialog(null)}>
+        <Dialog title="FEATURE UNAVAILABLE" onClose={() => setDialog(null)}>
           <p>{capability}</p>
         </Dialog>
       )}

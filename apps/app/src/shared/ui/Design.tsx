@@ -95,7 +95,7 @@ export function MascotHero({
           width={1254}
           height={1254}
         />
-        {label && <span className="mascot-label type-caption">МАСКОТ</span>}
+        {label && <span className="mascot-label type-caption">MASCOT</span>}
         {scanning && <img className="hero-beam" src={mediaSrc('hero.scanBeam')} alt="" />}
       </div>
     </div>
@@ -137,12 +137,12 @@ export function TitlePedestal() {
         </div>
       }
     >
-      <p className="eyebrow type-section">ОРБІТАЛЬНИЙ</p>
+      <p className="eyebrow type-section">ORBITAL</p>
       <h1 id="screen-heading" className="type-display" tabIndex={-1}>
-        ДОК ФЛІНТА
+        FLINT’S DOCK
       </h1>
       <p className="tagline type-caption">
-        <span>ЧИСТИМО ТРЮМИ. ДОБУВАЄМО ЦІННЕ.</span>
+        <span>CLEAR THE HOLDS. RECLAIM VALUE.</span>
       </p>
     </MechanicalPanel>
   );

@@ -2,11 +2,11 @@ import type { AssetCategory } from '../../../frontend-contract/categories';
 import { Dialog } from '../../shared/ui/Dialog';
 import { CategoryNotice } from '../../shared/ui/Notice';
 const descriptions: Record<string, string> = {
-  scam: 'Підозрілі за Jupiter audit.isSus. Це сигнал провайдера, не доказ шахрайства.',
-  dust: 'Ненульові активи з малою оціненою вартістю. Це не оцінка вигідності свапу.',
+  scam: 'Flagged as suspicious by Jupiter audit.isSus. A provider signal, not proof of fraud.',
+  dust: 'Nonzero holdings with a low estimated value. Swapping may still cost more than it returns.',
   dead_token:
-    'Під час перевірки Jupiter не знайшов маршрут TOKEN → SOL. Це не довічна оцінка вартості.',
-  nft: 'Classic, programmable, Core та compressed NFT. Ліквідація не виконується.',
+    'Jupiter found no TOKEN → SOL route when checked. This does not mean the asset is permanently worthless.',
+  nft: 'Classic, programmable, Core and compressed NFTs. NFT liquidation is not supported.',
 };
 export function CategoryDialog({
   name,
@@ -33,14 +33,14 @@ export function CategoryDialog({
             {item.risk?.reasons.map((reason) => (
               <p key={reason}>{reason}</p>
             ))}
-            <time>{new Date(Number(item.checkedAt) * 1000).toLocaleString('uk-UA')}</time>
+            <time>{new Date(Number(item.checkedAt) * 1000).toLocaleString('en-US')}</time>
           </li>
         ))}
       </ul>
       {category?.status.status === 'complete' && category.count === 0 && (
-        <p>Активів цієї категорії не виявлено.</p>
+        <p>No assets found in this category.</p>
       )}
-      {!category && <p>Результат цієї перевірки недоступний.</p>}
+      {!category && <p>Results for this check are unavailable.</p>}
     </Dialog>
   );
 }

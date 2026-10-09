@@ -41,7 +41,7 @@ async function connect(page: Page) {
   await page.getByRole('radio', { name: 'Public key (read only)' }).check();
   await page.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }).fill(address);
   await page.getByRole('button', { name: 'SCAN WALLET' }).click();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeVisible();
 }
 
 // Every XML page is exercised in readable production mode, including a 320px narrow viewport.
@@ -72,22 +72,22 @@ for (const width of [320, 360, 390, 393, 430, 480, 700, 1280]) {
       );
       await expect(page.locator('.station-frame, .station-header, .app-context')).toHaveCount(0);
       await expect(page.getByText('DESIGN PREVIEW · NO TRANSACTIONS')).toBeVisible();
-      const nav = page.getByRole('navigation', { name: 'Основна навігація' });
+      const nav = page.getByRole('navigation', { name: 'Main navigation' });
       if (['main', 'cleanup', 'success'].includes(descriptor.id)) {
         expect(await nav.getByRole('button').allTextContents()).toEqual([
-          'СТАНЦІЯ',
-          'АНГАР',
-          'ТРЮМИ',
-          'МІСІЇ',
-          'ПРОФІЛЬ',
+          'STATION',
+          'HANGAR',
+          'HOLDS',
+          'MISSIONS',
+          'PROFILE',
         ]);
-        await expect(nav.getByRole('button', { name: 'СТАНЦІЯ' })).toHaveAttribute(
+        await expect(nav.getByRole('button', { name: 'STATION' })).toHaveAttribute(
           'aria-current',
           'page',
         );
         await page.locator('main').evaluate((el) => (el.scrollTop = el.scrollHeight));
         if (descriptor.id !== 'success') {
-          const action = page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true });
+          const action = page.getByRole('button', { name: 'RECOVER SOL', exact: true });
           await expect(action).toBeVisible();
           const a = await action.boundingBox();
           const b = await nav.boundingBox();
@@ -154,10 +154,10 @@ for (const viewport of [
       }
       if (descriptor.id === 'main' || descriptor.id === 'cleanup') {
         const action = await page
-          .getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })
+          .getByRole('button', { name: 'RECOVER SOL', exact: true })
           .boundingBox();
         const navigation = await page
-          .getByRole('navigation', { name: 'Основна навігація' })
+          .getByRole('navigation', { name: 'Main navigation' })
           .boundingBox();
         expect(action!.y + action!.height).toBeLessThanOrEqual(navigation!.y);
         expect(action!.y).toBeGreaterThanOrEqual(0);
@@ -184,19 +184,19 @@ for (const descriptor of screens) {
       await expect(page.getByText('0.052 SOL', { exact: true })).toBeVisible();
     }
     if (descriptor.id === 'scanning') {
-      await expect(page.getByText('ЕТАП 3 ІЗ 5')).toBeVisible();
+      await expect(page.getByText('STEP 3 OF 5')).toBeVisible();
       await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '2');
       await expect(page.getByRole('listitem')).toHaveCount(5);
     }
     if (descriptor.id === 'cleanup') {
       await expect(page.getByRole('checkbox')).toHaveCount(6);
-      await expect(page.getByText('4 АКТИВИ')).toBeVisible();
+      await expect(page.getByText('4 ASSETS')).toBeVisible();
       await expect(page.getByText('≈ 0.428 SOL')).toBeVisible();
-      await expect(page.getByText('МЕРТВИЙ', { exact: true })).toHaveCount(2);
+      await expect(page.getByText('DEAD', { exact: true })).toHaveCount(2);
     }
     if (descriptor.id === 'success') {
       await expect(page.getByText('+0.428 SOL', { exact: true })).toBeVisible();
-      await expect(page.getByRole('heading', { name: 'ОЧИЩЕННЯ ЗАВЕРШЕНО' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'CLEANUP COMPLETE' })).toBeVisible();
     }
     await canvas.screenshot({ path: `.cache/redesign-screenshots/reference-${descriptor.id}.png` });
   });
@@ -221,12 +221,12 @@ test('PreviewSelection_ClearMeansKeepAndEmptyDisablesCTA', async ({ page }) => {
   const checkbox = page.getByRole('checkbox', { name: /Include Bonk/ });
   await expect(checkbox).toBeChecked();
   await checkbox.uncheck();
-  await expect(page.getByText('3 АКТИВІВ')).toBeVisible();
-  await page.getByRole('button', { name: 'СТАНЦІЯ', exact: true }).click();
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await expect(page.getByText('3 ASSETS')).toBeVisible();
+  await page.getByRole('button', { name: 'STATION', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(checkbox).not.toBeChecked();
   for (const box of await page.getByRole('checkbox').all()) await box.uncheck();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   await expect(page.getByText('≈ 0.428 SOL')).toHaveCount(0);
   await page.keyboard.press('Tab');
 });
@@ -246,7 +246,7 @@ test('PhoneResize_KeepsSelectionAndOnlyListScrolls', async ({ page }) => {
     await main.evaluate((element) => element.scrollHeight - element.clientHeight),
   ).toBeLessThanOrEqual(1);
   expect(await main.evaluate((element) => element.scrollTop)).toBe(0);
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeVisible();
 });
 
 test('PreviewMenu_AllFiveScreensWithoutAutomaticCompletion', async ({ page }) => {
@@ -257,8 +257,8 @@ test('PreviewMenu_AllFiveScreensWithoutAutomaticCompletion', async ({ page }) =>
   await expect(
     page.getByRole('navigation', { name: 'Station screens' }).getByRole('button'),
   ).toHaveCount(5);
-  await page.getByRole('button', { name: 'Очищення', exact: true }).click();
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'Cleanup', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByText('+0.428 SOL', { exact: true })).toBeVisible();
 });
 
@@ -267,25 +267,25 @@ test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }
   await mockDesktop(page, pricedWallet());
   await page.goto('/');
   await connect(page);
-  await page.getByRole('button', { name: 'ПРОФІЛЬ' }).click();
+  await page.getByRole('button', { name: 'PROFILE' }).click();
   await expect(page.getByText('1 SOL = $120.50')).toBeVisible();
   await expect(page.getByText('≈ $1,487.65')).toBeVisible();
   await page.getByRole('button', { name: 'Close dialog' }).click();
-  await page.getByRole('button', { name: 'ТРЮМИ' }).click();
+  await page.getByRole('button', { name: 'HOLDS' }).click();
   await expect(page.getByText('$1.23E-10')).toBeVisible();
   await expect(page.getByText('$1.0022')).toBeVisible();
   await expect(page.getByText('$10.02')).toBeVisible();
   await accessibility(page);
   await page.getByRole('button', { name: 'Close dialog' }).click();
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   await page.getByRole('checkbox', { name: /mint EPjFW/ }).uncheck();
-  await expect(page.getByText('ЗАЛИШИТИ', { exact: true })).toBeVisible();
-  await expect(page.getByText('МЕРТВИЙ')).toHaveCount(0);
+  await expect(page.getByText('KEEP', { exact: true })).toBeVisible();
+  await expect(page.getByText('DEAD')).toHaveCount(0);
   expect(
     await page.locator('main').evaluate((element) => element.scrollHeight - element.clientHeight),
   ).toBeLessThanOrEqual(1);
-  await page.getByRole('button', { name: 'ПРОФІЛЬ' }).click();
+  await page.getByRole('button', { name: 'PROFILE' }).click();
   await page.getByRole('button', { name: 'DISCONNECT WALLET' }).click();
   await expect(page.getByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
   const calls = (await page.evaluate(() => Reflect.get(window, '__ipcCalls'))) as {
@@ -333,7 +333,7 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
   await page.setViewportSize({ width: 360, height: 844 });
   await page.goto('/');
   await connect(page);
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByText('Some metadata unavailable.')).toBeVisible();
   const last = page.getByRole('checkbox', { name: 'Include Same name mint mint-149' });
   await last.scrollIntoViewIfNeeded();
@@ -343,11 +343,11 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
   expect(await page.locator('main').evaluate((el) => el.scrollTop)).toBe(0);
-  const cta = await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).boundingBox();
-  const nav = await page.getByRole('navigation', { name: 'Основна навігація' }).boundingBox();
+  const cta = await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).boundingBox();
+  const nav = await page.getByRole('navigation', { name: 'Main navigation' }).boundingBox();
   expect(cta!.y + cta!.height).toBeLessThanOrEqual(nav!.y);
-  await page.getByRole('button', { name: 'СТАНЦІЯ', exact: true }).click();
-  await page.getByRole('button', { name: 'ТРЮМИ' }).click();
+  await page.getByRole('button', { name: 'STATION', exact: true }).click();
+  await page.getByRole('button', { name: 'HOLDS' }).click();
   await expect(page.getByText('PRICE UNAVAILABLE')).toHaveCount(50);
   await page.getByRole('button', { name: 'NEXT', exact: true }).click();
   await expect(page.getByText('mint-50', { exact: true })).toBeVisible();
@@ -364,7 +364,7 @@ for (const width of [360, 430]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/');
     await connect(page);
-    await page.getByRole('button', { name: 'ТРЮМИ' }).click();
+    await page.getByRole('button', { name: 'HOLDS' }).click();
     await expect(page.getByText('$1.23E-10')).toBeVisible();
     await accessibility(page);
     await page.screenshot({
@@ -380,11 +380,11 @@ test('LiveHashes_CannotCreateScanOrCleanupResults', async ({ page }) => {
     location.hash = 'scanning';
   });
   await expect(page.getByRole('button', { name: 'CONNECT WALLET' })).toBeVisible();
-  await expect(page.getByText('ГАМАНЕЦЬ ПІДКЛЮЧЕНО', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('WALLET CONNECTED', { exact: true })).toHaveCount(0);
   await page.evaluate(() => {
     location.hash = 'success';
   });
-  await expect(page.getByText('ОЧИЩЕННЯ ЗАВЕРШЕНО', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('CLEANUP COMPLETE', { exact: true })).toHaveCount(0);
 });
 
 test('DesktopFailure_RetryShowsRealPendingStateThenActualSnapshot', async ({ page }) => {
@@ -418,8 +418,8 @@ test('DesktopFailure_RetryShowsRealPendingStateThenActualSnapshot', async ({ pag
   await page.screenshot({ path: '.cache/art-review/live-analysis-error.png' });
   await page.getByRole('button', { name: 'RETRY SCAN' }).click();
   await expect(page.getByRole('progressbar')).toHaveCount(0);
-  await expect(page.getByRole('status')).toContainText('ОТРИМУЄМО ДАНІ');
-  await expect(page.getByText('ЕТАП 3 ІЗ 5')).toHaveCount(0);
+  await expect(page.getByRole('status')).toContainText('FETCHING DATA');
+  await expect(page.getByText('STEP 3 OF 5')).toHaveCount(0);
   await page.evaluate(() => (Reflect.get(window, '__resolveAnalysis') as () => void)());
-  await expect(page.getByText('АНАЛІЗ ЗАВЕРШЕНО', { exact: true })).toBeVisible();
+  await expect(page.getByText('ANALYSIS COMPLETE', { exact: true })).toBeVisible();
 });

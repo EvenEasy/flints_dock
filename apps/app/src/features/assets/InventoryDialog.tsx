@@ -21,7 +21,7 @@ export function InventoryDialog({
   const category = view === 'tokens' ? analysis?.tokens : analysis?.allTokens;
   const tokens = category?.items;
   return (
-    <Dialog title="ТРЮМИ" onClose={onClose}>
+    <Dialog title="HOLDS" onClose={onClose}>
       <div className="view-tabs" aria-label="Token inventory view">
         {(['tokens', 'allTokens', 'nfts', 'cnfts'] as const).map((key) => (
           <button
@@ -153,11 +153,11 @@ export function InventoryDialog({
                 </li>
               ))}
               {analysis.cnfts.items.length === 0 && (
-                <li>Стиснених NFT не знайдено в отриманих сторінках.</li>
+                <li>No compressed NFTs found in the retrieved pages.</li>
               )}
             </ul>
           ) : (
-            <p>Перелік стиснених NFT недоступний.</p>
+            <p>Compressed NFT inventory is unavailable.</p>
           )}
         </>
       )}

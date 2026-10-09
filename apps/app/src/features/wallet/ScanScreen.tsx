@@ -5,11 +5,11 @@ import { ActionButton } from '../../shared/ui/ActionButton';
 import type { ReadError } from '../../shared/api/wallet';
 
 const steps = [
-  'Підключення гаманця',
-  'Завантаження активів',
-  'Перевірка токенів і NFT',
-  'Розрахунок доступного SOL',
-  'Підготовка результатів',
+  'Connecting wallet',
+  'Loading assets',
+  'Checking tokens and NFTs',
+  'Estimating reclaimable SOL',
+  'Preparing results',
 ];
 
 /** Preview reproduces stage three; live IPC is one pending snapshot, not five invented progress events. */
@@ -35,11 +35,11 @@ export function ScanScreen({
       <MechanicalPanel className="connected-status">
         <img src={designAsset('scan', 'wallet_outline_icon')} alt="" aria-hidden="true" />
         <span className="status-led status-led--connected" aria-hidden="true" />
-        <p>ГАМАНЕЦЬ ПІДКЛЮЧЕНО</p>
+        <p>WALLET CONNECTED</p>
       </MechanicalPanel>
       <MechanicalPanel className="scan-title">
         <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
-          {error ? 'АНАЛІЗ ПЕРЕРВАНО' : 'АНАЛІЗ ГАМАНЦЯ'}
+          {error ? 'ANALYSIS INTERRUPTED' : 'WALLET ANALYSIS'}
         </h1>
       </MechanicalPanel>
       <MechanicalPanel tone="cyan" className="scan-process">
@@ -60,29 +60,29 @@ export function ScanScreen({
           <>
             <h2 className="type-section" role="status">
               {preview
-                ? 'ЕТАП 3 ІЗ 5'
+                ? 'STEP 3 OF 5'
                 : progress
                   ? ({
-                      discovery: 'ЗАВАНТАЖЕННЯ АКТИВІВ',
-                      classification: 'ПЕРЕВІРКА АКТИВІВ',
-                      pricing: 'ОЦІНКА ВАРТОСТІ',
-                      'risk/routing/DAS': 'МАРШРУТИ ТА РИЗИК',
-                      completed: 'ГОТОВО',
-                    }[progress.stage] ?? 'ОТРИМУЄМО ДАНІ')
-                  : 'ОТРИМУЄМО ДАНІ'}
+                      discovery: 'LOADING ASSETS',
+                      classification: 'CHECKING ASSETS',
+                      pricing: 'ESTIMATING VALUE',
+                      'risk/routing/DAS': 'ROUTES AND RISK',
+                      completed: 'DONE',
+                    }[progress.stage] ?? 'FETCHING DATA')
+                  : 'FETCHING DATA'}
             </h2>
             {preview && (
               <div
                 className="stage-progress"
                 role="progressbar"
-                aria-label="Завершені етапи аналізу"
+                aria-label="Completed analysis stages"
                 aria-valuemin={0}
                 aria-valuemax={5}
                 aria-valuenow={preview ? 2 : undefined}
                 aria-valuetext={
                   preview
-                    ? 'Завершено 2 етапи з 5; виконується третій'
-                    : 'Очікуємо готовий результат аналізу'
+                    ? '2 of 5 stages complete; stage 3 in progress'
+                    : 'Waiting for analysis results'
                 }
               >
                 {steps.map((step, index) => (
@@ -129,12 +129,12 @@ export function ScanScreen({
                       <span>{step}</span>
                       <strong>
                         {state === 'complete'
-                          ? 'ГОТОВО'
+                          ? 'DONE'
                           : state === 'active'
-                            ? 'ВИКОНУЄТЬСЯ'
+                            ? 'IN PROGRESS'
                             : preview
-                              ? 'ОЧІКУЄ'
-                              : 'БЕЗ ДАНИХ ЕТАПУ'}
+                              ? 'PENDING'
+                              : 'NO STAGE DATA'}
                       </strong>
                     </li>
                   );
@@ -143,10 +143,10 @@ export function ScanScreen({
             )}
             {!preview && progress && (
               <p role="status" className="type-caption">
-                {progress.status} · {progress.completed} / {progress.total} етапів
+                {progress.status} · {progress.completed} / {progress.total} stages
               </p>
             )}
-            <p className="automatic-note">Результати відкриються автоматично</p>
+            <p className="automatic-note">Results will open automatically</p>
             {!preview && (
               <button className="text-button scan-dismiss" type="button" onClick={onDismiss}>
                 DISMISS SCAN

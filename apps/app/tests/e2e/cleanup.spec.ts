@@ -75,16 +75,16 @@ async function desktop(page: Page, partial = false) {
   await page.getByRole('button', { name: 'CONNECT WALLET' }).click();
   await page.getByLabel('SEED BASE64').fill('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
   await page.getByRole('button', { name: 'SCAN WALLET' }).click();
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByRole('checkbox')).toHaveCount(2);
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeEnabled();
 }
 
 test('Cleanup_AllUncheckedSendsExplicitNoneAndCannotExecute', async ({ page }) => {
   await desktop(page);
   await page.getByRole('checkbox', { name: `Include Same name mint ${address}` }).uncheck();
   await page.getByRole('checkbox', { name: `Include Same name mint ${secondMint}` }).uncheck();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   const calls = await page.evaluate(
     () =>
       Reflect.get(window, '__ipcCalls') as {
@@ -104,15 +104,15 @@ for (const viewport of [
   test(`Cleanup_ApprovedRealProgressAndExactNet_${viewport.width}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await desktop(page);
-    await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
-    await expect(page.getByRole('dialog')).toContainText('Цю дію неможливо скасувати');
-    await page.getByRole('button', { name: 'ПОГОДЖУЮ СВАП, BURN ТА CLOSE' }).click();
-    await expect(page.getByRole('heading', { name: 'ОЧИЩЕННЯ ГАМАНЦЯ' })).toBeVisible();
-    await expect(page.getByRole('status')).toContainText('1 / 2 акаунтів · Закриття');
+    await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
+    await expect(page.getByRole('dialog')).toContainText('This cannot be undone');
+    await page.getByRole('button', { name: 'APPROVE SWAP, BURN AND CLOSE' }).click();
+    await expect(page.getByRole('heading', { name: 'WALLET CLEANUP' })).toBeVisible();
+    await expect(page.getByRole('status')).toContainText('1 / 2 accounts · Closing');
     await page.screenshot({ path: `.cache/desktop-cleanup/processing-${viewport.width}.png` });
     await page.evaluate(() => Reflect.get(window, '__finishCleanup')());
     await expect(
-      page.getByRole('heading', { name: 'ОЧИЩЕННЯ ЗАВЕРШЕНО', exact: true }),
+      page.getByRole('heading', { name: 'CLEANUP COMPLETE', exact: true }),
     ).toBeVisible();
     await expect(page.locator('.returned-sol .exact-amount')).toHaveAttribute(
       'title',
@@ -140,11 +140,11 @@ for (const viewport of [
 }
 test('Cleanup_PartialAndMissingMetadataAreNeverFullSuccess', async ({ page }) => {
   await desktop(page, true);
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
-  await page.getByRole('button', { name: 'ПОГОДЖУЮ СВАП, BURN ТА CLOSE' }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'APPROVE SWAP, BURN AND CLOSE' }).click();
   await page.evaluate(() => Reflect.get(window, '__finishCleanup')());
-  await expect(page.getByRole('heading', { name: 'ОЧИЩЕННЯ ЧАСТКОВЕ' })).toBeVisible();
-  await expect(page.locator('.returned-sol')).toContainText('ОБЛІК НЕПОВНИЙ');
+  await expect(page.getByRole('heading', { name: 'PARTIAL CLEANUP' })).toBeVisible();
+  await expect(page.locator('.returned-sol')).toContainText('ACCOUNTING INCOMPLETE');
   await expect(page.locator('.returned-sol .exact-amount')).toHaveAttribute(
     'title',
     '-0.000005 SOL',

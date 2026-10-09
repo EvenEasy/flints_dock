@@ -84,7 +84,7 @@ for (const viewport of viewports) {
         await page.goto(`/?preview=1${mode === 'reference' ? '&layout=reference' : ''}#${screen}`);
         await page.evaluate(() => document.fonts.ready);
         expect(
-          await page.evaluate(() => document.fonts.check('800 22px "Dock Condensed"', 'ОЧИЩЕННЯ')),
+          await page.evaluate(() => document.fonts.check('800 22px "Dock Condensed"', 'CLEANUP')),
         ).toBe(true);
         await expect(
           page.locator('.hero-ring, .hero-portrait, .hero-badge, .scene-planet, .scene-ships'),
@@ -112,6 +112,26 @@ for (const viewport of viewports) {
               ),
           )
           .toBe(true);
+        // English copy and accessibility text must fit the existing slots without layout changes.
+        const copy = await page.evaluate(() => {
+          const root = document.querySelector('main')!;
+          const labels = [
+            ...root.querySelectorAll('[aria-label], [aria-valuetext], [title]'),
+          ].flatMap((element) =>
+            ['aria-label', 'aria-valuetext', 'title'].map((key) => element.getAttribute(key) ?? ''),
+          );
+          const overflow = [
+            ...root.querySelectorAll(
+              '.type-brand, .type-sector, .type-display, .type-screen, .tagline, .selection-count, .selection-estimate > p, .bottom-navigation button',
+            ),
+          ]
+            .filter((element) => element.getClientRects().length > 0)
+            .filter((element) => element.scrollWidth > element.clientWidth + 1)
+            .map((element) => element.textContent?.trim());
+          return { text: [root.textContent, ...labels].join(' '), overflow };
+        });
+        expect(copy.text).not.toMatch(/[А-Яа-яІіЇїЄєҐґ]/);
+        expect(copy.overflow, `${mode}/${screen}: English labels must fit`).toEqual([]);
         const measured = await geometry(page);
         if (mode === 'reference') {
           const canvas = await page.locator('.dock-screen').boundingBox();
@@ -205,7 +225,7 @@ async function mockSnapshot(page: Page, snapshot: ReturnType<typeof wallet>) {
   await page.getByRole('radio', { name: 'Public key (read only)' }).check();
   await page.getByRole('textbox', { name: 'WALLET PUBLIC KEY' }).fill(address);
   await page.getByRole('button', { name: 'SCAN WALLET' }).click();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeVisible();
 }
 
 test('LongExactValuesAndNames_WrapWithoutLossOrOverlap', async ({ page }) => {
@@ -227,17 +247,17 @@ test('LongExactValuesAndNames_WrapWithoutLossOrOverlap', async ({ page }) => {
   const summaryBox = await page.locator('.scan-summary').boundingBox();
   expect(amountBox!.x + amountBox!.width).toBeLessThanOrEqual(summaryBox!.x + summaryBox!.width);
   if (stationBox) expect(amountBox!.x + amountBox!.width).toBeLessThanOrEqual(stationBox.x + 1);
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.locator('.asset-identity > strong')).toHaveText(asset.metadata.name!);
   await expect(page.locator('.asset-identity')).toHaveAttribute('title', asset.mint);
-  await expect(page.getByText('МЕРТВИЙ', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('НЕ ОЦІНЕНО', { exact: true })).toHaveCount(2);
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
+  await expect(page.getByText('DEAD', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('NOT ESTIMATED', { exact: true })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   expect(await page.locator('.asset-row').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
     true,
   );
   await page.getByRole('checkbox').uncheck();
-  await expect(page.getByText('ЗАЛИШИТИ', { exact: true })).toBeVisible();
+  await expect(page.getByText('KEEP', { exact: true })).toBeVisible();
   expect(
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
@@ -247,18 +267,18 @@ test('LongExactValuesAndNames_WrapWithoutLossOrOverlap', async ({ page }) => {
 test('EmptyInventory_IsDistinctFromUnavailableEstimate', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mockSnapshot(page, wallet({ tokens: { status: { status: 'complete' }, items: [] } }));
-  await page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByRole('checkbox')).toHaveCount(0);
   await expect(page.getByText('No token assets found in this category.')).toBeVisible();
-  await expect(page.getByText('НЕ ОЦІНЕНО', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'ПОВЕРНУТИ SOL', exact: true })).toBeDisabled();
+  await expect(page.getByText('NOT ESTIMATED', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   expect(
     await page.locator('main').evaluate((el) => el.scrollHeight - el.clientHeight),
   ).toBeLessThanOrEqual(1);
   await page.screenshot({ path: '.cache/art-review/live-empty.png' });
 });
 
-test('LocalCyrillicFont_LoadingPreservesBrandAndNavigationSlots', async ({ page }) => {
+test('LocalEnglishFont_LoadingPreservesBrandAndNavigationSlots', async ({ page }) => {
   let release!: () => void;
   const pending = new Promise<void>((resolve) => {
     release = resolve;
@@ -290,7 +310,7 @@ test('LocalCyrillicFont_LoadingPreservesBrandAndNavigationSlots', async ({ page 
     await page.locator('.type-sector').evaluate((el) => el.scrollWidth <= el.clientWidth),
   ).toBe(true);
   expect(
-    await page.evaluate(() => document.fonts.check('800 22px "Dock Condensed"', 'ЧИСТИМО ТРЮМИ')),
+    await page.evaluate(() => document.fonts.check('800 22px "Dock Condensed"', 'CLEAR THE HOLDS')),
   ).toBe(true);
 });
 

@@ -49,19 +49,19 @@ export function CleanupScreen({
       <MascotHero variant="corner" />
       <header className="cleanup-header">
         <h1 className="type-screen" id="screen-heading" tabIndex={-1}>
-          ОЧИЩЕННЯ
+          CLEANUP
         </h1>
-        <p>Зніми галочку з активів, які хочеш залишити.</p>
+        <p>Uncheck the assets you want to keep.</p>
       </header>
       <MechanicalPanel className="asset-manifest">
         <h2 className="manifest-columns">
-          <span>АКТИВ</span>
-          <span>ВАРТІСТЬ В SOL</span>
+          <span>ASSET</span>
+          <span>VALUE IN SOL</span>
         </h2>
         {!preview && (
           <CategoryNotice status={analysis?.tokens?.status ?? analysis?.allTokens?.status} />
         )}
-        <ul className="asset-list" aria-label="Активи для очищення">
+        <ul className="asset-list" aria-label="Assets to clean up">
           {preview
             ? previewAssets.map((asset) => (
                 <AssetRow
@@ -93,14 +93,14 @@ export function CleanupScreen({
                           return estimate > 0n
                             ? `${lamportsToSol(estimate.toString())} SOL`
                             : entries.some((entry) => entry.action === 'burn')
-                              ? 'СПАЛИТИ'
+                              ? 'BURN'
                               : entries.some((entry) => entry.action === 'close')
-                                ? 'ЗАКРИТИ'
-                                : 'ПРОПУСТИТИ';
+                                ? 'CLOSE'
+                                : 'SKIP';
                         })()
                       : preparing
-                        ? 'ПЛАНУЄМО'
-                        : 'НЕ ОЦІНЕНО'
+                        ? 'PLANNING'
+                        : 'NOT ESTIMATED'
                   }
                   selected={!ignoredMints.has(asset.mint)}
                   onToggle={() => onToggleMint(asset.mint)}
@@ -117,13 +117,13 @@ export function CleanupScreen({
       </MechanicalPanel>
       <MechanicalPanel className="selection-summary">
         <p className="selection-count">
-          ВИБРАНО:{' '}
+          SELECTED:{' '}
           <strong>
-            {selectedCount} {selectedCount === 4 ? 'АКТИВИ' : 'АКТИВІВ'}
+            {selectedCount} {selectedCount === 1 ? 'ASSET' : 'ASSETS'}
           </strong>
         </p>
         <div className="selection-estimate">
-          <p>ОРІЄНТОВНЕ ПОВЕРНЕННЯ</p>
+          <p>ESTIMATED RETURN</p>
           <strong>
             {preview
               ? selectedCount === 0
@@ -131,7 +131,7 @@ export function CleanupScreen({
                 : '≈ 0.428 SOL'
               : plan
                 ? `≈ ${lamportsToSol((BigInt(plan.estimatedSwapLamports) + BigInt(plan.estimatedReclaimedLamports)).toString())} SOL`
-                : 'НЕ ОЦІНЕНО'}
+                : 'NOT ESTIMATED'}
           </strong>
         </div>
       </MechanicalPanel>
@@ -141,28 +141,28 @@ export function CleanupScreen({
             <Notice tone="red" alert>
               {error}
               <button className="text-button" type="button" onClick={onRetry}>
-                ОНОВИТИ ПЛАН
+                REFRESH PLAN
               </button>
             </Notice>
           ) : preparing ? (
             planningProgress ? (
-              `${planningProgress.completed} / ${planningProgress.total} · ${planningProgress.stage === 'planning' ? 'Планування' : 'Аналіз акаунтів'}`
+              `${planningProgress.completed} / ${planningProgress.total} · ${planningProgress.stage === 'planning' ? 'Planning' : 'Checking accounts'}`
             ) : (
-              'Перевіряємо маршрути та акаунти…'
+              'Checking routes and accounts…'
             )
           ) : !canSign ? (
-            'Гаманець лише для читання. Для виконання підключи seed або keypair.'
+            'Read-only wallet. Connect a seed or keypair to run cleanup.'
           ) : plan ? (
-            `Свап: ${plan.swapCount} · Спалити: ${plan.burnCount} · Закрити: ${plan.closeCount}. Оцінка до комісій.`
+            `Swap: ${plan.swapCount} · Burn: ${plan.burnCount} · Close: ${plan.closeCount}. Estimate before fees.`
           ) : (
-            'Підготуємо актуальний план перед виконанням.'
+            'A fresh plan is required before cleanup.'
           )}
         </div>
       )}
       <RecoverButton
         disabled={selectedCount === 0 || (!preview && (preparing || !plan?.canExecute || !canSign))}
         onClick={preview ? onPreviewComplete : onExecute}
-        aria-label="ПОВЕРНУТИ SOL"
+        aria-label="RECOVER SOL"
       />
     </div>
   );

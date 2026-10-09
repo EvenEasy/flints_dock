@@ -30,7 +30,7 @@ export function MenuDialog({
   onDisconnect: () => void;
 }) {
   return (
-    <Dialog title={preview ? 'DESIGN PREVIEW' : 'ПРОФІЛЬ ГАМАНЦЯ'} onClose={onClose}>
+    <Dialog title={preview ? 'DESIGN PREVIEW' : 'WALLET PROFILE'} onClose={onClose}>
       {preview ? (
         <>
           <p className="dialog-copy">
