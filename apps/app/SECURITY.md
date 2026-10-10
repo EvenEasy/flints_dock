@@ -1,16 +1,31 @@
-# Frontend security boundaries
+# Межі доступу та дані гаманця
 
-- Local `main` webview capabilities allow only the app's `analyze_wallet`, `connect_wallet`, and `disconnect_wallet` commands. Untrusted remote origins and other windows cannot call them. Desktop detection and frontend validation are UX; Rust validation and Tauri capabilities enforce access.
-- Seed input exists only in desktop mode. It is a password field with autocomplete disabled, is sent once to Rust, and clears after submission or source change. Strings briefly exist in webview/IPC memory; clearing a field is not guaranteed cryptographic memory erasure. Use a local keypair path to keep file contents entirely outside the frontend.
-- Rust reuses the core seed/keypair loaders. It validates the identity source, requires an absolute regular keypair file of at most 4096 bytes, and never returns signer bytes. Credential-bearing request types do not implement Debug or Serialize; parse/loader errors are sanitized rather than echoing supplied values. The signer is retained only in backend memory and dropped on disconnect, replacement, or app exit.
-- USD pricing uses the existing Rust Jupiter client and mint-based batching. React receives only unit prices, backend holding values, and bounded pricing status. Keyless access sends no authentication header; configured keys retain the existing sensitive-header handling. Provider URLs are fixed by the core and frontend inputs cannot redirect the price client.
-- No wallet secret persistence, local/session storage, analytics, or credential logging is implemented. Public addresses and per-mint preferences stay in frontend component memory. RPC credentials and Jupiter keys remain backend configuration, never frontend environment variables or command arguments.
-- Connecting does not authorize transactions. No swap, burn, close, or cleanup execution command has been exposed. Read-only analysis receives only a public address, categories, and price preference. Reference preview cannot submit transactions; entering it releases a known active wallet session.
-- Backend metadata/reasons/errors render as escaped React text. No HTML injection, eval, arbitrary metadata/image fetching, or raw diagnostic serialization to the UI exists. Displayed errors are bounded.
-- CSP restricts assets/scripts to local sources and IPC connections. Development adds local Vite refresh/WebSocket allowances. Existing backend production CSP is retained; the new identity capabilities are restricted to the local main webview.
-- Vite dev/preview bind to 127.0.0.1, deny framing, disallow MIME sniffing and camera/mic/geolocation/payment, and suppress referrers. A separately deployed static web host must reproduce these headers.
-- Launch arguments are display preferences only, with numeric width validation. Child processes receive argv arrays without shell evaluation.
-- Dependencies remain pinned and lockfile-backed; no new package was introduced. Run dependency audits regularly. Previous audit results do not guarantee future vulnerability status.
-- Archive extraction preserved path/symlink/size checks and the font license. Production imports omit unused reference boards and SVG duplicates.
+Актуально для коду після `e013ea9`. React відображає результати та надсилає типізовані запити; Rust зберігає signer, перевіряє дані й виконує blockchain-операції.
 
-Future execution must revalidate ownership, mint/account identity, balance, ignored mints, fresh quotes, simulation results, and explicit approval in Rust. A connected signer and frontend switches must never replace backend transaction authorization. See `BACKEND_GAPS.md`.
+## IPC та локальна сесія
+
+Лише локальний webview `main` має capability для шести зареєстрованих команд: `connect_wallet`, `disconnect_wallet`, `analyze_wallet`, `prepare_cleanup`, `execute_cleanup`, `get_cleanup_job`. Інші вікна та remote origins не отримують цей доступ. Перевірка desktop runtime у React допомагає користувачеві; фактичні обмеження забезпечують Tauri та Rust.
+
+Підключення підтримує публічну адресу, base64 від рівно 32 байтів Ed25519 seed або абсолютний шлях до локального Solana JSON keypair. Rust читає keypair самостійно; вміст файла не потрапляє у React. Для файла перевіряються тип, абсолютний шлях і розмір до 4096 байтів. Seed надсилається один раз, після чого поле очищується. Очищення поля не гарантує криптографічного стирання пам'яті webview.
+
+Frontend отримує тільки публічну адресу, `sessionId`, `sourceKind` та `canSign`. Signer залишається в Rust і звільняється після disconnect, заміни неактивної сесії або завершення app. Під час активного cleanup зміна сесії та disconnect відхиляються.
+
+## Читання та виконання
+
+`analyze_wallet` приймає публічну адресу, scan selection та `noPrices`. Scan не підписує й не надсилає транзакцій. Public-key session може переглядати read-only cleanup plan, але не може виконувати його. Design preview використовує демонстраційні дані та не виконує blockchain-операцій.
+
+`prepare_cleanup` створює незмінний план у Rust, прив'язаний до сесії, гаманця, мережі та revision. `execute_cleanup` приймає ID цього плану й погодження дій; він не приймає транзакцій, інструкцій чи довільного signer від React. Rust перевіряє термін дії, selection, ownership, amounts, authorities, restrictions і актуальні provider/proof дані. Виконання послідовне, із simulation, preflight та confirmation. Підключення гаманця саме по собі не погоджує виконання; кнопка **RECOVER SOL** на екрані плану погоджує показані Swap/Burn/Close дії.
+
+Provider failure, відсутня ціна або невідома мережа не перетворюються на `NoRoute`. Категорія SCAM/DUST/DEAD TOKEN/NFT сама по собі не дозволяє burn. Після невизначеного send результату відновлення перевіряє вже збережену signature, а не повторює транзакцію.
+
+## Зберігання та зовнішні дані
+
+Secrets не записуються у browser storage, аналітику, DTO або signature journal. Налаштування RPC, Jupiter та DAS надходять із backend environment, без `VITE_*`. Provider endpoint не задається через frontend IPC. Devnet не використовує mainnet market/risk/routing records.
+
+Journal зберігає публічні signatures, wallet/network, account, operation, expiry та відомі transaction deltas. OS file lock захищає одночасний доступ. Повні плани, jobs і frontend session живуть у пам'яті; restart не відновлює старий UI report. [Cleanup guide](../../docs/cleanup.md) описує reconciliation та обмеження.
+
+Metadata, reasons та errors відображаються як escaped React text. Довільний HTML і remote artwork/metadata не завантажуються. RPC/provider diagnostics обмежені й не повинні містити credentials. Точні on-chain суми передаються рядками; USD valuations — приблизні числа.
+
+CSP обмежує production assets/scripts локальними джерелами та IPC. Vite dev/preview слухають loopback, забороняють framing і додають заголовки безпеки; development дозволяє потрібні локальні HMR/WebSocket connections. Remote inspector використовується лише локально для документованих перевірок.
+
+Залежності закріплені manifests і lockfiles. Результати dependency audit та native перевірок мають дату й не є гарантією для наступних версій. Поточні виконані перевірки й точний scope наведені у [звіті](../../docs/current-verification.md); чинні функції та обмеження — у [BACKEND_GAPS.md](BACKEND_GAPS.md).

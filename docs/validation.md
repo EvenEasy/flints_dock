@@ -1,5 +1,11 @@
 # Validation
 
+> Historical verification from 2026-10-05 and earlier. For the current React/Tauri
+> application, category counters, devnet scan and executed checks use
+> [current verification](current-verification.md) and the
+> [screenshot gallery](screenshots/README.md). The statements below about a
+> read-only adapter and an uninitialized frontend describe the earlier commit.
+
 ## Workspace / read-only desktop adapter — 2026-10-05
 
 ```text

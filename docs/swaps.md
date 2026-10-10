@@ -1,6 +1,11 @@
 # Single-token swaps to native SOL
 
-`dock_flints quote` and `dock_flints swap` use Jupiter's current [Swap V2 Router `/build` API](https://github.com/jup-ag/docs/blob/main/swap/build/index.mdx), which returns a quote and raw instructions together. This path uses Jupiter's Metis routing and supports submission through the application's existing Solana RPC client. It does not use the managed `/order` + `/execute` flow or implement its own DEX routing. [Official API schema](https://github.com/jup-ag/docs/blob/main/openapi-spec/swap/v2/swap.yaml).
+`dock_flints quote` and `dock_flints swap` implement Jupiter's [Swap V2 Router `/build` API](https://github.com/jup-ag/docs/blob/main/swap/build/index.mdx), which returns a quote and raw instructions together. This path uses Jupiter's Metis routing and supports submission through the application's existing Solana RPC client. It does not use the managed `/order` + `/execute` flow or implement its own DEX routing. [Official API schema](https://github.com/jup-ag/docs/blob/main/openapi-spec/swap/v2/swap.yaml).
+
+Запуск і повний перелік CLI commands: [getting started](getting-started.md),
+[CLI guide](cli-guide.md). Поточні виконані перевірки — у
+[current verification](current-verification.md). Приклади нижче стосуються
+**mainnet**; вони не є devnet wallet verification.
 
 ## Commands
 
@@ -15,6 +20,11 @@ cargo run -- quote \
 
 For this USDC mint, `1000000` means 1 USDC. Amounts are always raw `u64` units, never UI floats. The public taker address is required by `/build`. Preview requires no private key, does not require holding the amount, and makes no transaction submission.
 
+The standalone `quote` command has no `--rpc-url`: it only calls the mainnet
+Jupiter build provider. The standalone `swap` accepts an RPC URL for holdings and
+execution; unlike complete cleanup/Tauri analysis, this path does not verify
+`getGenesisHash` before the provider request. Use a mainnet RPC for this workflow.
+
 Execute one swap from a local Solana CLI JSON keypair:
 
 ```bash
@@ -28,7 +38,7 @@ cargo run -- swap \
 
 Every command accepts exactly one wallet identity: `--pubkey`, `--keypair` or `--seed`. Quotes can use all three; execution requires keypair or a base64 32-byte Ed25519 seed. Execution derives the wallet public key locally. It displays a preview and asks for `y`/`yes`; any other answer cancels. `--yes` explicitly approves the preview minimum for noninteractive use. With `--format json`, preview and confirmation prompts go to stderr, and stdout contains one final JSON result. Scanner flags remain separate and continue working as before.
 
-The shared client uses `JUPITER_API_KEY` when set. The client can omit this header, but keyless endpoint availability is provider-controlled; configure a key for reliable mainnet access. Authentication/rate-limit errors remain explicit. Files such as `.env` are not loaded automatically. Existing Price V3 configuration remains unchanged. No price lookup is required to obtain a swap quote: an unpriced token may have a valid route.
+The swap client uses `JUPITER_API_KEY` when set. It can attempt requests without this header, but keyless endpoint availability is provider-controlled. Authentication/rate-limit errors remain explicit. Files such as `.env` are not loaded automatically. No price lookup is required to obtain a swap quote: an unpriced token may have a valid route. This differs from standalone CLI scan pricing, which initializes a price provider only when a nonempty key is configured and the RPC is verified mainnet.
 
 ## Execution guarantees
 
@@ -45,20 +55,24 @@ Quote output includes exact expected/minimum SOL, raw lamport strings, percent p
 
 ## Limits and scope
 
-| Option / rule | Default |
-| --- | --- |
-| Slippage | 50 bps (0.5%) |
-| Maximum absolute price impact | 100 bps (1%) |
-| Maximum quote age, measured from request start | 30 seconds |
-| Maximum priority fee | 1,000,000 lamports; `--max-priority-fee-lamports` |
-| Confirmation timeout | 90 seconds; `--confirmation-timeout-seconds` |
-| RPC request timeout | 30 seconds; `--timeout-seconds` |
+| Option / rule                                  | Default                                           |
+| ---------------------------------------------- | ------------------------------------------------- |
+| Slippage                                       | 50 bps (0.5%)                                     |
+| Maximum absolute price impact                  | 100 bps (1%)                                      |
+| Maximum quote age, measured from request start | 30 seconds                                        |
+| Maximum priority fee                           | 1,000,000 lamports; `--max-priority-fee-lamports` |
+| Confirmation timeout                           | 90 seconds; `--confirmation-timeout-seconds`      |
+| RPC request timeout                            | 30 seconds; `--timeout-seconds`                   |
 
 These swaps target mainnet liquidity; use a mainnet RPC. The wallet needs native SOL for fees and any required account creation. Jupiter uses its default input token-account selection; the standalone swap command does not consolidate balances from auxiliary token accounts. Simulation can reject an amount even if aggregate wallet holdings are sufficient but the usable input account is short. Token-2022 routes depend on Jupiter/AMM support for that mint's extensions.
 
 After an uncertain result, check the reported signature before retrying. No automatic new-transaction retry is performed. This standalone swap command does not perform batch liquidation, NFT liquidation, custom routing or unrelated account cleanup. The separate [cleanup command](cleanup.md) adds sequential account-scoped swaps, approved burns and empty-account closes.
 
-## Validation (2026-10-01)
+## Historical validation (2026-10-01)
+
+The following records the earlier implementation report. It is not evidence that
+the live Jupiter request was repeated during the current documentation update.
+See [current verification](current-verification.md) for this update's actual runs.
 
 - Existing scan tests remain intact.
 - Mock HTTP tests exercise real client requests, exact mint/amount/native-SOL parameters, shared authentication/keyless access, no-route errors and an unpriced token that still has a route.

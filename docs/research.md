@@ -1,5 +1,10 @@
 # Implementation research
 
+> Historical implementation research. Current setup, desktop capabilities and
+> verification are indexed in [the documentation guide](README.md).
+> Desktop analysis now supports a configured network-scoped DAS provider; the
+> RPC-only index limitation below still applies to standalone CLI `scan`.
+
 Reviewed 2026-09-24 against the repository's installed sources and lockfile. Existing working owner queries and Core filters were reused. No Solana/Metaplex upgrade was required. The unused `solana-sdk` umbrella dependency was removed; this prunes unused lockfile packages. Direct serde/JSON/HTTP/account dependencies already existed transitively. Test-only base64, Borsh 0.10 and async-trait dependencies also use existing compatible versions.
 
 ## Crate boundaries

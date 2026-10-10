@@ -108,27 +108,28 @@ that mint. Selection persists when moving between station and cleanup. Asset nam
 and symbols never determine identity. Available token inventories are merged by
 mint for presentation without inventing prices, liquidity, or risk classifications.
 
-The desktop API currently returns a completed analysis snapshot, not step events.
-The live scan shows pending work without stage numbers or percentage progress.
-It opens the station only when an actual snapshot arrives, including partial
-results. Empty, unavailable, skipped, and failed results remain distinguishable.
-The five-step stage-three view belongs to preview and never advances on a timer.
+The desktop API returns a completed analysis snapshot and optional typed progress
+events from actual core stages. The live scan uses these events without inventing
+stage timing. It opens the station only when an actual snapshot arrives, including
+partial results. Empty, unavailable, skipped, and failed results remain distinct.
+The fixed five-step stage-three view belongs to design preview.
 
 ## Backend and media limitations
 
-The unchanged desktop contract does **not** expose:
+The desktop contract exposes stored cleanup plans, approved sequential execution,
+typed progress, recovery and confirmed reports. The UI displays Rust-owned
+Swap/Burn/Close actions; execution requires a signing session and a valid plan.
+Separate hangar/swaps and missions pages remain unavailable.
 
-- a cleanup plan with route-backed SOL estimates and eligibility assessments;
-- token-to-SOL swap quotes or transaction execution;
-- cleanup execution results or incremental scan/cleanup progress;
-- mission data or a functioning swap/hangar flow.
-
-Real cleanup therefore retains local selection, displays unvalued SOL slots, and
-disables execution. No token is called dead merely because its Jupiter USD price
-is missing. The main screen displays actual token-account counts and potential
-rent assessments; SCAM/DUST/DEAD TOKEN counts remain unavailable until supplied by
-the backend. The cNFT owner's historical index requirement remains visible.
-No NFT cleanup or account closure is implemented by this frontend.
+All four category tiles use the same numeric style and display only a real count
+or `—`. A complete empty result displays `0`; a partial result with confirmed
+unique items displays the observed count, explained as a lower bound in the title,
+accessible description and category details. Partial empty or unavailable results
+display `—`. One normalization path supplies both tile and detail items, including
+a deduplicated legacy Classic/Core/compressed NFT fallback when category results
+are absent. Missing DAS cannot prove total NFT zero or hide known Classic/Core.
+Missing prices never classify a token as dead. Devnet does not use mainnet prices,
+risk records or routes. Category membership does not authorize cleanup.
 
 Only the explicit preview uses XML sample counts, SOL amounts, dead badges, and
 completion. Its `≈ 0.428 SOL` estimate remains the literal reference value while
@@ -161,4 +162,7 @@ anchors, navigation height/icon sizes/type, local Cyrillic font loading, a maxim
 u64 lamport value, long names/quantities and empty/unvalued inventory. Measurements
 and screenshots are written to `.cache/art-review/`.
 
-Selected screenshots and verification scope are retained in [the visual review](docs/visual-review.md).
+Current screenshots, provenance and reproduction commands are in the
+[documentation gallery](../../docs/screenshots/README.md), and executed checks are
+in [current verification](../../docs/current-verification.md). The
+[earlier visual review](docs/visual-review.md) records its historical scope.

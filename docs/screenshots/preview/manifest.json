@@ -1,0 +1,177 @@
+{
+  "mode": "browser-design-preview",
+  "walletResults": false,
+  "transactionsSubmitted": 0,
+  "sampleAmounts": true,
+  "capturedAt": "2026-10-10T13:11:00.512Z",
+  "sourceRevision": "e013ea9e8b93f3ffc1a90c0890d0ce72e5686e06",
+  "browserVersion": "153.0.8010.12",
+  "captures": [
+    {
+      "filename": "welcome.png",
+      "screen": "welcome",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#welcome",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "scanning.png",
+      "screen": "scanning",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#scanning",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "main.png",
+      "screen": "main",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#main",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [
+        "42",
+        "24",
+        "53",
+        "23"
+      ],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "cleanup.png",
+      "screen": "cleanup",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#cleanup",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "processing.png",
+      "screen": "processing",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#processing",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "success.png",
+      "screen": "success",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=430#success",
+      "viewport": [
+        430,
+        931
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "welcome-360.png",
+      "screen": "welcome",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#welcome",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "scanning-360.png",
+      "screen": "scanning",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#scanning",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "main-360.png",
+      "screen": "main",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#main",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [
+        "42",
+        "24",
+        "53",
+        "23"
+      ],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "cleanup-360.png",
+      "screen": "cleanup",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#cleanup",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "processing-360.png",
+      "screen": "processing",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#processing",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    },
+    {
+      "filename": "success-360.png",
+      "screen": "success",
+      "url": "http://127.0.0.1:1420/?preview=1&backdrop=0&width=360#success",
+      "viewport": [
+        360,
+        779
+      ],
+      "dpr": 2,
+      "origin": "http://127.0.0.1:1420",
+      "numericFields": [],
+      "horizontalOverflow": 0
+    }
+  ]
+}

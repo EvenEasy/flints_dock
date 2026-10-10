@@ -1,6 +1,10 @@
 # Visual verification
 
-This report describes the current desktop-cleanup implementation. For native
+> This is the earlier visual-review record. The current screenshot set, including
+> its preview/live provenance, is in the [documentation gallery](../../../docs/screenshots/README.md).
+> Current executed checks are in [current verification](../../../docs/current-verification.md).
+
+This report describes the desktop-cleanup implementation at that review. For native
 runtime diagnosis, executed checks and limits see
 [desktop verification](desktop-verification.md).
 

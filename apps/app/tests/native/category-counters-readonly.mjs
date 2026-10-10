@@ -2,9 +2,12 @@
 // Run with WEBKIT_INSPECTOR_HTTP_SERVER=127.0.0.1:19223 and devnet RPC configured.
 // This harness uses only public-key connection and scan commands, never cleanup.
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 
-const owner = '9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv';
+// Accept a public address only. Never pass a wallet file or signing material.
+const owner = process.env.DOCK_NATIVE_OWNER ?? '9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv';
+assert.match(owner, /^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
 const endpoint = process.env.DOCK_NATIVE_INSPECTOR ?? 'http://127.0.0.1:19223';
 const output = process.env.DOCK_NATIVE_REPORT ?? '/tmp/flints-category-native';
 const keys = ['scam', 'nft', 'dust', 'dead_token'];
@@ -81,6 +84,15 @@ async function click(label) {
   );
 }
 async function screenshot(name) {
+  await until(
+    () =>
+      evaluate(
+        "document.fonts.status==='loaded'&&[...document.images].filter(i=>i.getClientRects().length>0).every(i=>i.complete&&i.naturalWidth>0)",
+      ),
+    `screenshot assets: ${name}`,
+    20_000,
+  );
+  await pause(100);
   const viewport = await evaluate('({width:innerWidth,height:innerHeight})');
   const result = await command('Page.snapshotRect', {
     x: 0,
@@ -93,9 +105,11 @@ async function screenshot(name) {
 try {
   if (process.env.DOCK_NATIVE_REUSE_SCAN !== '1') {
     await until(() => evaluate("Boolean(document.querySelector('.page--welcome'))"), 'welcome');
+    await evaluate('document.fonts.ready.then(()=>true)');
+    await screenshot('welcome');
     // Wrap the authentic registered IPC function to capture its DTO; never replace its results.
     await evaluate(
-      `(()=>{const invoke=window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);window.__nativeCategoryAudit={calls:[],analysis:null};window.__TAURI_INTERNALS__.invoke=async(command,payload,options)=>{if(!['connect_wallet','analyze_wallet'].includes(command))throw Error('Unexpected command in scan-only audit: '+command);window.__nativeCategoryAudit.calls.push({command,payload});const result=await invoke(command,payload,options);if(command==='analyze_wallet')window.__nativeCategoryAudit.analysis=result;return result};return true})()`,
+      `(()=>{const invoke=window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);window.__nativeCategoryAudit={calls:[],connection:null,analysis:null};window.__TAURI_INTERNALS__.invoke=async(command,payload,options)=>{if(!['connect_wallet','analyze_wallet'].includes(command))throw Error('Unexpected command in scan-only audit: '+command);window.__nativeCategoryAudit.calls.push({command,payload});const result=await invoke(command,payload,options);if(command==='connect_wallet')window.__nativeCategoryAudit.connection=result;if(command==='analyze_wallet')window.__nativeCategoryAudit.analysis=result;return result};return true})()`,
     );
     await click('CONNECT WALLET');
     await until(
@@ -107,7 +121,11 @@ try {
     await evaluate(
       `(()=>{const input=document.getElementById('wallet-identity');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,${JSON.stringify(owner)});input.dispatchEvent(new Event('input',{bubbles:true}));return true})()`,
     );
+    await pause(100);
+    await screenshot('connect-public-key');
     await click('SCAN WALLET');
+    await until(() => evaluate("Boolean(document.querySelector('.page--scan'))"), 'scan screen');
+    await screenshot('scanning');
   }
   await until(async () => {
     const state = await evaluate(
@@ -124,6 +142,8 @@ try {
     ['connect_wallet', 'analyze_wallet'],
   );
   assert.equal(raw.calls[0].payload.request.source.kind, 'publicKey');
+  assert.equal(raw.connection.walletAddress, owner);
+  assert.equal(raw.connection.canSign, false);
   const runtime = await evaluate(
     `({userAgent:navigator.userAgent,dpr:devicePixelRatio,viewport:[innerWidth,innerHeight],origin:location.origin,fontReady:document.fonts.status,mainOverflow:document.querySelector('main').scrollHeight-document.querySelector('main').clientHeight,counters:[...document.querySelectorAll('.category-card')].map(card=>{const number=card.querySelector('.type-numeric--count');const style=getComputedStyle(number);const rect=number.getBoundingClientRect();return {key:card.className.match(/category-card--(\\w+)/)[1],text:number.textContent,ariaLabel:card.getAttribute('aria-label'),font:style.font,lineHeight:style.lineHeight,textAlign:style.textAlign,height:rect.height,overflow:number.scrollWidth-number.clientWidth,tile:{width:card.clientWidth,height:card.clientHeight}}})})`,
   );
@@ -172,9 +192,23 @@ try {
     await screenshot(`${key}-details`);
     await evaluate('document.querySelector(\'button[aria-label="Close dialog"]\').click();true');
   }
+  await click('HOLDS');
+  await until(() => evaluate("Boolean(document.querySelector('dialog[open]'))"), 'inventory');
+  await screenshot('inventory-tokens');
+  await click('ALL ACCOUNTS');
+  await screenshot('inventory-all-accounts');
+  await click('NFT / CORE');
+  await screenshot('inventory-nft-core');
+  await click('cNFT');
+  await screenshot('inventory-compressed-nft');
+  await evaluate('document.querySelector(\'button[aria-label="Close dialog"]\').click();true');
+  await click('PROFILE');
+  await until(() => evaluate("Boolean(document.querySelector('dialog[open]'))"), 'wallet profile');
+  await screenshot('profile');
+  await evaluate('document.querySelector(\'button[aria-label="Close dialog"]\').click();true');
   await writeFile(
     `${output}/audit.json`,
-    `${JSON.stringify({ owner, transactionsSubmitted: 0, authenticRegisteredIpc: true, raw, runtime, details }, null, 2)}\n`,
+    `${JSON.stringify({ owner, capturedAt: new Date().toISOString(), sourceRevision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), mode: 'native-live-devnet-readonly', transactionsSubmitted: 0, authenticRegisteredIpc: true, raw, runtime, details }, null, 2)}\n`,
   );
   console.log(
     JSON.stringify({

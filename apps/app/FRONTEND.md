@@ -1,98 +1,171 @@
-# Flint’s Dock frontend
+# React frontend Flint’s Dock
 
-React + TypeScript + Vite presentation layer for the Tauri application. All changes live in `apps/app`. The original `README.md` is unchanged. The authorized backend/contract extension adds local wallet identity commands, reusing the existing core loaders and scanner.
+Frontend — React + TypeScript + Vite всередині Tauri 2. Робочий desktop має
+підключення локального wallet, read-only analysis, категорії, підготовку cleanup,
+виконання погодженого плану та звіт. Бізнес-правила, RPC, провайдери, signer і
+транзакції належать Rust. Це опис поточного коду; результати конкретних запусків
+дивіться в [актуальному звіті](../../docs/current-verification.md).
 
-## Run
+## Запуск
 
-Requires Node 22.22.2+, 24.15.0+, or 26+ and existing Rust/Tauri desktop prerequisites.
+Версії Node беріть з [`package.json`](package.json): `^22.22.2`, `^24.15.0` або
+`>=26.0.0`. Для desktop потрібні Rust та системні бібліотеки Tauri;
+[початок роботи](../../docs/getting-started.md) описує підготовку середовища.
 
 ```sh
 cd apps/app
-npm ci --ignore-scripts
-npm run desktop
-```
+npm ci
 
-The desktop command starts Vite automatically. Stop a separately running `npm run dev` first: desktop development intentionally uses port 1420. RPC/Jupiter settings remain backend configuration; consult the original README. Never put credentials or provider keys in frontend environment variables.
+# Живий frontend + Rust; Vite стартує автоматично.
+DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com npm run desktop
 
-For browser design preview only:
-
-```sh
+# Лише браузерний перегляд UI.
 npm run dev
 ```
 
-Open http://127.0.0.1:1420 and select **Explore Design Preview**, or use `/?preview=1#welcome`. A normal browser cannot connect a local wallet or call the desktop scanner and does not present seed input fields.
-
-## Wallet connection
-
-Select **Connect Wallet**, then exactly one source:
-
-- **Seed (base64)**: standard base64 encoding of **32 raw Ed25519 seed bytes**, matching the existing core loader. This is not a mnemonic phrase, base64-encoded phrase, or 64-byte keypair. The password field clears after submission, including failed attempts. Rust receives the seed once and returns only the derived public address and signing capability.
-- **File (keypair)**: enter the **absolute local path** to a standard Solana JSON keypair, such as `/home/you/.config/solana/id.json`. Rust reads the file directly; no file contents enter React. The current UI uses a path field, not a native file chooser.
-- **Public key (read only)**: enter a public address to inspect a wallet without loading a signer.
-
-Choose scan categories and optional USD prices, then **Scan Wallet**. Analysis requests contain only the public address, selection, and price preference. The summary distinguishes **LOCAL SIGNER CONNECTED** from **PUBLIC ADDRESS · READ ONLY**. A signer stays in Rust memory until replaced, disconnected, or the app exits; connection never authorizes a transaction. Use **Disconnect Wallet** in the navigation menu to release the backend session and clear its displayed inventory. Switching to reference preview also disconnects an active session.
-
-Completed scans remain on the summary screen. Scan failures stay on **Scan Interrupted**, with the error, **Retry Scan**, and **Change Wallet** actions. Retrying uses the public address, not saved credentials. Partial results and per-category diagnostics remain visible; unavailable and successfully empty inventories remain distinct. Dismissing a scan discards its eventual UI result but does not cancel backend RPC work.
-
-## Jupiter USD prices
-
-Prices are **enabled by default** in the wallet dialog. The existing Rust Jupiter Price V3 adapter enriches the normal `analyze_wallet` snapshot; React makes no direct Jupiter requests. Uncheck **Include Jupiter USD prices** to skip pricing while retaining the same inventory.
-
-The summary shows **1 SOL = USD price** separately from the approximate USD value of the entire native balance. Token views show **PRICE / TOKEN** separately from the USD holding value. Small unit prices use additional decimal places or scientific notation (for example `$1.23E-10`) to stay readable without falsely displaying zero. The token-price tooltip includes the provider value and source. Amount strings remain exact; all valuation is owned by the existing Rust core.
-
-Without `JUPITER_API_KEY`, Rust attempts the official **keyless** endpoint. A configured key uses the existing sensitive `x-api-key` header and remains outside frontend requests/bundles. To supply a key without entering it into shell history:
+Dev server: `http://127.0.0.1:1420`. Два сервери не можуть одночасно займати цей
+порт; перед `npm run desktop` зупиніть окремий `npm run dev`. Звичайний браузер
+показує `DESKTOP APP REQUIRED` під час підключення й не збирає wallet secrets.
+Для демонстраційних екранів відкрийте `/?preview=1#welcome`.
 
 ```sh
-read -rsp "Jupiter API key: " JUPITER_API_KEY
-export JUPITER_API_KEY
-npm run desktop
+npm run build
+npm run preview
+# http://127.0.0.1:1421/?preview=1#main
+
+npm run desktop:build
+# Linux release executable: ../../target/release/dock-flints-app
 ```
 
-The existing adapter deduplicates mint addresses and requests batches of up to 50. Keyless access has a lower provider rate limit; an API key can increase available limits. See the official [Jupiter rate limits](https://developers.jup.ag/docs/portal/rate-limits). Pricing failures/partial coverage are labelled **USD PRICES** on the summary and token screens and do not remove assets or replace missing prices with zero.
+`desktop:build` вбудовує `dist` через `tauri.frontend.conf.json`. Базовий
+`src-tauri/tauri.conf.json` сам по собі не містить React assets. У конфігурації
+`bundle.active=false`: збирається executable, а не готовий `.deb`/`.dmg` installer.
 
-Prices are a snapshot from the scan, not a streaming ticker or swap quote. Restart the desktop app after changing backend configuration and run a new scan for updated prices. Jupiter market prices describe mainnet assets; devnet test tokens generally have no quote, and SOL USD is a mainnet reference rather than a valuation of devnet funds. Missing quotes display **PRICE UNAVAILABLE** and do not classify tokens as unswappable/dead. Existing NFT and unsupported Token-2022 pricing restrictions remain in the core.
+## Display та маршрути
 
-## Display options
-
-The default is a centered portrait app screen without stars, external captions, or page numbering.
+За замовчуванням ширина phone frame — **430 CSS px**, backdrop зі зірками
+увімкнено. Діапазон ширини — **360–480 CSS px**. Єдиний launcher обробляє параметри
+для `dev`, `preview`, `desktop` і `desktop:build`:
 
 ```sh
-npm run desktop -- --width 393
-npm run desktop -- --width 430 --backdrop
-npm run dev -- --width 480 --backdrop
+npm run dev -- --width=390 --no-backdrop
+npm run desktop -- --width=430 --backdrop
+npm run desktop:build -- --width=390 --no-backdrop
 ```
 
-`--width` accepts **360–480 CSS px**, default **390**. `--backdrop` enables the star background; `--no-backdrop` disables it. These preferences reach the desktop's Vite subprocess. The desktop window uses the selected phone size, or a larger canvas for backdrop mode.
+URL overrides: `?width=390&backdrop=0`. `?layout=reference&preview=1` вмикає
+reference layout. Phone frame орієнтується на пропорцію 390:844; responsive CSS
+адаптує його до viewport. Фактичні матеріали та розміри captures є в
+[галереї](../../docs/screenshots/README.md).
 
-URL overrides also work: `/?width=393&backdrop=1`, or `/?preview=1&width=430#summary`. URL widths are clamped to the supported range. Vite build preferences are baked into production assets; override a production preview with URL parameters when needed.
+Канонічні hash routes: `#welcome`, `#scanning`, `#main`, `#cleanup`, `#processing`,
+`#success`. Наприклад:
 
-The frame retains **390:844 portrait proportions**. Main content scrolls inside it and uses a combined 26px inset on each side. At tablet/fold-open viewport widths (700px+), the outer canvas grows while the phone remains bounded. Physical inches are device-dependent and are not CSS dimensions. When the browser is narrower than 360px or shorter than the selected phone, the outer page can scroll rather than shrink below the minimum or crop content.
+```text
+http://127.0.0.1:1420/?preview=1&width=390&backdrop=0#main
+http://127.0.0.1:1420/?preview=1&width=390&backdrop=0#cleanup
+```
 
-## Code ownership
+Preview містить п’ять reference screens і окремий processing screen; sample
+суми та progress є демонстраційними. Preview scanning статичний; cleanup
+переходить одразу до sample success. Processing відкривається окремо через
+`/?preview=1#processing`, а п’ять reference screens — через preview menu чи hash.
+Live `App` додатково перевіряє стан: зміна
+hash не створює analysis або успішне виконання транзакцій.
 
-- `src/app`: navigation, public session/presentation state, phone shell and display settings.
-- `src/features`: wallet connection, scan, inventory screens, cleanup placeholders, and labelled reference data.
-- `frontend-contract`: typed `connect_wallet`, `disconnect_wallet`, and unchanged `analyze_wallet` transport wrappers.
-- `src/shared/api/wallet.ts`: desktop-only transport entry points and bounded escaped error messages.
-- `src-tauri/src/commands/identity.rs`: local connection/disconnection; public-only response and backend signer retention.
-- `src-tauri/src/dto/identity.rs`: credential-safe DTO validation and existing core wallet loaders.
-- `src/shared/format.ts`: lossless display formatting, without valuation or execution rules.
-- `src/styles.css`: bounded phone layout, container-responsive content, and original assets/fonts.
-- `scripts/launch.ts`: validated display arguments and child-process launching without shell evaluation.
-- `assets`: all 169 supplied archive files, including original artwork and font license.
+## Analysis і категорії
 
-All ten design screens remain available in reference preview. The XML's fixed progress and inconsistent example totals are presentation data only. No preview transaction is submitted. Live swap/burn/close controls remain explicitly unavailable until their backend contracts exist. USD prices are not swap quotes. Per-mint keep preferences stay local; future planning/execution must enforce them in Rust.
+Повний шлях даних:
 
-## Checks
+```text
+ConnectWalletDialog
+  → connect_wallet → public WalletConnection
+  → AnalyzeWalletRequest (address, selection, noPrices)
+  → shared/api/wallet.ts → frontend-contract/wallet.ts
+  → registered analyze_wallet → core scan snapshot + classification
+  → WalletAnalysisDto → WalletAnalysis
+  → useWalletAnalysis → normalizeWalletCategories
+  → MainScreen + CategoryDialog
+```
+
+`useWalletAnalysis` очищає попередній snapshot на початку нового scan, перевіряє
+`result.owner` і відкидає запізнілі відповіді за request generation. Dismiss,
+перехід до welcome під час pending scan та disconnect скидають analysis state.
+Перехід між main, inventory і cleanup зберігає прийнятий snapshot.
+Dismiss не скасовує вже запущений RPC
+запит: окремої backend cancel-команди немає.
+
+`categoryPresentation.ts` нормалізує дані **один раз після IPC** й використовує
+`presentCategory` для плиток та CategoryDialog. Ключі: `scam`, `nft`, `dust`,
+`dead_token`. Items дедуплікуються за ID з об’єднанням backing accounts. Якщо
+старий DTO не містить `categories.nft`, один compatibility fallback збирає
+classic/Core/compressed inventory; незалежного підрахунку в MainScreen немає.
+
+Numeric field кожної плитки містить виключно число або `—`, з однаковим
+`type-numeric type-numeric--count` незалежно від status. Complete empty list із
+підтвердженим нульовим count показує `0`. Неповний або невдалий результат без
+підтверджених items показує `—`; з items показує число унікальних знайдених
+активів. Причина, status і coverage містяться в tooltip, доступному описі та
+CategoryDialog. Partial count означає «знайдено», а не повний підсумок.
+
+Pricing, risk, routing і NFT discovery мають незалежні statuses. Ціна `null` не
+стає нулем. Devnet не отримує mainnet Jupiter valuation/risk/routes. Без DAS
+known classic/Core NFTs зберігаються; нуль у цих двох списках не доводить NFT=0.
+
+## Cleanup та session state
+
+`useCleanup` надсилає канонічні `assetIds` із inventory; unchecked активи
+передаються як `ignoredAssetIds`. Backend також підтримує `mints`/`ignoredMints`
+для сумісності. Кожна зміна selection підвищує revision та інвалідує старий plan.
+
+`prepare_cleanup` повертає збережений Rust plan з діями й estimates.
+`execute_cleanup` отримує лише `sessionId`, `planId`, action approval та Channel.
+`RECOVER SOL` на live cleanup screen погоджує й виконує цей план; notices про
+irreversible burn стоять перед кнопкою. Public-key session може inspect/prepare,
+але `canSign=false` вимикає виконання. Після завершення UI відображає backend job
+report і оновлює inventory.
+
+Загублена IPC відповідь відновлюється через `get_cleanup_job` за job ID або plan
+ID; execute повторно не викликається для recovery. Events фільтруються за
+session/job/sequence. Exact balances і signed net deltas залишаються decimal
+strings; integer арифметика використовує `BigInt`.
+
+## Де змінювати
+
+| Директорія / файл                             | Відповідальність                                               |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `src/app`                                     | Навігація, public session state, phone shell, display settings |
+| `src/features/wallet`                         | Connect, scan, main screen, lifecycle analysis                 |
+| `src/features/assets/categoryPresentation.ts` | Єдина нормалізація та presentation категорій                   |
+| `src/features/assets`                         | CategoryDialog, inventory і selectable asset presentation      |
+| `src/features/cleanup`                        | Plan selection, execution progress, actual result              |
+| `src/features/preview`                        | Окремі позначені demonstration fixtures                        |
+| `src/shared/api/wallet.ts`                    | Desktop transport і безпечні readable errors                   |
+| `frontend-contract`                           | Typed invoke wrappers, statuses та DTO types                   |
+| `src-tauri/src/commands`                      | Registered identity, analysis і cleanup IPC                    |
+| `src/shared/format.ts`                        | Відображення exact amounts та приблизних USD values            |
+| `src/styles.css`, `src/styles/`               | Спільні styles, phone/reference layout, typography             |
+| `scripts/launch.ts`                           | Display arguments, Vite/Tauri запуск через argv                |
+| `assets`                                      | Поставлені artwork/fonts та [provenance](assets/art/README.md) |
+
+## Перевірки
 
 ```sh
+# apps/app
 npm run check
 npm run format:check
-PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" npm run test:e2e
-CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_TARGET_DIR="$PWD/.cache/rust-check" cargo check -p dock-flints-app --offline --locked -j 2
-CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_TARGET_DIR="$PWD/.cache/rust-check" cargo test -p dock-flints-app --offline --locked -j 2
+npx playwright install chromium
+npm run test:e2e
+npm run desktop:build
+
+# Repository root, якщо змінювався Rust/IPC.
+cargo test -p dock-flints-app
+cargo test -p dock-flints-core
 ```
 
-Browser tests need Playwright Chromium installed. App-local ignored `.cache` holds screenshots, browsers, and validation/build artifacts. See `VALIDATION.md` for actual results and limits, `SECURITY.md` for boundaries, and `BACKEND_GAPS.md` for unimplemented backend capabilities.
-
-Only React, React DOM, and Tauri API are runtime dependencies; no dependencies were added for these fixes. Accessibility target: WCAG 2.2 AA. Performance targets: LCP ≤2500ms, INP ≤200ms, CLS ≤0.1, initial JavaScript ≤200KB gzip. Local automation does not certify user-device Web Vitals, chain latency, or every assistive technology.
+Browser E2E використовує mocked або recorded IPC й перевіряє React; це не live
+wallet scan. Registered IPC regressions використовують Tauri MockRuntime і
+capability checks. Для реального native rendering потрібен запуск desktop
+executable; відтворюваний локальний fixture описано в
+[tests/native/README.md](tests/native/README.md). Актуальні виконані перевірки,
+screenshots і обмеження наведено в [current verification](../../docs/current-verification.md).

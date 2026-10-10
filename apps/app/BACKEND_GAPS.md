@@ -1,37 +1,78 @@
-# Backend integration report
+# Desktop integration: реалізоване й обмеження
 
-## Existing integration
+Цей файл описує поточні можливості й реальні прогалини. Контракт включає
+analysis, immutable planning, approved execution, job recovery, категорії
+та compressed NFT discovery.
 
-The frontend calls the unmodified `analyzeWallet(request)` wrapper, which invokes `analyze_wallet` with `{ request }`. It consumes the existing `AnalyzeWalletRequest`, `WalletAnalysis`, `ScanStatus`, and `AppError` shapes. Category selection, optional prices, legacy/Token-2022 inventory, classic/Core NFTs, account closure assessments, exact amount strings, partial results and unsupported cNFTs are displayed. The backend remains authoritative for validation and classification.
+## Що реалізовано
 
-The authorized identity extension implements `connect_wallet({request:{source}})` and `disconnect_wallet()`. `source` is exactly one tagged object: `{kind:"publicKey",address}`, `{kind:"seed",base64}`, or `{kind:"keypairFile",path}`. Seed means standard base64 of 32 raw Ed25519 bytes; keypair means an absolute local Solana JSON file path. The response is `{walletAddress,sourceKind,canSign}`. The signer stays in backend memory and the existing core loaders are reused. Errors add the sanitized `invalid_wallet_identity` code.
+| Можливість          | Поточний backend / frontend                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Identity            | `connect_wallet`, `disconnect_wallet`; public session DTO, signer у Rust                                               |
+| Analysis            | `analyze_wallet`; snapshot, token accounts, classic/pNFT/Core, optional DAS, independent scanner statuses              |
+| Pricing             | Jupiter Price V3 із bounded retry/cache/batching; snapshot valuation лише verified mainnet                             |
+| Категорії           | `scam`, `nft`, `dust`, `dead_token`; count/items/evidence/coverage із core, одна frontend normalization                |
+| Planning            | `prepare_cleanup`; session/network/revision-bound план із expiresAt, actions, reasons та estimates                     |
+| Execution           | `execute_cleanup`; approval збереженого плану, fresh validation/quotes, simulation, preflight, sequential confirmation |
+| NFT cleanup         | Стандарт-aware Metaplex/pNFT/Core/compressed adapters; unsupported targets лишаються видимими                          |
+| Progress / recovery | Typed Tauri Channel; `get_cleanup_job` читає job за job ID або plan ID                                                 |
+| Accounting          | Підтверджені operation receipts і exact signed per-transaction wallet deltas; incomplete metadata позначається окремо  |
+| Durable journal     | Nonsensitive signatures і reconcile uncertain sends, міжпроцесний file lock                                            |
 
-USD pricing is now enabled by default. The existing Jupiter adapter runs with optional backend authentication (keyless when no key is configured). SOL/token unit prices and backend USD holding values are displayed through the existing `price` and `valueUsd` fields; no new pricing command or DTO was introduced. These prices are scan snapshots, not swap estimates.
+Усі шість IPC commands зареєстровано в `src-tauri/src/lib.rs` і дозволено лише
+локальному `main` webview. Frontend не передає endpoints, provider keys, arbitrary
+instructions або transaction bytes. Деталі: [IPC contract](frontend-contract/README.md).
 
-All three commands are registered and allowed only to the local main webview. No live responses are fabricated. Analysis request/response shapes remain unchanged. Preview screens issue no analysis or connection calls; switching from a connected session first invokes disconnect.
+## Provider та coverage обмеження
 
-## Needed before real cleanup
+| Сценарій                                  | Поточна поведінка / дія користувача                                                                                                                          |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Devnet / інша verified non-mainnet мережа | Jupiter prices, risk та routing — Unsupported; assets зберігаються. Без надійних observations плитки SCAM/DUST/DEAD TOKEN показують `—`.                     |
+| Тимчасова помилка `getGenesisHash`        | Analysis виконує до 3 спроб з timeout/backoff. Якщо network невідомий, scoped checks — Failed, а не достовірно Unsupported; on-chain inventory лишається.    |
+| DAS не налаштовано                        | Compressed coverage — Unsupported; classic/Core inventory й відомі NFT зберігаються. Порожні classic/Core без compressed coverage не означають повний NFT=0. |
+| DAS не працює або network не збігається   | Failed/Partial diagnostics у NFT coverage; genesis mismatch дає Unsupported. DAS має працювати на тій самій мережі, що RPC.                                  |
+| Malformed `DOCK_FLINTS_DAS_URL`           | **Startup відхиляється** з configuration error. Виправте HTTP(S) URL або приберіть змінну; це відрізняється від відсутнього необов’язкового DAS.             |
+| Неправильний формат `JUPITER_API_KEY`     | Jupiter client вимикається з конкретною помилкою; RPC discovery не вимикається.                                                                              |
+| Provider auth/rate limit/outage           | Bounded retries та statuses; відсутні ціна/risk/route не підміняються zero/SCAM/NoRoute. Доступність keyless endpoint визначає провайдер.                    |
+| Risk record без explicit `audit.isSus`    | Unknown observation. Назва, decimals, authorities чи verification самі по собі не доводять SCAM.                                                             |
+| Великі inventories                        | Routing checks послідовні; analysis/planning можуть тривати довше за невеликий wallet.                                                                       |
 
-These are **proposed contract additions for a later backend task**, not APIs currently implemented by the frontend. Follow the existing camelCase DTOs, tagged status objects, exact decimal integer strings, optional fields, and structured error envelope. Current `AppError.code` supports request/address/configuration/identity errors; execution errors need an explicit extension or separate contract.
+`noPrices=true` пропускає valuation; це обмежує DUST coverage, але не блокує NFT
+або routing. Missing price не перетворюється на нуль. DEAD TOKEN вимагає explicit
+NoRoute у записаному provider/time/amount scope. Synthetic observations існують
+для fixture tests; production analysis не читає
+`DOCK_FLINTS_DEVNET_TEST_MANIFEST`.
 
-| Capability | Required request/response information | Current UI behavior |
-| --- | --- | --- |
-| TOKEN → SOL quote | Input `mint`, `tokenAccount`, `rawAmount` (string), backend network/context. Return route status, expected/min output lamports (strings), price impact, expiry/quote identity and error reason. Check Jupiter route, not Price API presence. | Shows NOT QUOTED and no live SOL estimate. |
-| Cleanup planning | Request owner, selected account addresses/mints, ignored mint array and explicit permitted actions. Return stable plan ID, expiry, per-account classification/action/reason, NFT/unsupported exclusions, quote diagnostics, counts, estimate/rent/fee strings. | Displays inventory and unavailable plan; keep intent is local only. |
-| Risk/dust/dead classification | Backend-owned criteria, route evidence, frozen/delegate/close-authority/Token-2022 restrictions and burnability assessment. | SCAM/DUST/DEAD counters remain unavailable; no burn decision from missing prices. |
-| Simulation | Validated plan ID plus explicit account/action selection. Return per-account simulation status, failure reason, estimated fees; no state changes. | No simulation control pretending to work. |
-| Signing and execution | Backend-managed signer/session; validated fresh plan/quotes and user approval. Re-check balance/owner/mint exclusions, handle expiry, sign/send/confirm, sequential per-account errors, unwrap WSOL, verify zero balance before closure. Keep private material in Rust after the one-time identity transfer. | Identity loading implemented; live confirmation still disabled and no execution invoke. |
-| Execution progress | Typed operation ID and confirmed per-account stages/errors, processed/total counters, cancellation semantics, final status. Backend event/channel API and narrow Tauri capability needed. | Live scan indeterminate; salvage stages only in labelled preview. |
-| Confirmed report | Actual received SOL, reclaimed rent, transaction fees/net result as strings, per-account outcomes/signatures, skipped/protected assets and partial failure summary. | Live report unavailable; no recovered SOL claim. |
+## Product і runtime межі
 
-Ignoring must be enforced in the backend at **planning, simulation, fresh-quote, and execution** stages. Frontend switches are not authorization or protection. Symbols/names are only display labels; identity must use mint/account address.
+- Локальний signer — keypair file або raw 32-byte base64 seed. Browser wallets,
+  hardware wallets та Wallet Adapter поки не інтегровані.
+- Keypair file вводиться через absolute path; native file chooser не реалізовано.
+- Arbitrary NFT `imageUri`/`uri` не завантажуються у webview. Для реального artwork
+  потрібен окремий backend image policy/cache/proxy.
+- Dismiss scan ігнорує пізню UI відповідь, але не скасовує backend RPC. Окремої
+  cancellation-команди немає.
+- Plans і повні jobs/reports живуть у пам’яті. Signature journal переживає restart
+  та захищає від повторного uncertain send, але не відновлює старий React session.
+- `HANGAR` не має окремого live swap screen; TOKEN → SOL доступний через cleanup.
+  `MISSIONS` не має backend даних.
+- Збірка desktop executable не створює installer: `bundle.active=false`. Linux
+  native evidence не замінює перевірки macOS/Windows.
 
-A cleanup plan should distinguish `Empty`, `Swappable`, `Burnable`, and `Unsupported`, and include an explicit skip action for excluded mints. Quote failures/unavailable providers must remain distinct from a confirmed “no route” result, otherwise a provider outage could lead to an unsafe burn classification. Burning needs an explicit execution mode and per-plan approval; ownership and program restrictions require on-chain revalidation.
+Category membership сама по собі не дозволяє burn. План й execution повторно
+перевіряють identity, ownership, amount, program та придатність операції.
+Provider failure не дозволяє fallback burn; failed swap не перетворюється на burn.
+Окремі unsupported NFT plugins/extensions/proofs описано в
+[cleanup coverage](../../docs/cleanup.md).
 
-## Optional read-only additions
+## Evidence
 
-- cNFT enumeration requires the historical owner index already identified by the current contract. Keep its existing unsupported status until genuinely implemented.
-- Real collectible artwork needs a backend image policy/proxy (allowed schemes/hosts, size/type limits, caching, private-network/SSRF protections). Existing metadata names and addresses are displayed safely; the webview never fetches arbitrary `imageUri`/`uri` values.
-- Live scan stages or cancellation need an explicit progress/cancellation contract. Dismissing the current view discards late results but does not cancel the existing RPC command.
-
-The identity and scanner integration reuse the underlying core without modifying it. Future mutation contracts, approval semantics, and capability permissions still require a separate backend implementation.
+Актуальні команди, screenshots і фактично виконані перевірки:
+[current verification](../../docs/current-verification.md),
+[галерея](../../docs/screenshots/README.md).
+Попередні native/devnet/local-validator результати зберігаються як історичні
+матеріали в [desktop verification](docs/desktop-verification.md),
+[devnet verification](../../docs/devnet-cleanup-verification.md) та
+[unified verification](../../docs/unified-cleanup-verification.md).
+Mocked browser E2E, local validator й live devnet scan мають різні джерела даних
+і не підтверджують доступність mainnet Jupiter routes.

@@ -1,19 +1,23 @@
 # Архітектура та підтримка
 
-`dock_flints` — бібліотечне ядро й CLI для читання Solana wallet, swap і послідовного cleanup. Cargo workspace із reusable `dock-flints-core`, сумісним CLI і Tauri 2 adapter для аналізу та очищення, без DI-контейнера, event bus чи repository. Внутрішні `core`, `app`, `infra` відокремлюють правила, сценарії та зовнішні інтеграції. gRPC у проєкті немає.
+`dock_flints` — Cargo workspace зі спільним `dock-flints-core`, CLI та React/Tauri 2 desktop для читання Solana wallet, swap і послідовного cleanup. Внутрішні `core`, `app`, `infra` відокремлюють правила, сценарії та зовнішні інтеграції. React відповідає за presentation/navigation; Rust — за discovery, classification, signer, immutable plans, виконання й accounting. DI-контейнера, event bus і gRPC немає.
 
-## Результат аудиту
+Інструкції для користувача: [початок роботи](getting-started.md), [desktop](../apps/app/README.md), [CLI](cli-guide.md). Фактично виконані поточні перевірки — у [current verification](current-verification.md), screenshots — у [галереї](screenshots/README.md).
 
-| Було | Проблема | Стало |
-| --- | --- | --- |
-| `models/`, `classification/`, `portfolio/aggregate.rs` | Типи й чисті правила розкидані | `core/{asset,wallet,classification,amount}.rs` |
-| `swap/mod.rs` | Типи, use case і Jupiter `BuildResponse` змішані | `core/swap.rs`, `app/swap/`, DTO в `infra/jupiter/` |
-| `portfolio/service.rs` | RPC, HTTP factory, оркестрація та stderr | `app/scan_wallet.rs`, `infra/solana/scan/inventory.rs`, `cli/scan.rs` |
-| `cleanup/`, частина CLI | CLI сканував і відбирав accounts | `app/cleanup::{plan_wallet,plan,execute}` |
-| `rpc/`, `scanner/`, `pricing/jupiter.rs` | Перетин відповідальності й зайвий переекспорт | `infra/solana/`, `infra/jupiter/`; переекспорт видалено |
-| `output/`, `main.rs` | CLI-адаптер розкиданий | `cli/output/`, `cli::run`; main запускає runtime |
-| Повторні `.find()` для кожного account | Квадратичні проходи mint/metadata списків | Локальні `BTreeMap`/`BTreeSet` індекси |
-| `solana-client` | Невикористані TPU/QUIC/pubsub dependencies | RPC-only client + API |
+## Історія архітектурного рефакторингу
+
+Нижче збережено відповідність попередніх modules після workspace refactoring. Це пояснення структури, а не звіт про новий запуск перевірок.
+
+| Було                                                   | Проблема                                         | Стало                                                                 |
+| ------------------------------------------------------ | ------------------------------------------------ | --------------------------------------------------------------------- |
+| `models/`, `classification/`, `portfolio/aggregate.rs` | Типи й чисті правила розкидані                   | `core/{asset,wallet,classification,amount}.rs`                        |
+| `swap/mod.rs`                                          | Типи, use case і Jupiter `BuildResponse` змішані | `core/swap.rs`, `app/swap/`, DTO в `infra/jupiter/`                   |
+| `portfolio/service.rs`                                 | RPC, HTTP factory, оркестрація та stderr         | `app/scan_wallet.rs`, `infra/solana/scan/inventory.rs`, `cli/scan.rs` |
+| `cleanup/`, частина CLI                                | CLI сканував і відбирав accounts                 | `app/cleanup::{plan_wallet,plan,execute}`                             |
+| `rpc/`, `scanner/`, `pricing/jupiter.rs`               | Перетин відповідальності й зайвий переекспорт    | `infra/solana/`, `infra/jupiter/`; переекспорт видалено               |
+| `output/`, `main.rs`                                   | CLI-адаптер розкиданий                           | `cli/output/`, `cli::run`; main запускає runtime                      |
+| Повторні `.find()` для кожного account                 | Квадратичні проходи mint/metadata списків        | Локальні `BTreeMap`/`BTreeSet` індекси                                |
+| `solana-client`                                        | Невикористані TPU/QUIC/pubsub dependencies       | RPC-only client + API                                                 |
 
 Усі прямі dependencies мають використання. Перехід на RPC-only прибрав зайві транспортні залежності; NFT adapters використовують офіційні Metaplex/Bubblegum SDK. Дві версії Pubkey потрібні через різні Solana/Metaplex SDK: конвертація за байтами залишається в adapter. Перевірені декодери не замінюємо власними заради меншої кількості dependencies.
 
@@ -26,6 +30,7 @@ crates/core/src/
     wallet.rs           WalletSnapshot, selection, partial scan statuses
     classification.rs   fungible/NFT classification
     inventory.rs        нормалізовані holdings, backing accounts і standalone IDs
+    categories.rs       category items/count/status, risk/valuation/tradability evidence
     nft_cleanup.rs      стандарт-aware NFT targets та prepared operations
     amount.rs           точні суми й агрегація
     swap.rs             request, quote, limits, neutral transaction ingredients
@@ -33,6 +38,7 @@ crates/core/src/
     error.rs            semantic errors: NoRoute відмінний від API failure
   app/
     scan_wallet.rs      WalletReader + orchestration сканування
+    categories.rs       independent risk/routing/NFT coverage та classification
     pricing.rs          PriceProvider + необов'язкова оцінка портфеля
     swap/               SwapProvider, SwapExecutor, preview/execute
     cleanup/            plan_wallet, build_plan, execute_plan, CleanupExecutor
@@ -49,14 +55,23 @@ apps/cli/src/cli/
     cleanup.rs          cleanup command та підтвердження
     output/             table/JSON presentation
 apps/app/src-tauri/src/
-  commands/wallet.rs    analyze/connect/disconnect: validation → use case → DTO
+  commands/identity.rs  connect/disconnect: public session і Rust-only signer
+  commands/wallet.rs    analyze: network verification → snapshot → classify → DTO
   commands/cleanup.rs   prepare/execute/job: server plans, approval і progress
   cleanup.rs            durable public signature journal та reconciliation
   state.rs              shared RPC/Jupiter clients initialized once
+  journal.rs            durable nonsensitive signatures і міжпроцесний file lock
   dto/                  camelCase IPC, exact integers as strings
   error.rs              stable frontend-safe errors
 apps/app/frontend-contract/
                         TypeScript types and typed invoke boundary
+apps/app/src/
+  app/                  session/navigation guards, phone shell та display defaults
+  features/wallet/      connect dialog, scan lifecycle, MainScreen
+  features/assets/      inventory/details, category normalization/presenter
+  features/cleanup/     selection, immutable plan, actual progress/report
+  features/preview/     окремо позначені demonstration fixtures
+  shared/               desktop transport, exact formatting, UI primitives
 ```
 
 `core` не імпортує `app`, `infra`, `cli`, HTTP або RPC клієнтів. Solana public keys/instructions/blockhashes у core — дані цільового blockchain, а не transport. DTO Jupiter не виходять із adapter: base64/string fields перетворюються на `SwapTransaction` з native Solana instructions. Компіляція, signing і submission живуть у `infra/solana`.
@@ -96,3 +111,35 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 CLI і Tauri залежать від `dock-flints-core`; ядро не залежить від adapters. CLI має compatibility re-exports для попередніх library paths. Tauri викликає спільні scan/plan/execute use cases; signer і prepared instructions залишаються у Rust. Execute приймає лише ID збереженого плану та погодження дій. Public-key session не може виконувати транзакції. DTO не використовують terminal JSON або serialization внутрішніх моделей. Повні raw account blobs не є IPC-контрактом. Shared fixture лишається в `tests/fixtures/`.
 
 Налаштування клієнтів, точні TypeScript types, capability для локального main window і кроки запуску React frontend і desktop описано в [apps/app/README.md](../apps/app/README.md). React відображає канонічний inventory, immutable plan, фактичний progress і confirmed report.
+
+### Analysis: від запиту до category details
+
+```text
+ConnectWalletDialog → connect_wallet → public WalletConnection
+  → AnalyzeWalletRequest (walletAddress, selection, noPrices)
+  → shared/api/wallet.ts → frontend-contract/wallet.ts → analyze_wallet
+  → bounded getGenesisHash verification
+  → scan_wallet_observed → WalletSnapshot
+  → optional network-scoped DAS → canonical inventory → categories::classify
+  → WalletAnalysisDto → WalletAnalysis
+  → useWalletAnalysis → normalizeWalletCategories
+  → MainScreen і CategoryDialog → presentCategory
+```
+
+Звичайний wallet dialog явно вмикає balance, tokens, allTokens, nfts і cnfts; prices увімкнені за замовчуванням. On-chain inventory читається один раз, далі snapshot enrichments зберігають незалежні results. Category keys узгоджені через core/DTO/TypeScript: `scam`, `nft`, `dust`, `dead_token`.
+
+Core inventory агрегує fungible holdings за mint/program із backing accounts та окремими NFT IDs. Frontend category normalization дедуплікує item IDs, об’єднує accounts і узгоджує count зі списком; compatibility NFT fallback classic/Core/compressed працює лише в одному місці за відсутності `categories.nft`. MainScreen не додає NFT counts незалежно від CategoryDialog.
+
+Єдиний presenter відокремлює counter, status, reason і coverage. Numeric field — число або `—`; confirmed complete empty list — `0`. Неповний результат із items показує число реально знайдених унікальних активів, без `Partial`/`+`; incomplete empty result — `—`. Coverage і lower-bound explanation доступні в tooltip/description та деталях. Missing count не підміняється нулем, demonstration values не входять у live analysis.
+
+Jupiter prices/risk/routes використовуються лише після verified mainnet genesis hash. Тимчасова невдача network verification повторюється bounded до трьох спроб і лишається Failed, а не підтверджено Unsupported. On-chain holdings залишаються доступними. Devnet не отримує mainnet observations; unsupported network не є NoRoute. NFT не залежить від pricing/risk, DUST не залежить від routing. DAS перевіряє network/owner/burned state і дедуплікує IDs; missing DAS не приховує classic/Core NFT, але не дозволяє стверджувати complete NFT=0.
+
+`useWalletAnalysis` очищає попередній snapshot на початку rescan, перевіряє returned owner і відкидає stale request generations. `App` додатково відкидає dismissed results та guards live hash routes. Dismiss не є RPC cancellation: cancel IPC поки не існує.
+
+### Cleanup: selection і recovery
+
+React надсилає `assetIds` та `ignoredAssetIds` із canonical inventory. IPC також підтримує legacy `mints`/`ignoredMints`. `selected` без IDs означає none; `all` — окремий mode. Ignored mint захищає всі backing accounts, зокрема empty ones. Revision/session/network/expiry прив’язують plan до конкретного selection; public-key session може prepare, але не execute.
+
+Registered commands: `connect_wallet`, `disconnect_wallet`, `analyze_wallet`, `prepare_cleanup`, `execute_cleanup`, `get_cleanup_job`. Lost execute response відновлюється read-only lookup за job ID або plan ID. Signature journal переживає restart; full session/plans/job reports поки зберігаються в пам’яті. Recovery не створює повторний economic send.
+
+Реальні прогалини й provider configuration failures документуються в [BACKEND_GAPS.md](../apps/app/BACKEND_GAPS.md); [IPC README](../apps/app/frontend-contract/README.md) описує точні request/response semantics.

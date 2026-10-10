@@ -1,5 +1,9 @@
 # Desktop verification — 2026-10-09
 
+> Dated runtime/cleanup/raster evidence. Current category behavior, commands and
+> fresh read-only devnet materials are in [current verification](../../../docs/current-verification.md)
+> and the [documentation gallery](../../../docs/screenshots/README.md).
+
 Implemented the stored-plan/job cleanup boundary, typed progress and confirmed
 report UI, Rust category evidence, read-only DAS, shared Jupiter pacing/cache and
 prefiltered raster sources. Core remains independent of React/Tauri; existing CLI

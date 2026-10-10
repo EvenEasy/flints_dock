@@ -1,5 +1,10 @@
 # Unified cleanup verification
 
+> This report records cleanup evidence before the category display update in
+> `e013ea9`. References below to `Not checked` describe the earlier UI. Current
+> tiles display a number or `—`; see [current verification](current-verification.md)
+> and the [screenshot gallery](screenshots/README.md).
+
 Verified on 2026-10-10 against the working tree based on `fb6996c`. No transactions
 were signed or sent for the user's public devnet wallet. All transaction tests used
 an independently generated disposable wallet on an isolated loopback validator.
@@ -39,15 +44,15 @@ Wallet: `9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv`.
 RPC: `https://api.devnet.solana.com`, verified genesis
 `EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG`.
 
-| Stage | Current live result |
-| --- | --- |
-| Legacy discovery / Token-2022 discovery | 0 / 0 accounts |
-| Core snapshot / analysis DTO / React canonical inventory | 0 discovered token accounts / 0 selectable items |
-| Classic NFT / Core coverage | Complete, 0 confirmed items in each |
-| Compressed coverage | Unsupported: no network-matched DAS configured; total NFT coverage is Partial |
-| SCAM / DUST / DEAD TOKEN | Not checked: mainnet-only provider coverage unavailable on devnet |
-| Selected / actionable / skipped discovered accounts | 0 / 0 / 0 |
-| Read-only plan | Swap 0, Burn 0, Close 0; canExecute false |
+| Stage                                                    | Current live result                                                           |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Legacy discovery / Token-2022 discovery                  | 0 / 0 accounts                                                                |
+| Core snapshot / analysis DTO / React canonical inventory | 0 discovered token accounts / 0 selectable items                              |
+| Classic NFT / Core coverage                              | Complete, 0 confirmed items in each                                           |
+| Compressed coverage                                      | Unsupported: no network-matched DAS configured; total NFT coverage is Partial |
+| SCAM / DUST / DEAD TOKEN                                 | Not checked: mainnet-only provider coverage unavailable on devnet             |
+| Selected / actionable / skipped discovered accounts      | 0 / 0 / 0                                                                     |
+| Read-only plan                                           | Swap 0, Burn 0, Close 0; canExecute false                                     |
 
 These results were obtained through raw RPC, registered Tauri IPC with live RPC, and
 then the actual packaged release WebKitGTK application. Missing DAS is not evidence
@@ -95,13 +100,13 @@ keypair-file session, scanned **4 accounts / 4 selectable assets**, displayed
 The standalone Close count excludes source accounts closed internally by NFT burn
 instructions. WSOL was unwrapped before other cleanup operations, never burned.
 
-| Asset | Real operation | Confirmed signed wallet delta |
-| --- | --- | --- |
-| Native-backed WSOL, 7,960,720 raw units | CloseAccount unwrap, account absence verified | +9,995,000 lamports, including source rent and minus fee |
-| 42 units, zero-decimal fungible mint | BurnChecked, zero verification, CloseAccount, absence verification | +2,029,280 lamports across two transactions |
-| Classic NFT | Metaplex BurnV1, source absence verified | +8,179,960 lamports |
-| Programmable NFT | Metaplex BurnV1 + unlocked TokenRecord, source absence verified | +9,627,640 lamports |
-| Total | **5 confirmed transactions, completed 4, closed 4, failed 0** | **+29,831,880 lamports = +0.02983188 SOL** |
+| Asset                                   | Real operation                                                     | Confirmed signed wallet delta                            |
+| --------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
+| Native-backed WSOL, 7,960,720 raw units | CloseAccount unwrap, account absence verified                      | +9,995,000 lamports, including source rent and minus fee |
+| 42 units, zero-decimal fungible mint    | BurnChecked, zero verification, CloseAccount, absence verification | +2,029,280 lamports across two transactions              |
+| Classic NFT                             | Metaplex BurnV1, source absence verified                           | +8,179,960 lamports                                      |
+| Programmable NFT                        | Metaplex BurnV1 + unlocked TokenRecord, source absence verified    | +9,627,640 lamports                                      |
+| Total                                   | **5 confirmed transactions, completed 4, closed 4, failed 0**      | **+29,831,880 lamports = +0.02983188 SOL**               |
 
 The total is a sum of confirmed transaction metadata deltas including all 25,000
 lamports of transaction fees, not burned token valuation or whole-wallet before/after
@@ -131,14 +136,14 @@ and [classic/pNFT execution](fixtures/unified-local-nft-cleanup.json).
 
 ### NFT coverage and validation limits
 
-| Standard | Implemented path | Executed validation |
-| --- | --- | --- |
-| Classic/master NFT | Metaplex BurnV1 | Real local-validator + release React/Tauri execution |
-| Legacy print edition | BurnV1, verified parent token/master/edition-marker bitmap; prints before master | Binary SDK + mock RPC regression; no real print burn in this run |
-| pNFT | BurnV1 + TokenRecord | Real unlocked pNFT local-validator + release desktop execution |
-| Programmable edition | Same standard-specific parent/TokenRecord path | Binary SDK + mock RPC regression |
-| MPL Core AssetV1 | Core BurnV1, asset/collection/plugin/Asset Signer validation | Binary SDK + mock RPC regression; no real Core burn in this run |
-| Bubblegum v1 / v2 | Official versioned burn, fresh full proof, actual tree/config/leaf hash/canopy checks | Binary SDK + mock RPC regression; no real compressed burn in this run |
+| Standard             | Implemented path                                                                      | Executed validation                                                   |
+| -------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Classic/master NFT   | Metaplex BurnV1                                                                       | Real local-validator + release React/Tauri execution                  |
+| Legacy print edition | BurnV1, verified parent token/master/edition-marker bitmap; prints before master      | Binary SDK + mock RPC regression; no real print burn in this run      |
+| pNFT                 | BurnV1 + TokenRecord                                                                  | Real unlocked pNFT local-validator + release desktop execution        |
+| Programmable edition | Same standard-specific parent/TokenRecord path                                        | Binary SDK + mock RPC regression                                      |
+| MPL Core AssetV1     | Core BurnV1, asset/collection/plugin/Asset Signer validation                          | Binary SDK + mock RPC regression; no real Core burn in this run       |
+| Bubblegum v1 / v2    | Official versioned burn, fresh full proof, actual tree/config/leaf hash/canopy checks | Binary SDK + mock RPC regression; no real compressed burn in this run |
 
 Explicit limits remain visible: EditionMarkerV2; locked/delegated pNFT records;
 frozen, unknown or external lifecycle Core plugins; nonempty Asset Signer or missing
@@ -150,19 +155,19 @@ No live mainnet swap or devnet Jupiter swap was executed or claimed.
 
 ## Checks
 
-| Check | Result |
-| --- | --- |
-| cargo fmt --all --check | Passed |
-| cargo check --workspace | Passed |
-| cargo test --workspace | 109 passed; 1 live read-only test intentionally ignored by default |
-| cargo clippy --workspace --all-targets --all-features | Passed, no warnings |
-| Live registered-command Tauri IPC read-only test | Passed against actual public devnet RPC |
-| npm ci | Passed; audit reported 0 vulnerabilities |
-| npm run check | Passed: TypeScript, ESLint, 53 unit tests, production Vite build |
-| npm run format:check | Passed |
-| npm run test:e2e | 85 passed in the full suite; 9 cleanup/devnet E2E tests rerun after final fixes, all passed; including NONE, protected accounts, standalone Core/cNFT selection/report, partial/error/preview, phone/reference layouts |
-| npm run desktop:build | Passed, optimized native executable with embedded production frontend |
-| Actual packaged release launch | Passed on Arch Linux, WebKitGTK 2.54.1, DPR 2, CSS viewport 1100×1000 |
+| Check                                                 | Result                                                                                                                                                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cargo fmt --all --check                               | Passed                                                                                                                                                                                                                 |
+| cargo check --workspace                               | Passed                                                                                                                                                                                                                 |
+| cargo test --workspace                                | 109 passed; 1 live read-only test intentionally ignored by default                                                                                                                                                     |
+| cargo clippy --workspace --all-targets --all-features | Passed, no warnings                                                                                                                                                                                                    |
+| Live registered-command Tauri IPC read-only test      | Passed against actual public devnet RPC                                                                                                                                                                                |
+| npm ci                                                | Passed; audit reported 0 vulnerabilities                                                                                                                                                                               |
+| npm run check                                         | Passed: TypeScript, ESLint, 53 unit tests, production Vite build                                                                                                                                                       |
+| npm run format:check                                  | Passed                                                                                                                                                                                                                 |
+| npm run test:e2e                                      | 85 passed in the full suite; 9 cleanup/devnet E2E tests rerun after final fixes, all passed; including NONE, protected accounts, standalone Core/cNFT selection/report, partial/error/preview, phone/reference layouts |
+| npm run desktop:build                                 | Passed, optimized native executable with embedded production frontend                                                                                                                                                  |
+| Actual packaged release launch                        | Passed on Arch Linux, WebKitGTK 2.54.1, DPR 2, CSS viewport 1100×1000                                                                                                                                                  |
 
 Browser/E2E mocked execution is not on-chain validation. Native validation used the
 real local validator and registered IPC permissions; it was not Chromium presented
@@ -172,13 +177,11 @@ were zero. Existing stars/artwork/styles/navigation remained unchanged. E2E test
 also cover 360×800, 390×844, 430×932 and desktop 1440×900 compositions. Native DPR 1
 and fractional desktop scaling were not tested in this run.
 
-Screenshots from the actual packaged WebKitGTK app:
-[owned analysis](../apps/app/docs/screenshots/unified/native-owned-main.png),
-[one unified plan](../apps/app/docs/screenshots/unified/native-owned-plan.png),
-[real processing](../apps/app/docs/screenshots/unified/native-owned-processing.png),
-[confirmed result](../apps/app/docs/screenshots/unified/native-owned-success.png),
-[public devnet read-only analysis](../apps/app/docs/screenshots/unified/native-readonly-main.png),
-[NFT coverage dialog](../apps/app/docs/screenshots/unified/native-readonly-nft-coverage.png).
+The original packaged WebKitGTK screenshots were stored under
+`apps/app/docs/screenshots/unified/` as `native-owned-{main,plan,processing,success}.png`
+and `native-readonly-{main,nft-coverage}.png`. Those historical PNG files are not
+included in this checkout. The [current screenshot gallery](screenshots/README.md)
+contains the separately recorded documentation captures from 2026-10-10.
 
 ## Configuration and reproduction
 
