@@ -1,6 +1,7 @@
 import type { AssetCategory } from '../../../frontend-contract/categories';
 import { Dialog } from '../../shared/ui/Dialog';
 import { CategoryNotice } from '../../shared/ui/Notice';
+import { presentCategory } from './categoryPresentation';
 const descriptions: Record<string, string> = {
   scam: 'Flagged as suspicious by Jupiter audit.isSus. A provider signal, not proof of fraud.',
   dust: 'Nonzero holdings with a low estimated value. Swapping may still cost more than it returns.',
@@ -17,6 +18,7 @@ export function CategoryDialog({
   category: AssetCategory | undefined;
   onClose: () => void;
 }) {
+  const presentation = presentCategory(category);
   return (
     <Dialog title={name === 'dead_token' ? 'DEAD TOKEN' : name.toUpperCase()} onClose={onClose}>
       <p className="type-caption">
@@ -25,12 +27,21 @@ export function CategoryDialog({
           : descriptions[name]}
       </p>
       <CategoryNotice status={category?.status} />
+      {category && category.items.length > 0 && presentation.status?.status !== 'complete' && (
+        <p className="type-caption">{presentation.description}</p>
+      )}
+      {category?.reason &&
+        (!presentation.status ||
+          !('reason' in presentation.status) ||
+          category.reason !== presentation.status.reason) && (
+          <p className="type-caption">{category.reason}</p>
+        )}
       {category?.source && (
         <p className="type-caption">
           {category.source} · {category.network}
         </p>
       )}
-      {Object.entries(category?.coverage ?? {}).map(([key, status]) =>
+      {Object.entries(presentation.coverage).map(([key, status]) =>
         status.status === 'complete' ? (
           <p key={key} className="type-caption">
             {key.replaceAll('_', ' ').toUpperCase()} · COMPLETE
@@ -55,7 +66,9 @@ export function CategoryDialog({
             {item.risk?.reasons.map((reason) => (
               <p key={reason}>{reason}</p>
             ))}
-            <time>{new Date(Number(item.checkedAt) * 1000).toLocaleString('en-US')}</time>
+            {item.checkedAt !== '0' && (
+              <time>{new Date(Number(item.checkedAt) * 1000).toLocaleString('en-US')}</time>
+            )}
           </li>
         ))}
       </ul>

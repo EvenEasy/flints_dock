@@ -1,5 +1,6 @@
 use super::*;
 use crate::{
+    app::categories::RiskProvider,
     app::pricing::PriceProvider,
     app::swap::{SwapError, SwapProvider, SwapRequest},
 };
@@ -122,4 +123,54 @@ async fn keyless_swap_requests_omit_the_authentication_header() {
     );
     server.join().unwrap();
     assert!(!calls.lock().unwrap()[0].contains("x-api-key:"));
+}
+
+#[tokio::test]
+async fn non_json_gateway_response_retries_before_parsing_and_preserves_real_price() {
+    let mint = request().mint.to_string();
+    let (client, calls, server) = server(vec![
+        (503, "temporary upstream outage".into()),
+        (
+            200,
+            json!({mint.clone():{"usdPrice":1.0,"decimals":6,"blockId":123}}).to_string(),
+        ),
+    ]);
+    let report = client.get_prices(&[mint.clone()]).await;
+    server.join().unwrap();
+    assert_eq!(calls.lock().unwrap().len(), 2);
+    assert_eq!(report.status, crate::core::ScanStatus::Complete);
+    assert_eq!(report.quotes[&mint].usd, 1.0);
+}
+
+#[tokio::test]
+async fn risk_auth_failure_is_failed_and_does_not_become_unknown_partial_success() {
+    let (client, calls, server) =
+        server(vec![(401, json!({"error":"invalid API key"}).to_string())]);
+    let (signals, status) = client.risks(&[request().mint.to_string()]).await;
+    server.join().unwrap();
+    assert_eq!(calls.lock().unwrap().len(), 1);
+    assert!(signals.is_empty());
+    assert!(
+        matches!(status, crate::core::ScanStatus::Failed(reason) if reason.contains("HTTP 401"))
+    );
+}
+
+#[tokio::test]
+async fn later_risk_batch_failure_keeps_confirmed_signals_and_concrete_reason() {
+    let mints = (0..101)
+        .map(|index| format!("mint{index:03}"))
+        .collect::<Vec<_>>();
+    let (client, _, server) = server(vec![
+        (
+            200,
+            json!([{"id":"mint000","audit":{"isSus":true}}]).to_string(),
+        ),
+        (403, json!({"error":"forbidden"}).to_string()),
+    ]);
+    let (signals, status) = client.risks(&mints).await;
+    server.join().unwrap();
+    assert_eq!(signals["mint000"].status, "suspicious");
+    assert!(
+        matches!(status, crate::core::ScanStatus::Partial(reason) if reason.contains("HTTP 403"))
+    );
 }

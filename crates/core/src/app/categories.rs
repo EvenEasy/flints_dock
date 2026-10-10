@@ -65,17 +65,36 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
-    let (risks, risk_status) = match (mainnet, provider) {
+    let (risks, mut risk_status) = match (mainnet, provider) {
         (true, Some(provider)) => provider.risks(&mints).await,
-        _ => (
+        (true, None) => (
+            BTreeMap::new(),
+            ScanStatus::Failed("Mainnet risk provider is not configured".into()),
+        ),
+        (false, _) => (
             BTreeMap::new(),
             ScanStatus::Unsupported("Mainnet risk provider unavailable on this network".into()),
         ),
     };
+    // A successful response is not complete risk coverage unless every requested
+    // mint has an explicit observation and an attributable source.
+    if risk_status.is_complete()
+        && mints.iter().any(|mint| {
+            risks.get(mint).is_none_or(|signal| {
+                signal.source.trim().is_empty()
+                    || !matches!(signal.status.as_str(), "suspicious" | "not_flagged")
+            })
+        })
+    {
+        risk_status = ScanStatus::Partial(
+            "Some holdings have no explicit risk observation with a source".into(),
+        );
+    }
     let mut scam = Vec::new();
     let mut dust = Vec::new();
     let mut dead = Vec::new();
     let mut route_failures = Vec::new();
+    let mut checked_routes = 0;
     let scoped = ScopedSwap { provider, mainnet };
     for asset in holdings.iter().filter(|a| a.total_raw_amount > 0) {
         let mut item = CategoryItem {
@@ -109,12 +128,14 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
             tradability: "unknown".into(),
             evidence: None,
             checked_at: checked_at.clone(),
-            provider_scope: Some("Jupiter Swap V2 /build; mainnet; exact mint/raw amount".into()),
+            provider_scope: None,
         };
         // Routing is independent of pricing. Do not truncate an aggregate larger than u64.
-        if mainnet && asset.kind.is_fungible() {
+        if mainnet && provider.is_some() && asset.kind.is_fungible() && asset.mint != WRAPPED_SOL {
             match (asset.mint.parse(), u64::try_from(asset.total_raw_amount)) {
-                (Ok(mint), Ok(raw_amount)) if asset.mint != WRAPPED_SOL => {
+                (Ok(mint), Ok(raw_amount)) => {
+                    item.provider_scope =
+                        Some("Jupiter Swap V2 /build; mainnet; exact mint/raw amount".into());
                     match scoped
                         .build_swap(&SwapRequest {
                             mint,
@@ -124,8 +145,12 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
                         })
                         .await
                     {
-                        Ok(_) => item.tradability = "route".into(),
+                        Ok(_) => {
+                            checked_routes += 1;
+                            item.tradability = "route".into();
+                        }
                         Err(SwapError::NoRoute(evidence)) => {
+                            checked_routes += 1;
                             item.tradability = "no_route".into();
                             item.checked_at = now().to_string();
                             item.evidence = Some(evidence);
@@ -138,15 +163,31 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
                     route_failures.push("Holding cannot be checked by token-to-SOL provider".into())
                 }
             }
+        } else if mainnet && provider.is_some() && asset.kind == AssetKind::Unknown {
+            route_failures
+                .push("Holding classification unresolved; routing coverage unknown".into());
         }
-        if item.risk.as_ref().is_some_and(|s| s.status == "suspicious") {
-            scam.push(item.clone());
+        if item
+            .risk
+            .as_ref()
+            .is_some_and(|s| s.status == "suspicious" && !s.source.trim().is_empty())
+        {
+            let mut suspicious = item.clone();
+            suspicious.provider_scope = suspicious
+                .risk
+                .as_ref()
+                .map(|signal| format!("{}; exact mint; {network}", signal.source));
+            scam.push(suspicious);
         }
         if asset.kind.is_fungible()
             && asset.value_usd.is_some_and(|value| {
                 value.is_finite() && value > 0.0 && value <= dust_threshold_usd
             })
         {
+            item.provider_scope = asset
+                .price
+                .as_ref()
+                .map(|price| format!("{}; exact-mint valuation; {network}", price.source));
             dust.push(item);
         }
     }
@@ -168,9 +209,8 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
         provider_scope: None,
     };
     for nft in &snapshot.classic_nfts {
-        nfts.insert(
-            nft.mint.clone(),
-            nft_item(
+        let item = nfts.entry(nft.mint.clone()).or_insert_with(|| {
+            let mut item = nft_item(
                 nft.mint.clone(),
                 nft.metadata
                     .name
@@ -178,41 +218,92 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
                     .unwrap_or_else(|| nft.mint.clone()),
                 "nft",
                 nft.token_accounts.clone(),
-            ),
-        );
+            );
+            item.evidence = Some(nft.evidence.clone());
+            item
+        });
+        item.accounts.extend(nft.token_accounts.iter().cloned());
+        item.accounts.sort();
+        item.accounts.dedup();
     }
-    for core in &snapshot.core_assets {
+    let owner = owner.to_string();
+    for core in snapshot
+        .core_assets
+        .iter()
+        .filter(|asset| asset.owner == owner)
+    {
         nfts.insert(
             core.address.clone(),
             nft_item(core.address.clone(), core.name.clone(), "core", vec![]),
         );
     }
-    for cnft in compressed.items {
+    for cnft in compressed
+        .items
+        .into_iter()
+        .filter(|asset| asset.owner == owner)
+    {
         nfts.entry(cnft.id.clone())
             .or_insert_with(|| nft_item(cnft.id, cnft.name, "compressed", vec![]));
     }
+    let classic_status =
+        snapshot
+            .scanners
+            .get("classic_nfts")
+            .cloned()
+            .unwrap_or(ScanStatus::Skipped(
+                "Classic NFT check not requested".into(),
+            ));
+    let core_status = snapshot
+        .scanners
+        .get("core_asset_v1")
+        .cloned()
+        .unwrap_or(ScanStatus::Skipped("Core NFT check not requested".into()));
     let nft_status = combine_statuses(&[
-        (
-            "onchain",
-            snapshot.scanners.get("nfts").unwrap_or(&inventory_status),
-        ),
+        ("classic", &classic_status),
+        ("Core", &core_status),
         ("DAS", &compressed.status),
     ]);
-    let prices = snapshot
+    let mut prices = snapshot
         .scanners
         .get("prices")
         .cloned()
         .unwrap_or(ScanStatus::Unsupported("Prices unavailable".into()));
+    if prices.is_complete() {
+        let unvalued = holdings
+            .iter()
+            .filter(|asset| {
+                asset.total_raw_amount > 0
+                    && (asset.kind == AssetKind::Unknown
+                        || (asset.kind.is_fungible()
+                            && asset
+                                .value_usd
+                                .is_none_or(|value| !value.is_finite() || value < 0.0)))
+            })
+            .count();
+        if unvalued > 0 {
+            prices = ScanStatus::Partial(format!(
+                "{unvalued} holdings have unknown classification or no trustworthy valuation"
+            ));
+        }
+    }
     let routing = if !mainnet {
         ScanStatus::Unsupported("Jupiter routing is mainnet-only".into())
+    } else if provider.is_none() {
+        ScanStatus::Failed("Mainnet routing provider is not configured".into())
     } else if route_failures.is_empty() {
         inventory_status.clone()
     } else {
-        ScanStatus::Partial(format!(
+        let reason = format!(
             "{} holdings have unknown routing: {}",
             route_failures.len(),
             route_failures[0]
-        ))
+        );
+        let route_status = if checked_routes == 0 {
+            ScanStatus::Failed(reason)
+        } else {
+            ScanStatus::Partial(reason)
+        };
+        combine_statuses(&[("inventory", &inventory_status), ("routing", &route_status)])
     };
     let mut categories = BTreeMap::new();
     for (key, items, status) in [
@@ -256,26 +347,8 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
             ("risk".into(), risk_status),
             ("routing".into(), routing),
             ("das".into(), compressed.status),
-            (
-                "nft_classic".into(),
-                snapshot
-                    .scanners
-                    .get("classic_nfts")
-                    .cloned()
-                    .unwrap_or(ScanStatus::Unsupported(
-                        "Classic NFT check not requested".into(),
-                    )),
-            ),
-            (
-                "nft_core".into(),
-                snapshot
-                    .scanners
-                    .get("core_asset_v1")
-                    .cloned()
-                    .unwrap_or(ScanStatus::Unsupported(
-                        "Core NFT check not requested".into(),
-                    )),
-            ),
+            ("nft_classic".into(), classic_status),
+            ("nft_core".into(), core_status),
         ]),
     }
 }
@@ -322,6 +395,46 @@ mod tests {
             )
         }
     }
+    struct EvidenceProvider {
+        source: String,
+    }
+    impl SwapProvider for EvidenceProvider {
+        async fn build_swap(
+            &self,
+            _: &SwapRequest,
+        ) -> crate::app::swap::Result<crate::app::swap::PreparedSwap> {
+            Err(SwapError::NoRoute(
+                "Exact mint, amount and network route lookup returned NoRoute".into(),
+            ))
+        }
+    }
+    impl RiskProvider for EvidenceProvider {
+        async fn risks(&self, mints: &[String]) -> (BTreeMap<String, RiskSignal>, ScanStatus) {
+            (
+                mints
+                    .iter()
+                    .enumerate()
+                    .map(|(index, mint)| {
+                        (
+                            mint.clone(),
+                            RiskSignal {
+                                status: if index == 0 {
+                                    "suspicious"
+                                } else {
+                                    "not_flagged"
+                                }
+                                .into(),
+                                source: self.source.clone(),
+                                reasons: vec!["Explicit exact-mint provider observation".into()],
+                                checked_at: "1".into(),
+                            },
+                        )
+                    })
+                    .collect(),
+                ScanStatus::Complete,
+            )
+        }
+    }
     fn snapshot() -> WalletSnapshot {
         WalletSnapshot {
             selected: ScanSelection {
@@ -341,6 +454,8 @@ mod tests {
             scanners: BTreeMap::from([
                 ("all_tokens".into(), ScanStatus::Complete),
                 ("nfts".into(), ScanStatus::Complete),
+                ("classic_nfts".into(), ScanStatus::Complete),
+                ("core_asset_v1".into(), ScanStatus::Complete),
                 (
                     "prices".into(),
                     ScanStatus::Partial("Unpriced holdings".into()),
@@ -362,6 +477,278 @@ mod tests {
             price: None,
             value_usd: value,
         }
+    }
+    fn classic(n: u8, account: &str) -> NftAsset {
+        NftAsset {
+            mint: Pubkey::new_from_array([n; 32]).to_string(),
+            token_accounts: vec![account.into()],
+            metadata: Default::default(),
+            programmable: false,
+            edition: false,
+            evidence: "Verified Metaplex NonFungible owner account".into(),
+        }
+    }
+    fn account(address: &str, mint: &str) -> TokenAccount {
+        TokenAccount {
+            address: address.into(),
+            mint: mint.into(),
+            program: TokenProgram::Legacy,
+            program_id: TokenProgram::Legacy.id().to_string(),
+            owner: Pubkey::default().to_string(),
+            raw_amount: 100,
+            decimals: Some(6),
+            lamports: 1,
+            data_len: 165,
+            state: "initialized".into(),
+            delegate: None,
+            delegated_amount: 0,
+            close_authority: None,
+            is_native: false,
+            native_reserve_lamports: None,
+            extensions: serde_json::json!({}),
+            extension_types: vec![],
+            closure: ClosureAssessment::NeedsReview("Nonzero holding".into()),
+        }
+    }
+    fn core(n: u8, owner: &str) -> CoreAsset {
+        CoreAsset {
+            address: Pubkey::new_from_array([n; 32]).to_string(),
+            owner: owner.into(),
+            name: "Core asset".into(),
+            uri: String::new(),
+            lamports: 1,
+            data_len: 1,
+            update_authority: String::new(),
+            collection: None,
+            plugins_status: ScanStatus::Complete,
+        }
+    }
+
+    #[tokio::test]
+    async fn nft_ids_are_deduplicated_and_known_classic_core_survive_missing_das() {
+        let mut wallet = snapshot();
+        wallet.classic_nfts = vec![classic(7, "a"), classic(7, "b"), classic(7, "a")];
+        wallet.core_assets = vec![
+            core(8, &wallet.owner),
+            core(8, &wallet.owner),
+            core(9, "foreign"),
+        ];
+        wallet.scanners.insert(
+            "prices".into(),
+            ScanStatus::Failed("Pricing HTTP 401".into()),
+        );
+        let report = classify::<Provider>(
+            &wallet,
+            &Pubkey::default(),
+            None,
+            "devnet".into(),
+            false,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Unsupported("DAS not configured".into()),
+            },
+        )
+        .await;
+        let nft = &report.categories["nft"];
+        assert_eq!(nft.items.len(), 2);
+        assert!(
+            matches!(&nft.status, ScanStatus::Partial(reason) if reason.contains("DAS not configured"))
+        );
+        let classic = nft.items.iter().find(|item| item.kind == "nft").unwrap();
+        assert_eq!(classic.accounts, ["a", "b"]);
+        assert_eq!(
+            classic.evidence.as_deref(),
+            Some("Verified Metaplex NonFungible owner account")
+        );
+        assert!(report.categories["dust"].items.is_empty());
+    }
+
+    #[tokio::test]
+    async fn compressed_ids_are_unique_and_foreign_ownership_is_excluded() {
+        let wallet = snapshot();
+        let asset = CompressedAsset {
+            id: "compressed-id".into(),
+            owner: wallet.owner.clone(),
+            name: "cNFT".into(),
+        };
+        let report = classify::<Provider>(
+            &wallet,
+            &Pubkey::default(),
+            None,
+            "devnet".into(),
+            false,
+            0.01,
+            CompressedReport {
+                items: vec![
+                    asset.clone(),
+                    asset,
+                    CompressedAsset {
+                        id: "foreign-id".into(),
+                        owner: "foreign".into(),
+                        name: "foreign".into(),
+                    },
+                ],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        assert_eq!(report.categories["nft"].items.len(), 1);
+        assert!(report.categories["nft"].status.is_complete());
+    }
+
+    #[tokio::test]
+    async fn empty_onchain_nfts_with_unknown_compressed_coverage_do_not_assert_complete_zero() {
+        let mut wallet = snapshot();
+        let report = classify::<Provider>(
+            &wallet,
+            &Pubkey::default(),
+            None,
+            "devnet".into(),
+            false,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Unsupported("No DAS".into()),
+            },
+        )
+        .await;
+        assert!(report.categories["nft"].items.is_empty());
+        assert!(matches!(
+            report.categories["nft"].status,
+            ScanStatus::Partial(_)
+        ));
+        // Complete token inventory does not establish that NFT scanners ran.
+        wallet.scanners.remove("classic_nfts");
+        wallet.scanners.remove("core_asset_v1");
+        let report = classify::<Provider>(
+            &wallet,
+            &Pubkey::default(),
+            None,
+            "devnet".into(),
+            false,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        assert!(!report.categories["nft"].status.is_complete());
+        assert!(matches!(
+            report.providers["nft_classic"],
+            ScanStatus::Skipped(_)
+        ));
+    }
+
+    #[tokio::test]
+    async fn mainnet_missing_provider_does_not_produce_authoritative_risk_or_routing_zero() {
+        let wallet = snapshot();
+        let report = classify::<Provider>(
+            &wallet,
+            &Pubkey::default(),
+            None,
+            "mainnet".into(),
+            true,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        assert!(matches!(report.providers["risk"], ScanStatus::Failed(_)));
+        assert!(matches!(report.providers["routing"], ScanStatus::Failed(_)));
+        assert!(!report.categories["scam"].status.is_complete());
+        assert!(!report.categories["dead_token"].status.is_complete());
+    }
+
+    #[tokio::test]
+    async fn complete_categories_retain_distinct_nonzero_items_from_independent_evidence() {
+        let mut wallet = snapshot();
+        wallet
+            .scanners
+            .insert("prices".into(), ScanStatus::Complete);
+        wallet.all_tokens = vec![
+            token(1, AssetKind::Fungible, Some(0.001)),
+            token(2, AssetKind::Fungible, Some(0.002)),
+            token(3, AssetKind::Fungible, Some(0.003)),
+            token(4, AssetKind::Fungible, Some(1.0)),
+        ];
+        wallet.classic_nfts = vec![classic(7, "nft-account")];
+        wallet.core_assets = vec![core(8, &wallet.owner)];
+        let provider = EvidenceProvider {
+            source: "Exact-mint risk provider".into(),
+        };
+        let report = classify(
+            &wallet,
+            &Pubkey::default(),
+            Some(&provider),
+            "mainnet".into(),
+            true,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        for (key, count) in [("scam", 1), ("nft", 2), ("dust", 3), ("dead_token", 4)] {
+            assert!(report.categories[key].status.is_complete(), "{key}");
+            assert_eq!(report.categories[key].items.len(), count, "{key}");
+        }
+        assert!(
+            report.categories["scam"].items[0]
+                .risk
+                .as_ref()
+                .unwrap()
+                .source
+                .contains("risk provider")
+        );
+        assert!(
+            report.categories["dead_token"]
+                .items
+                .iter()
+                .all(|item| item.tradability == "no_route" && item.evidence.is_some())
+        );
+    }
+
+    #[tokio::test]
+    async fn missing_risk_source_and_missing_valuation_remain_unknown_with_complete_provider_status()
+     {
+        let mut wallet = snapshot();
+        wallet
+            .scanners
+            .insert("prices".into(), ScanStatus::Complete);
+        wallet.all_tokens = vec![token(1, AssetKind::Fungible, None)];
+        let provider = EvidenceProvider { source: " ".into() };
+        let report = classify(
+            &wallet,
+            &Pubkey::default(),
+            Some(&provider),
+            "mainnet".into(),
+            true,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        assert!(report.categories["scam"].items.is_empty());
+        assert!(matches!(
+            report.categories["scam"].status,
+            ScanStatus::Partial(_)
+        ));
+        assert!(report.categories["dust"].items.is_empty());
+        assert!(matches!(
+            report.categories["dust"].status,
+            ScanStatus::Partial(_)
+        ));
+        assert_eq!(report.categories["dead_token"].items.len(), 1);
+        assert!(report.categories["dead_token"].status.is_complete());
+        assert!(report.categories["nft"].status.is_complete());
+        assert!(report.categories["nft"].items.is_empty());
     }
     #[tokio::test]
     async fn api_failure_is_unknown_unpriced_is_not_dust_and_nfts_never_route() {
@@ -448,6 +835,53 @@ mod tests {
             ScanStatus::Unsupported(_)
         ));
         assert_eq!(provider.requests.lock().unwrap().len(), 1);
+    }
+    #[tokio::test]
+    async fn duplicate_raw_accounts_and_overlapping_views_do_not_double_count_holdings() {
+        let mut wallet = snapshot();
+        wallet
+            .scanners
+            .insert("prices".into(), ScanStatus::Complete);
+        let mut holding = token(1, AssetKind::Fungible, Some(0.01));
+        holding.price = Some(Price {
+            usd: 50.0,
+            source: "Exact-mint quote".into(),
+            block_id: Some(1),
+            decimals: 6,
+        });
+        let a = account("a", &holding.mint);
+        let b = account("b", &holding.mint);
+        wallet.token_accounts = vec![a.clone(), a, b.clone(), b];
+        wallet.all_tokens = vec![holding.clone(), holding.clone()];
+        wallet.tokens = vec![holding];
+        let provider = Provider {
+            requests: Default::default(),
+            no_route: true,
+        };
+        let report = classify(
+            &wallet,
+            &Pubkey::default(),
+            Some(&provider),
+            "mainnet".into(),
+            true,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        for key in ["dust", "dead_token"] {
+            assert_eq!(report.categories[key].items.len(), 1);
+            assert_eq!(report.categories[key].items[0].accounts, ["a", "b"]);
+            assert_eq!(
+                report.categories[key].items[0].raw_amount.as_deref(),
+                Some("200")
+            );
+            assert_eq!(report.categories[key].items[0].value_usd, Some(0.01));
+        }
+        assert_eq!(provider.requests.lock().unwrap().len(), 1);
+        assert_eq!(provider.requests.lock().unwrap()[0].raw_amount, 200);
     }
     #[tokio::test]
     async fn devnet_test_observations_are_scoped_readonly_and_do_not_manufacture_nfts_or_swap_quotes()

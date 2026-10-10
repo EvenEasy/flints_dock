@@ -18,12 +18,14 @@ impl RiskProvider for Jupiter {
             .collect();
         let mut signals = BTreeMap::new();
         let mut failures = Vec::new();
+        let mut successful_batches = 0;
         for batch in unique.chunks(100) {
             match self
                 .mint_json("/tokens/v2/search", "query", batch, Duration::from_secs(60))
                 .await
             {
                 Ok(value) if value.is_array() => {
+                    successful_batches += 1;
                     for token in value.as_array().unwrap() {
                         if let Some(mint) = token["id"]
                             .as_str()
@@ -61,19 +63,30 @@ impl RiskProvider for Jupiter {
                         }
                     }
                 }
-                _ => failures.push("Jupiter risk lookup unavailable or malformed"),
+                Ok(_) => failures.push("Malformed Jupiter risk response".to_owned()),
+                Err(reason) => failures.push(reason),
             }
         }
         let unknown = unique
             .iter()
             .filter(|id| signals.get(*id).is_none_or(|s| s.status == "unknown"))
             .count();
-        let status = if failures.is_empty() && unknown == 0 {
+        let status = if successful_batches == 0 && !failures.is_empty() {
+            ScanStatus::Failed(format!(
+                "Jupiter risk lookup failed: {}",
+                failures.join("; ")
+            ))
+        } else if failures.is_empty() && unknown == 0 {
             ScanStatus::Complete
         } else {
             ScanStatus::Partial(format!(
-                "{unknown} unknown risk records; {} failed batches",
-                failures.len()
+                "{unknown} unknown risk records; {} failed batches{}",
+                failures.len(),
+                if failures.is_empty() {
+                    String::new()
+                } else {
+                    format!(": {}", failures.join("; "))
+                }
             ))
         };
         (signals, status)

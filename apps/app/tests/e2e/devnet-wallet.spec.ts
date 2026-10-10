@@ -73,7 +73,7 @@ for (const viewport of [
     await page.getByRole('button', { name: 'SCAN WALLET' }).click();
     await expect(page.getByRole('button', { name: /^NFT:/ })).toHaveAttribute(
       'aria-label',
-      'NFT: Not checked',
+      'NFT: —',
     );
     await page.getByRole('button', { name: /^NFT:/ }).click();
     await expect(page.getByRole('dialog')).toContainText('compressed NFT inventory unavailable');

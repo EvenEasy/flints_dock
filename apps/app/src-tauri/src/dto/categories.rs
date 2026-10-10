@@ -55,16 +55,21 @@ impl From<WalletCategories> for CategoriesDto {
                             }
                             .into(),
                             network: network.clone(),
-                            coverage: if key == "nft" {
-                                ["nft_classic", "nft_core", "das"]
-                                    .into_iter()
-                                    .filter_map(|key| {
-                                        providers.get(key).cloned().map(|s| (key.into(), s.into()))
-                                    })
-                                    .collect()
-                            } else {
-                                BTreeMap::new()
-                            },
+                            coverage: match key.as_str() {
+                                "scam" => &["rpc", "risk"][..],
+                                "dust" => &["rpc", "pricing"][..],
+                                "dead_token" => &["rpc", "routing"][..],
+                                "nft" => &["nft_classic", "nft_core", "das"][..],
+                                _ => &[],
+                            }
+                            .iter()
+                            .filter_map(|key| {
+                                providers
+                                    .get(*key)
+                                    .cloned()
+                                    .map(|s| ((*key).into(), s.into()))
+                            })
+                            .collect(),
                             status: r.status.into(),
                             checked_at: r.checked_at,
                         },
@@ -76,6 +81,82 @@ impl From<WalletCategories> for CategoriesDto {
                 .into_iter()
                 .map(|(k, s)| (k, s.into()))
                 .collect(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dock_flints_core::core::{ScanStatus, categories::CategoryResult};
+
+    #[test]
+    fn serialized_categories_keep_count_status_reason_and_dependency_coverage_separate() {
+        let providers = BTreeMap::from([
+            ("rpc".into(), ScanStatus::Complete),
+            (
+                "pricing".into(),
+                ScanStatus::Skipped("Prices disabled".into()),
+            ),
+            ("risk".into(), ScanStatus::Failed("HTTP 401".into())),
+            (
+                "routing".into(),
+                ScanStatus::Partial("Some routes unknown".into()),
+            ),
+            ("nft_classic".into(), ScanStatus::Complete),
+            ("nft_core".into(), ScanStatus::Complete),
+            (
+                "das".into(),
+                ScanStatus::Unsupported("DAS not configured".into()),
+            ),
+        ]);
+        let categories = [
+            ("scam", ScanStatus::Failed("HTTP 401".into())),
+            ("dust", ScanStatus::Skipped("Prices disabled".into())),
+            (
+                "dead_token",
+                ScanStatus::Partial("Some routes unknown".into()),
+            ),
+            ("nft", ScanStatus::Partial("DAS not configured".into())),
+        ]
+        .into_iter()
+        .map(|(key, status)| {
+            (
+                key.into(),
+                CategoryResult {
+                    items: vec![],
+                    status,
+                    checked_at: "1".into(),
+                },
+            )
+        })
+        .collect();
+        let dto: CategoriesDto = WalletCategories {
+            network: "devnet-genesis".into(),
+            dust_threshold_usd: 0.01,
+            categories,
+            providers,
+        }
+        .into();
+        let json = serde_json::to_value(dto).unwrap();
+        for (key, dependencies) in [
+            ("scam", vec!["rpc", "risk"]),
+            ("dust", vec!["rpc", "pricing"]),
+            ("dead_token", vec!["rpc", "routing"]),
+            ("nft", vec!["nft_classic", "nft_core", "das"]),
+        ] {
+            let category = &json["categories"][key];
+            assert_eq!(category["count"], 0);
+            assert_eq!(category["items"].as_array().unwrap().len(), 0);
+            assert_eq!(category["checkedAt"], "1");
+            assert!(category["reason"].is_string());
+            assert!(category["status"]["status"].is_string());
+            for dependency in dependencies {
+                assert_eq!(
+                    category["coverage"][dependency],
+                    json["providers"][dependency]
+                );
+            }
         }
     }
 }

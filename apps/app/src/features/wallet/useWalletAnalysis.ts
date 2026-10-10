@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnalyzeWalletRequest, WalletAnalysis } from '../../../frontend-contract/types';
 import { readWallet, readableError } from '../../shared/api/wallet';
 import type { ReadError } from '../../shared/api/wallet';
+import { normalizeWalletCategories } from '../assets/categoryPresentation';
 
 /** Track one read-only analysis and ignore late responses after cancellation or a new request. */
 export function useWalletAnalysis() {
@@ -34,7 +35,9 @@ export function useWalletAnalysis() {
           );
       });
       if (generation.current !== current) return false;
-      setAnalysis(result);
+      if (result.owner !== request.walletAddress)
+        throw { code: 'analysis_failed', message: 'The analysis returned a different wallet.' };
+      setAnalysis(normalizeWalletCategories(result));
       return true;
     } catch (failure: unknown) {
       if (generation.current === current) setError(readableError(failure));
@@ -50,6 +53,7 @@ export function useWalletAnalysis() {
     setAnalysis(null);
     setError(null);
     setLoading(false);
+    setProgress(null);
   }, []);
 
   return { analysis, error, loading, progress, scan, reset };

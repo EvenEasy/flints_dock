@@ -13,8 +13,10 @@ import type { MediaKey } from '../../shared/assets';
 import { ExactAmount } from '../../shared/ui/ExactAmount';
 import { lamportsToSol } from '../../shared/format';
 import { Notice } from '../../shared/ui/Notice';
+import { presentCategory } from '../assets/categoryPresentation';
 
-export type CargoCategory = 'scam' | 'nft' | 'dust' | 'dead_token';
+export type { CargoCategory } from '../assets/categoryPresentation';
+import type { CargoCategory } from '../assets/categoryPresentation';
 const categories = [
   ['scam', 'SCAM', 42],
   ['nft', 'NFT', 24],
@@ -34,18 +36,6 @@ export function MainScreen({
   onCleanup: () => void;
   onInspect: (category: CargoCategory) => void;
 }) {
-  const nftKnown =
-    analysis?.nfts && (analysis.nfts.classic.items !== null || analysis.nfts.core.items !== null);
-  const observedNfts = nftKnown
-    ? (analysis!.nfts!.classic.items?.length ?? 0) + (analysis!.nfts!.core.items?.length ?? 0)
-    : 0;
-  function categoryDisplay(key: CargoCategory): string {
-    const result = analysis?.categories?.categories[key];
-    if (result?.status.status === 'complete') return String(result.items.length);
-    if (result?.items.length) return `${result.items.length} · Partial`;
-    if (key === 'nft' && observedNfts > 0) return `${observedNfts} · Partial`;
-    return result?.status.status === 'failed' ? 'Unavailable' : 'Not checked';
-  }
   const rent = lamportsToSol(analysis?.accountSummary?.potentiallyReclaimableLamports);
   return (
     <div className="page page--main">
@@ -134,58 +124,42 @@ export function MainScreen({
           <span>CARGO MANIFEST</span>
         </h2>
         <div className="category-grid">
-          {categories.map(([key, label, sample]) => (
-            <button
-              className={`category-card category-card--${key}`}
-              key={key}
-              type="button"
-              onClick={() => onInspect(key)}
-              aria-label={`${label}: ${preview ? sample : categoryDisplay(key)}`}
-              title={
-                !preview && analysis?.categories?.categories[key]?.status.status !== 'complete'
-                  ? 'Check incomplete or unavailable'
-                  : key === 'scam'
-                    ? 'Flagged as suspicious by the provider'
-                    : undefined
-              }
-            >
-              <SurfaceFrame
-                tone={
-                  key === 'nft'
-                    ? 'gold'
-                    : key === 'dust'
-                      ? 'mint'
-                      : key === 'dead_token'
-                        ? 'red'
-                        : 'violet'
-                }
-              />
-              <RasterArt
-                className="category-art"
-                media={`category.${key}` as MediaKey}
-                alt=""
-                aria-hidden="true"
-              />
-              <span className="category-label type-caption">{label}</span>
-              <strong className="type-numeric type-numeric--count">
-                {preview ? (
-                  sample
-                ) : (
-                  <span
-                    className={
-                      categoryDisplay(key).includes('checked') ||
-                      categoryDisplay(key).includes('Partial') ||
-                      categoryDisplay(key) === 'Unavailable'
-                        ? 'type-caption'
-                        : undefined
-                    }
-                  >
-                    {categoryDisplay(key)}
-                  </span>
-                )}
-              </strong>
-            </button>
-          ))}
+          {categories.map(([key, label, sample]) => {
+            const category = presentCategory(analysis?.categories?.categories[key]);
+            return (
+              <button
+                className={`category-card category-card--${key}`}
+                key={key}
+                type="button"
+                onClick={() => onInspect(key)}
+                aria-label={`${label}: ${preview ? sample : category.counter}`}
+                aria-description={preview ? undefined : category.description}
+                title={preview ? undefined : category.description}
+              >
+                <SurfaceFrame
+                  tone={
+                    key === 'nft'
+                      ? 'gold'
+                      : key === 'dust'
+                        ? 'mint'
+                        : key === 'dead_token'
+                          ? 'red'
+                          : 'violet'
+                  }
+                />
+                <RasterArt
+                  className="category-art"
+                  media={`category.${key}` as MediaKey}
+                  alt=""
+                  aria-hidden="true"
+                />
+                <span className="category-label type-caption">{label}</span>
+                <strong className="type-numeric type-numeric--count">
+                  {preview ? sample : category.counter}
+                </strong>
+              </button>
+            );
+          })}
         </div>
       </section>
       <RecoverButton onClick={onCleanup} />

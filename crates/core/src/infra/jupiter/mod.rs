@@ -103,18 +103,22 @@ impl Jupiter {
                     std::time::Instant::now() + Duration::from_secs(reset.unwrap_or(2).min(60)),
                 );
             }
-            let value: serde_json::Value = response
-                .json()
-                .await
-                .map_err(|e| e.without_url().to_string())?;
             if (status == 429 || status >= 500) && attempt < 2 {
                 let wait = retry_after.or(reset).unwrap_or(1 << attempt);
                 if wait > 60 {
-                    return Ok((status, value));
+                    return Err(format!(
+                        "Jupiter HTTP {status}; retry delay exceeds 60 seconds"
+                    ));
                 }
+                // Throttling and gateway responses may contain HTML or an empty body.
+                // Retry by HTTP status before asking the JSON parser to decode them.
                 tokio::time::sleep(Duration::from_secs(wait)).await;
                 continue;
             }
+            let value: serde_json::Value = response
+                .json()
+                .await
+                .map_err(|_| format!("Jupiter HTTP {status}; malformed JSON response"))?;
             if status == 200 && !ttl.is_zero() {
                 let mut cache = self.cache.lock().map_err(|_| "cache unavailable")?;
                 cache.retain(|_, (at, _)| at.elapsed() < Duration::from_secs(300));

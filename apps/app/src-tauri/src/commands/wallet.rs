@@ -5,6 +5,32 @@ use crate::{
 };
 use dock_flints_core::{app::scan_wallet::scan_wallet_observed, core::ScanStatus};
 
+/// Retry read-only network discovery separately from the scan. An unverified network
+/// disables scoped providers, but is a failed check rather than a verified unsupported chain.
+async fn analysis_network(
+    rpc: &solana_rpc_client::nonblocking::rpc_client::RpcClient,
+) -> Result<(String, bool), String> {
+    let mut reason = String::new();
+    for attempt in 0..3 {
+        match tokio::time::timeout(std::time::Duration::from_secs(5), rpc.get_genesis_hash()).await
+        {
+            Ok(Ok(hash)) => {
+                let hash = hash.to_string();
+                let mainnet = hash == "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
+                return Ok((hash, mainnet));
+            }
+            Ok(Err(error)) => reason = dock_flints_core::infra::solana::safe_error(error),
+            Err(_) => reason = "getGenesisHash timed out".into(),
+        }
+        if attempt < 2 {
+            tokio::time::sleep(std::time::Duration::from_millis(250 << attempt)).await;
+        }
+    }
+    Err(format!(
+        "RPC network verification failed after 3 attempts (getGenesisHash): {reason}; mainnet providers were not queried"
+    ))
+}
+
 /// Analyze selected wallet categories through the existing read-only core use case.
 /// Invalid addresses reject the request; partial RPC/pricing failures remain in the response.
 #[tauri::command]
@@ -38,8 +64,8 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
         session_id,
         sequence: Default::default(),
     };
-    let scope = crate::cleanup::network(&state.rpc).await.ok();
-    let mainnet = scope.as_ref().is_some_and(|(_, mainnet)| *mainnet);
+    let scope = analysis_network(&state.rpc).await;
+    let mainnet = scope.as_ref().is_ok_and(|(_, mainnet)| *mainnet);
     let mut snapshot = scan_wallet_observed(
         &state.rpc,
         &owner,
@@ -52,6 +78,13 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
         &observer,
     )
     .await;
+    snapshot.scanners.insert(
+        "network".into(),
+        match &scope {
+            Ok(_) => ScanStatus::Complete,
+            Err(reason) => ScanStatus::Failed(reason.clone()),
+        },
+    );
     // Preserve the CLI's pricing initialization failure without hiding successful holdings.
     if options.selection.needs_prices()
         && !options.no_prices
@@ -62,13 +95,13 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
             .insert("prices".into(), ScanStatus::Failed(reason.clone()));
     }
 
-    if !mainnet && options.selection.needs_prices() && !options.no_prices {
+    if options.selection.needs_prices() && !options.no_prices && !mainnet {
         snapshot.scanners.insert(
             "prices".into(),
-            ScanStatus::Unsupported(
-                "Jupiter valuation is mainnet-only; network is different or could not be verified"
-                    .into(),
-            ),
+            match &scope {
+                Ok(_) => ScanStatus::Unsupported("Jupiter valuation is mainnet-only".into()),
+                Err(reason) => ScanStatus::Failed(reason.clone()),
+            },
         );
     }
     observer.progress(dock_flints_core::core::progress::CleanupProgress {
@@ -85,23 +118,35 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
         || options.selection.nfts
         || options.selection.cnfts
     {
-        let compressed = match &state.das {
-            Some(das) => {
-                das.compressed_on_network(
-                    &owner.to_string(),
-                    scope
-                        .as_ref()
-                        .map(|(hash, _)| hash.as_str())
-                        .unwrap_or("unknown"),
-                )
-                .await
-            }
-            None => dock_flints_core::core::categories::CompressedReport {
+        let compressed = if !options.selection.cnfts {
+            dock_flints_core::core::categories::CompressedReport {
                 items: vec![],
-                status: ScanStatus::Unsupported(
-                    "DAS endpoint not configured; compressed NFT inventory unavailable".into(),
-                ),
-            },
+                status: ScanStatus::Skipped("Compressed NFT discovery not requested".into()),
+            }
+        } else {
+            match &state.das {
+                Some(das) if scope.is_ok() => {
+                    das.compressed_on_network(
+                        &owner.to_string(),
+                        scope
+                            .as_ref()
+                            .ok()
+                            .map(|(hash, _)| hash.as_str())
+                            .unwrap_or("unknown"),
+                    )
+                    .await
+                }
+                Some(_) => dock_flints_core::core::categories::CompressedReport {
+                    items: vec![],
+                    status: ScanStatus::Failed(scope.as_ref().unwrap_err().clone()),
+                },
+                None => dock_flints_core::core::categories::CompressedReport {
+                    items: vec![],
+                    status: ScanStatus::Unsupported(
+                        "DAS endpoint not configured; compressed NFT inventory unavailable".into(),
+                    ),
+                },
+            }
         };
         if options.selection.cnfts {
             compressed_inventory = Some(crate::dto::assets::CompressedNftsDto {
@@ -137,18 +182,38 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
                 || matches!(coverage, ScanStatus::Complete | ScanStatus::Partial(_)))
             .then_some(items),
         });
-        let category_report = dock_flints_core::app::categories::classify(
+        let mut category_report = dock_flints_core::app::categories::classify(
             &snapshot,
             &owner,
             state.jupiter.as_ref(),
             scope
-                .map(|(hash, _)| hash)
+                .as_ref()
+                .ok()
+                .map(|(hash, _)| hash.clone())
                 .unwrap_or_else(|| "unknown".into()),
             mainnet,
             state.dust_threshold_usd,
             compressed,
         )
         .await;
+        category_report
+            .providers
+            .insert("network".into(), snapshot.scanners["network"].clone());
+        if let Err(reason) = &scope {
+            // The RPC holdings remain usable. Only checks requiring a verified provider
+            // scope failed; never reinterpret unknown network as devnet or NoRoute.
+            let status = ScanStatus::Failed(reason.clone());
+            for provider in ["risk", "routing"] {
+                category_report
+                    .providers
+                    .insert(provider.into(), status.clone());
+            }
+            for key in ["scam", "dead_token"] {
+                if let Some(category) = category_report.categories.get_mut(key) {
+                    category.status = status.clone();
+                }
+            }
+        }
         Some(category_report.into())
     } else {
         None

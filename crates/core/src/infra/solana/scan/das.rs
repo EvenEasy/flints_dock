@@ -59,7 +59,12 @@ impl DasClient {
                     }
                     tokio::time::sleep(Duration::from_secs(wait)).await;
                 }
-                Ok(_) => return Err(SwapError::Api("DAS authentication/request failed".into())),
+                Ok(response) => {
+                    return Err(SwapError::Api(format!(
+                        "DAS authentication/request failed: HTTP {}",
+                        response.status().as_u16()
+                    )));
+                }
                 Err(_) if attempt < 2 => {
                     tokio::time::sleep(Duration::from_secs(1 << attempt)).await
                 }
@@ -77,25 +82,28 @@ impl DasClient {
 
     /// Ensure the configured indexer serves the same genesis hash as the Solana reader.
     pub async fn compressed_on_network(&self, owner: &str, network: &str) -> CompressedReport {
-        let response = self
-            .http
-            .post(&self.endpoint)
-            .json(&json!({"jsonrpc":"2.0","id":"network","method":"getGenesisHash"}))
-            .send()
-            .await;
-        let same = match response {
-            Ok(response) if response.status().is_success() => response
-                .json::<Value>()
-                .await
-                .ok()
-                .is_some_and(|value| value["result"].as_str() == Some(network)),
-            _ => false,
+        let hash = match self.call("getGenesisHash", json!([])).await {
+            Ok(value) => match value.as_str() {
+                Some(hash) => hash.to_owned(),
+                None => {
+                    return CompressedReport {
+                        items: vec![],
+                        status: ScanStatus::Failed("Malformed DAS getGenesisHash response".into()),
+                    };
+                }
+            },
+            Err(error) => {
+                return CompressedReport {
+                    items: vec![],
+                    status: ScanStatus::Failed(format!("DAS network verification failed: {error}")),
+                };
+            }
         };
-        if !same {
+        if hash != network {
             return CompressedReport {
                 items: vec![],
                 status: ScanStatus::Unsupported(
-                    "DAS network could not be verified against RPC genesis hash".into(),
+                    "DAS serves a different genesis hash than the verified RPC network".into(),
                 ),
             };
         }
@@ -314,5 +322,68 @@ mod tests {
         server.join().unwrap();
         assert_eq!(result.items.len(), 1);
         assert!(matches!(result.status, ScanStatus::Partial(_)));
+    }
+
+    fn network_server(responses: Vec<(u16, Value)>) -> (String, std::thread::JoinHandle<()>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}", listener.local_addr().unwrap());
+        (
+            url,
+            std::thread::spawn(move || {
+                for (status, result) in responses {
+                    let (mut stream, _) = listener.accept().unwrap();
+                    stream
+                        .set_read_timeout(Some(Duration::from_secs(5)))
+                        .unwrap();
+                    let mut request = Vec::new();
+                    let mut buffer = [0; 4096];
+                    while !request.windows(4).any(|part| part == b"\r\n\r\n") {
+                        let count = stream.read(&mut buffer).unwrap();
+                        assert!(count > 0);
+                        request.extend_from_slice(&buffer[..count]);
+                    }
+                    let body = json!({"jsonrpc":"2.0","id":1,"result":result}).to_string();
+                    write!(stream,"HTTP/1.1 {status} Fixture\r\nRetry-After: 0\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",body.len()).unwrap();
+                }
+            }),
+        )
+    }
+
+    #[tokio::test]
+    async fn network_check_retries_transient_outage_before_discovering_owned_compressed_assets() {
+        let (url, server) = network_server(vec![
+            (503, Value::Null),
+            (200, json!("verified-genesis")),
+            (200, json!({"total":1,"items":[row(1,"wallet")]})),
+        ]);
+        let report = DasClient::new(url)
+            .unwrap()
+            .compressed_on_network("wallet", "verified-genesis")
+            .await;
+        server.join().unwrap();
+        assert_eq!(report.status, ScanStatus::Complete);
+        assert_eq!(report.items.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn unverified_network_is_failed_but_verified_mismatch_is_unsupported() {
+        for (http, result, unsupported) in [
+            (403, Value::Null, false),
+            (200, json!(123), false),
+            (200, json!("other-genesis"), true),
+        ] {
+            let (url, server) = network_server(vec![(http, result)]);
+            let report = DasClient::new(url)
+                .unwrap()
+                .compressed_on_network("wallet", "verified-genesis")
+                .await;
+            server.join().unwrap();
+            assert!(report.items.is_empty());
+            assert!(if unsupported {
+                matches!(report.status, ScanStatus::Unsupported(_))
+            } else {
+                matches!(report.status, ScanStatus::Failed(_))
+            });
+        }
     }
 }
