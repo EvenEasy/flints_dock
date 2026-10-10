@@ -279,7 +279,7 @@ test('DesktopContract_ConnectSelectPreservePricesAndDisconnect', async ({ page }
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
-  await page.getByRole('checkbox', { name: /mint EPjFW/ }).uncheck();
+  await page.getByRole('checkbox', { name: /asset EPjFW/ }).uncheck();
   await expect(page.getByText('KEEP', { exact: true })).toBeVisible();
   await expect(page.getByText('DEAD')).toHaveCount(0);
   expect(
@@ -335,7 +335,7 @@ test('PartialAndLongInventory_ScrollAndNavigationRemainUsable', async ({ page })
   await connect(page);
   await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
   await expect(page.getByText('Some metadata unavailable.')).toBeVisible();
-  const last = page.getByRole('checkbox', { name: 'Include Same name mint mint-149' });
+  const last = page.getByRole('checkbox', { name: 'Include Same name asset mint-149' });
   await last.scrollIntoViewIfNeeded();
   await last.uncheck();
   await expect(last).not.toBeChecked();

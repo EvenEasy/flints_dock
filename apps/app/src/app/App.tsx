@@ -17,7 +17,6 @@ import { useCleanup } from '../features/cleanup/useCleanup';
 import { CleanupProcessingScreen } from '../features/cleanup/CleanupProcessingScreen';
 import { selectableAssets } from '../features/assets/presentation';
 import { CategoryDialog } from '../features/assets/CategoryDialog';
-import { ActionButton } from '../shared/ui/ActionButton';
 import { signedLamportsToSol } from '../shared/format';
 import { CleanupScreen } from '../features/cleanup/CleanupScreen';
 import { SuccessScreen } from '../features/cleanup/SuccessScreen';
@@ -35,7 +34,7 @@ export function App() {
       : 'welcome',
   );
   const [dialog, setDialog] = useState<
-    'connect' | 'menu' | 'inventory' | 'capability' | 'category' | 'approval' | null
+    'connect' | 'menu' | 'inventory' | 'capability' | 'category' | null
   >(null);
   const [inventoryView, setInventoryView] = useState<'tokens' | 'nfts'>('tokens');
   const [capability, setCapability] = useState('');
@@ -47,22 +46,19 @@ export function App() {
   const lastScreen = useRef({ screen, preview });
   const [address, setAddress] = useState('');
   const [connection, setConnection] = useState<WalletConnection | null>(null);
-  const [cleanupPolicy, setCleanupPolicy] =
-    useState<import('../../frontend-contract/cleanup').CleanupPolicy>('auto');
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [ignoredMints, setIgnoredMints] = useState<ReadonlySet<string>>(
     () => new Set(preview ? previewExcluded : []),
   );
   const { analysis, error, progress: scanProgress, scan, reset } = useWalletAnalysis();
   const selected = selectableAssets(analysis)
-    .filter((asset) => !ignoredMints.has(asset.mint))
-    .map((asset) => asset.mint);
+    .filter((asset) => !ignoredMints.has(asset.key))
+    .map((asset) => asset.key);
   const cleanup = useCleanup(
     connection?.sessionId,
     !preview && screen === 'cleanup',
     selected,
     ignoredMints,
-    cleanupPolicy,
   );
   const resultAvailable = useRef(false);
 
@@ -128,7 +124,6 @@ export function App() {
         return;
       }
       setConnection(null);
-      setCleanupPolicy('auto');
     }
     resultAvailable.current = false;
     activeRequest.current += 1;
@@ -202,7 +197,6 @@ export function App() {
     lastRequest.current = null;
     reset();
     setConnection(null);
-    setCleanupPolicy('auto');
     resultAvailable.current = false;
     setSessionError(null);
     setAddress('');
@@ -292,13 +286,10 @@ export function App() {
         planningProgress={cleanup.planningProgress}
         error={cleanup.error}
         canSign={connection?.canSign}
-        onExecute={() => setDialog('approval')}
-        onRetry={cleanup.refresh}
-        policy={cleanupPolicy}
-        onPolicyChange={(policy) => {
-          cleanup.invalidate();
-          setCleanupPolicy(policy);
+        onExecute={() => {
+          void executeApprovedCleanup();
         }}
+        onRetry={cleanup.refresh}
         onPreviewComplete={() => {
           if (preview) navigate('success');
         }}
@@ -360,7 +351,6 @@ export function App() {
           onConnected={(wallet) => {
             resultAvailable.current = false;
             cleanup.invalidate();
-            setCleanupPolicy('auto');
             setConnection(wallet);
             setAddress(wallet.walletAddress);
             setSessionError(null);
@@ -405,35 +395,6 @@ export function App() {
           category={analysis?.categories?.categories[category]}
           onClose={() => setDialog(null)}
         />
-      )}
-      {dialog === 'approval' && cleanup.plan && (
-        <Dialog title="APPROVE CLEANUP" onClose={() => setDialog(null)}>
-          {cleanup.plan.policy === 'explicitDiscard' && (
-            <p className="type-caption">
-              DEVNET DISCARD · No swaps. Only account rent can be recovered.
-            </p>
-          )}
-          <p>
-            Swap: {cleanup.plan.swapCount} · Close accounts: {cleanup.plan.closeCount}
-          </p>
-          {cleanup.plan.requiresBurn && (
-            <Notice tone="red">
-              Burn the full balance of {cleanup.plan.burnCount} accounts. This cannot be undone.
-            </Notice>
-          )}
-          <p className="type-caption">
-            Only selected assets will be processed. Connecting a wallet does not authorize
-            transactions.
-          </p>
-          <ActionButton
-            disabled={cleanup.running || !cleanup.plan.canExecute}
-            onClick={() => {
-              void executeApprovedCleanup();
-            }}
-          >
-            APPROVE SWAP{cleanup.plan.requiresBurn ? ', BURN' : ''} AND CLOSE
-          </ActionButton>
-        </Dialog>
       )}
       {dialog === 'capability' && (
         <Dialog title="FEATURE UNAVAILABLE" onClose={() => setDialog(null)}>

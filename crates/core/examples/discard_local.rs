@@ -1,28 +1,12 @@
 //! Disposable validator integration only. Never accepts an external RPC endpoint.
 use dock_flints_core::{
     app::{categories::ScopedSwap, cleanup::plan_wallet},
-    core::{cleanup::*, progress::*},
+    core::cleanup::*,
     infra::{solana, wallet::WalletIdentity},
 };
 use std::collections::BTreeSet;
-struct Journal(std::path::PathBuf);
-impl CleanupObserver for Journal {
-    fn before_send(
-        &self,
-        submission: PendingSubmission,
-    ) -> Result<(), dock_flints_core::core::error::SwapError> {
-        use std::io::Write;
-        let mut file = std::fs::OpenOptions::new()
-            .append(true)
-            .create(true)
-            .open(&self.0)
-            .map_err(|e| dock_flints_core::core::error::SwapError::InvalidRequest(e.to_string()))?;
-        writeln!(file, "{}", serde_json::to_string(&submission).unwrap())
-            .map_err(|e| dock_flints_core::core::error::SwapError::InvalidRequest(e.to_string()))?;
-        file.sync_all()
-            .map_err(|e| dock_flints_core::core::error::SwapError::InvalidRequest(e.to_string()))
-    }
-}
+mod support;
+use support::Journal;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<_> = std::env::args().collect();
@@ -42,8 +26,11 @@ async fn main() -> anyhow::Result<()> {
         mainnet: false,
     };
     let options = CleanupOptions {
-        policy: CleanupPolicy::ExplicitDiscard,
+        policy: CleanupPolicy::Complete,
         selection: CleanupSelection {
+            selected_accounts_only: false,
+            asset_ids: None,
+            ignored_asset_ids: Default::default(),
             accounts: BTreeSet::from([args[3].clone()]),
             ..Default::default()
         },

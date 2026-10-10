@@ -1,10 +1,13 @@
-//! Explicit devnet-only observations. This adapter cannot build or sign swap transactions.
+//! Synthetic category observations compile only in core tests and cannot affect production analysis.
+#[cfg(test)]
 use crate::core::{categories::*, *};
+#[cfg(test)]
 use serde::Deserialize;
 
 pub const DEVNET_GENESIS: &str = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
 
 /// Labels and valuations are test observations; ownership and NFT evidence always come from RPC.
+#[cfg(test)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct TestManifest {
@@ -12,6 +15,7 @@ pub struct TestManifest {
     pub label: String,
     pub observations: Vec<TestObservation>,
 }
+#[cfg(test)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct TestObservation {
@@ -21,6 +25,7 @@ pub struct TestObservation {
     pub unit_usd: Option<f64>,
     pub routing: Option<TestRoute>,
 }
+#[cfg(test)]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TestRoute {
@@ -29,6 +34,7 @@ pub enum TestRoute {
     Unknown,
 }
 
+#[cfg(test)]
 impl TestManifest {
     /// Reject wrong networks, invalid addresses, duplicates and invalid valuations at load time.
     pub fn parse(text: &str) -> Result<Self, String> {

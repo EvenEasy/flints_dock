@@ -2,8 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { progressChannel } from './channel';
 /** NONE is explicit; an empty selected array is also NONE, never ALL. */
 export type CleanupSelection =
-  { mode: 'all' } | { mode: 'selected'; mints: string[] } | { mode: 'none' };
-export type CleanupPolicy = 'auto' | 'explicitDiscard';
+  { mode: 'all' } | { mode: 'selected'; mints?: string[]; assetIds?: string[] } | { mode: 'none' };
 export type CleanupOperation = 'Swap' | 'Burn' | 'Close';
 export interface CleanupProgress {
   jobId: string;
@@ -17,6 +16,8 @@ export interface CleanupProgress {
   status: string;
 }
 export interface CleanupEntry {
+  assetId?: string;
+  tokenAccount?: string | null;
   account: string;
   mint: string;
   program: string;
@@ -42,7 +43,6 @@ export interface CleanupPlan {
   network: string;
   expiresAt: string;
   entries: CleanupEntry[];
-  policy: CleanupPolicy;
   selectedAssets: number;
   executableAccounts: number;
   skippedAccounts: number;
@@ -83,6 +83,7 @@ export interface AccountResult {
 export interface CleanupReport {
   results: AccountResult[];
   closed: number;
+  completed?: number;
   failed: number;
   skipped: number;
   known_swap_net_lamports: string;
@@ -105,7 +106,7 @@ export interface PrepareCleanupRequest {
   revision: number;
   selection: CleanupSelection;
   ignoredMints: string[];
-  policy?: CleanupPolicy;
+  ignoredAssetIds?: string[];
 }
 export function prepareCleanup(
   request: PrepareCleanupRequest,

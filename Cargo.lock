@@ -1316,6 +1316,7 @@ dependencies = [
  "base64 0.22.1",
  "bincode",
  "borsh 0.10.4",
+ "mpl-bubblegum",
  "mpl-core",
  "mpl-token-metadata",
  "reqwest 0.12.28",
@@ -1326,6 +1327,7 @@ dependencies = [
  "solana-commitment-config",
  "solana-hash 4.7.0",
  "solana-instruction 3.5.1",
+ "solana-keccak-hasher 3.1.0",
  "solana-keypair",
  "solana-message 4.6.0",
  "solana-pubkey 2.4.0",
@@ -2891,6 +2893,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "mpl-bubblegum"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af40f991ef170f6040484c27b28b48c3d3288e1fdae6256deee21f8788a92df5"
+dependencies = [
+ "borsh 1.8.1",
+ "modular-bitfield",
+ "num-derive 0.4.2",
+ "num-traits",
+ "solana-program 3.0.0",
+ "solana-program-error 3.0.1",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

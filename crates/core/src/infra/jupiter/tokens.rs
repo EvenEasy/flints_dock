@@ -47,6 +47,8 @@ impl RiskProvider for Jupiter {
                                             "Provider-flagged suspicious; not proof of fraud"
                                                 .into(),
                                         ]
+                                    } else if flag.is_none() {
+                                        vec!["Jupiter did not supply an explicit suspicious audit flag; risk remains unknown".into()]
                                     } else {
                                         vec![]
                                     },

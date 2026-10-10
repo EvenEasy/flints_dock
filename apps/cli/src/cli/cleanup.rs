@@ -38,9 +38,17 @@ pub struct CleanupArgs {
     #[arg(long, help_heading = "Selection")]
     pub ignore_mint: Vec<Pubkey>,
 
-    /// Irreversibly discard explicitly selected devnet accounts without routing
+    /// Compatibility alias; cleanup already shows and approves its complete action plan
     #[arg(long, requires = "account", help_heading = "Selection")]
     pub explicit_discard: bool,
+
+    /// Select standalone NFT asset IDs; repeatable (classic NFT IDs are mint addresses)
+    #[arg(long, help_heading = "Selection")]
+    pub asset: Vec<Pubkey>,
+
+    /// Protect Core/compressed asset IDs; repeatable
+    #[arg(long, help_heading = "Selection")]
+    pub ignore_asset: Vec<Pubkey>,
     #[command(flatten)]
     pub rpc: RpcArgs,
     #[command(flatten)]
@@ -69,14 +77,8 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         .await
         .map_err(|error| anyhow::anyhow!(crate::infra::solana::safe_error(error)))?
         .to_string();
-    if args.explicit_discard {
-        anyhow::ensure!(
-            genesis == dock_flints_core::app::test_observations::DEVNET_GENESIS,
-            "Explicit discard requires verified devnet and explicit --account selection"
-        );
-    }
     let mainnet = genesis == "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
-    // Devnet discard has no Jupiter dependency, including irrelevant API-key configuration.
+    // Structurally unavailable non-mainnet routing does not require Jupiter credentials.
     let jupiter = if mainnet {
         Some(super::args::swap_provider()?)
     } else {
@@ -87,23 +89,51 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         mainnet,
     };
     let options = CleanupOptions {
-        policy: if args.explicit_discard {
-            CleanupPolicy::ExplicitDiscard
-        } else {
-            CleanupPolicy::Auto
-        },
+        policy: CleanupPolicy::Complete,
         slippage_bps: args.quote.slippage_bps,
         quote_interval: Duration::from_millis(args.quote_interval_ms),
         swap_limits: args.execution.limits(&args.quote),
         selection: CleanupSelection {
+            selected_accounts_only: !args.asset.is_empty(),
             none: false,
+            asset_ids: (!args.asset.is_empty())
+                .then(|| args.asset.iter().map(ToString::to_string).collect()),
+            ignored_asset_ids: args.ignore_asset.iter().map(ToString::to_string).collect(),
             accounts: args.account.iter().map(ToString::to_string).collect(),
             ignored_mints: args.ignore_mint.iter().map(ToString::to_string).collect(),
         },
         ..Default::default()
     };
     eprintln!("Scanning token accounts and building cleanup plan (sequential quotes)...");
-    let plan = cleanup::plan_wallet(&rpc, &wallet.address, &provider, &options).await?;
+    let das = std::env::var("DOCK_FLINTS_DAS_URL")
+        .ok()
+        .map(crate::infra::solana::scan::das::DasClient::new)
+        .transpose()?;
+    let compressed = match &das {
+        Some(das) => {
+            das.compressed_on_network(&wallet.address.to_string(), &genesis)
+                .await
+        }
+        None => crate::core::categories::CompressedReport {
+            items: vec![],
+            status: crate::core::ScanStatus::Unsupported(
+                "DAS not configured; compressed coverage unavailable".into(),
+            ),
+        },
+    };
+    let executor = crate::infra::solana::nft_cleanup::SolanaCleanupExecutor {
+        rpc: &rpc,
+        das: das.as_ref(),
+    };
+    let plan = cleanup::plan_wallet_complete(
+        &rpc,
+        &wallet.address,
+        &provider,
+        &executor,
+        &options,
+        &compressed,
+    )
+    .await?;
     let usable = !matches!(plan.discovery_status, crate::core::ScanStatus::Failed(_));
     if args.verbose {
         eprintln!("Discovery: {:?}", plan.discovery_status);
@@ -130,7 +160,7 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
 
     // The displayed plan is read-only until the user explicitly approves its destructive
     // operations.
-    if !args.yes && plan.summary.accounts_to_close > 0 {
+    if !args.yes && plan.executable_count() > 0 {
         anyhow::ensure!(
             io::stdin().is_terminal(),
             "use a terminal to confirm cleanup, or explicitly pass --execute --yes"
@@ -152,7 +182,8 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         }
     }
     let report =
-        cleanup::execute::execute_plan(&plan, &provider, &rpc, wallet.signer()?, &options).await?;
+        cleanup::execute::execute_plan(&plan, &provider, &executor, wallet.signer()?, &options)
+            .await?;
     let failed = report.failed > 0;
     match args.format {
         OutputFormat::Table => write_report(io::stdout().lock(), &report)?,

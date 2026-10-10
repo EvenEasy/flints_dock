@@ -98,10 +98,14 @@ async fn run_entry(
         }
         CleanupCategory::Burnable => {
             // A route may have appeared during a long plan/approval interval.
-            // Auto needs a second NoRoute; ExplicitDiscard has independently approved destruction.
-            if options.policy == CleanupPolicy::Auto {
+            // Revalidate the approved no-route/structural reason; only the legacy explicit API bypasses routing.
+            if options.policy != CleanupPolicy::ExplicitDiscard {
                 match fresh_route(provider, &request(&current, owner, options)?, options).await {
-                    Err(SwapError::NoRoute(_)) => {}
+                    Err(SwapError::NoRoute(_))
+                        if entry.reason_code == CleanupReasonCode::NoRoute => {}
+                    Err(SwapError::UnsupportedNetwork(_))
+                        if options.policy == CleanupPolicy::Complete
+                            && entry.reason_code == CleanupReasonCode::RoutingUnavailable => {}
                     Ok(_) => {
                         return Err(changed(
                             "a swap route now exists; burn skipped, rebuild plan",
@@ -134,7 +138,9 @@ async fn run_entry(
         .ok_or_else(|| {
             changed("source disappeared before explicit close; inspect confirmed operations")
         })?;
-    if !same_account(&entry.asset, &empty) || empty.account.raw_amount != 0 {
+    if !same_account(&entry.asset, &empty)
+        || (empty.account.raw_amount != 0 && !empty.account.is_native)
+    {
         return Err(changed(
             "post-operation source balance is not zero or identity changed; not closed",
         ));
@@ -202,7 +208,16 @@ pub async fn execute_plan_observed(
 
     for (stage, operation, count) in [
         ("swap", CleanupOperation::Swap, plan.summary.swappable),
-        ("burn", CleanupOperation::Burn, plan.summary.burnable),
+        (
+            "burn",
+            CleanupOperation::Burn,
+            plan.summary.burnable
+                + plan
+                    .nft_entries
+                    .iter()
+                    .filter(|e| e.prepared.is_some())
+                    .count(),
+        ),
         (
             "close",
             CleanupOperation::Close,
@@ -222,11 +237,23 @@ pub async fn execute_plan_observed(
     }
     // One account and one transaction at a time. Partial successes are retained.
     let mut unresolved_mints = std::collections::BTreeSet::new();
-    for (index, entry) in plan.entries.iter().enumerate() {
+    // Jupiter can unwrap its output ATA. Resolve every discovered WSOL source first so
+    // swaps cannot consume a protected source or make its later approved close disappear.
+    let ordered = plan
+        .entries
+        .iter()
+        .filter(|entry| entry.asset.account.mint == WRAPPED_SOL)
+        .chain(
+            plan.entries
+                .iter()
+                .filter(|entry| entry.asset.account.mint != WRAPPED_SOL),
+        );
+    let mut wsol_unavailable = false;
+    for (index, entry) in ordered.enumerate() {
         observer.progress(crate::core::progress::CleanupProgress {
             stage: "planning".into(),
             completed: index,
-            total: plan.entries.len(),
+            total: plan.entries.len() + plan.nft_entries.len(),
             operation: None,
             account: Some(entry.asset.account.address.clone()),
             status: "running".into(),
@@ -250,8 +277,16 @@ pub async fn execute_plan_observed(
                 (entry.category == CleanupCategory::Swappable
                     && (plan.selection.protects_output() || options.selection.protects_output()))
                 .then_some("protected WSOL output account; swap skipped")
+            })
+            .or_else(|| {
+                (entry.category == CleanupCategory::Swappable && wsol_unavailable).then_some(
+                    "WSOL source was not safely unwrapped; swap skipped to protect its balance",
+                )
             });
         if let Some(reason) = protected {
+            if entry.asset.account.mint == WRAPPED_SOL {
+                wsol_unavailable = true;
+            }
             result.reason = reason.into();
             report.skipped += 1;
             report.results.push(result);
@@ -276,7 +311,7 @@ pub async fn execute_plan_observed(
                 &EntryObserver {
                     observer,
                     completed: index,
-                    total: plan.entries.len(),
+                    total: plan.entries.len() + plan.nft_entries.len(),
                 },
             )
             .await
@@ -285,6 +320,7 @@ pub async fn execute_plan_observed(
                     result.status = "closed".into();
                     result.reason = "confirmed and account absence verified".into();
                     report.closed += 1;
+                    report.completed += 1;
                 }
                 Err(error) => {
                     result.status = "failed".into();
@@ -321,6 +357,10 @@ pub async fn execute_plan_observed(
             report.skipped += 1;
         }
 
+        if entry.asset.account.mint == WRAPPED_SOL && result.status != "closed" {
+            wsol_unavailable = true;
+        }
+
         // Sum observed receipts only; estimates never replace missing transaction accounting.
         for receipt in &result.operations {
             if let Some(delta) = receipt.wallet_delta_lamports {
@@ -346,6 +386,97 @@ pub async fn execute_plan_observed(
         report.results.push(result);
     }
 
+    // NFT burns have no generic Close dependency. Their adapter verifies standard-specific completion.
+    for (nft_index, entry) in plan.nft_entries.iter().enumerate() {
+        let mut result = AccountCleanupResult {
+            token_account: entry
+                .target
+                .token_account
+                .clone()
+                .unwrap_or(entry.target.id.clone()),
+            mint: entry.target.mint.clone().unwrap_or(entry.target.id.clone()),
+            category: CleanupCategory::Burnable,
+            status: "skipped".into(),
+            reason: entry.reason.clone(),
+            operations: vec![],
+            uncertain_signature: None,
+        };
+        if plan.selection.skip_nft(&entry.target)
+            || options.selection.skip_nft(&entry.target)
+            || entry.prepared.is_none()
+            || unresolved_mints.contains(&result.mint)
+        {
+            report.skipped += 1;
+            report.results.push(result);
+            continue;
+        }
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "burn".into(),
+            completed: report.completed,
+            total: plan.entries.len() + plan.nft_entries.len(),
+            operation: Some(CleanupOperation::Burn),
+            account: Some(entry.target.id.clone()),
+            status: "running".into(),
+        });
+        match executor
+            .burn_nft(
+                &entry.target,
+                entry.prepared.as_ref().expect("prepared NFT"),
+                signer,
+                &options.swap_limits,
+                &EntryObserver {
+                    observer,
+                    completed: plan.entries.len() + nft_index,
+                    total: plan.entries.len() + plan.nft_entries.len(),
+                },
+            )
+            .await
+        {
+            Ok(receipt) => {
+                report.completed += 1;
+                if entry.target.token_account.is_some() {
+                    report.closed += 1;
+                }
+                result.status = "burned".into();
+                result.reason =
+                    "Standard-specific burn confirmed and resulting state verified".into();
+                result.operations.push(receipt);
+            }
+            Err(error) => {
+                result.status = "failed".into();
+                result.reason = error.to_string();
+                report.failed += 1;
+                if let SwapError::Uncertain { signature, .. } = &error {
+                    result.status = "uncertain".into();
+                    result.uncertain_signature = Some(signature.clone());
+                    unresolved_mints.insert(result.mint.clone());
+                    report.accounting_complete = false;
+                }
+                if let SwapError::TransactionFailed { signature, .. } = &error {
+                    if let Some(receipt) = executor
+                        .failed_receipt(CleanupOperation::Burn, signature, &owner)
+                        .await
+                    {
+                        result.operations.push(receipt);
+                    } else {
+                        report.accounting_complete = false;
+                    }
+                }
+            }
+        }
+        for receipt in &result.operations {
+            if let Some(delta) = receipt.wallet_delta_lamports {
+                report.known_net_wallet_lamports += delta;
+            } else {
+                report.accounting_complete = false;
+            }
+            if let Some(reclaimed) = receipt.reclaimed_lamports {
+                report.known_reclaimed_lamports += u128::from(reclaimed);
+            }
+        }
+        report.results.push(result);
+    }
+
     // Include undecodable accounts in the final skipped list rather than hiding them.
     for unknown in &plan.unparsed_accounts {
         report.skipped += 1;
@@ -360,16 +491,17 @@ pub async fn execute_plan_observed(
         });
     }
     observer.progress(crate::core::progress::CleanupProgress {
-        stage: if report.failed == 0 {
+        stage: if report.failed == 0 && !plan.has_blocked_selection() && report.accounting_complete
+        {
             "completed"
-        } else if report.closed > 0 {
+        } else if report.completed > 0 {
             "partial"
         } else {
             "failed"
         }
         .into(),
-        completed: plan.entries.len(),
-        total: plan.entries.len(),
+        completed: plan.entries.len() + plan.nft_entries.len(),
+        total: plan.entries.len() + plan.nft_entries.len(),
         operation: None,
         account: None,
         status: "finished".into(),

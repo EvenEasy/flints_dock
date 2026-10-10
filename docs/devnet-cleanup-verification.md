@@ -1,3 +1,7 @@
+> Historical verification from 2026-10-09, before the unified cleanup strategy.
+> The policy selector and production test manifest described below are removed.
+> For current behavior/results use [unified cleanup verification](unified-cleanup-verification.md).
+
 # Devnet cleanup verification
 
 Read-only capture: **2026-10-09T21:33:52+00:00**. Wallet `9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv`. Actual network was verified by `getGenesisHash`: `EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG`. No user-wallet transaction was signed or submitted. Counts below describe this snapshot and are not application constants.

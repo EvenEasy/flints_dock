@@ -1,0 +1,1519 @@
+{
+  "mode": "owned",
+  "runtime": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15",
+    "dpr": 2,
+    "viewport": [
+      1100,
+      1000
+    ],
+    "origin": "tauri://localhost",
+    "fontReady": "loaded",
+    "mainOverflow": 0,
+    "images": [
+      {
+        "src": "tauri://localhost/assets/station-scene-pPwRel2V.png",
+        "natural": [
+          1024,
+          1536
+        ],
+        "bounds": [
+          430,
+          930.5625
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2072'%20fill='none'%20aria-hidden='true'%3e%3cdefs%3e%3clinearGradient%20id='flint_emblem-gradient'%20x1='9'%20y1='7'%20x2='48'%20y2='68'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23D76FFF'%20/%3e%3cstop%20offset='.46'%20stop-color='%239C46E8'%20/%3e%3cstop%20offset='.57'%20stop-color='%230AE9D3'%20/%3e%3cstop%20offset='1'%20stop-color='%2317CCD9'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath%20d='M58%206H31C14%206%204%2017%204%2033s10%2027%2025%2029l21%2010-2-24H32c-9%200-15-6-15-15s6-15%2015-15h16z'%20fill='url(%23flint_emblem-gradient)'%20/%3e%3cpath%20d='M47%2027H32a7%207%200%200%200%200%2014h9l7-8H32v-2h15z'%20fill='%230EF3CE'%20/%3e%3cpath%20d='M34%2052l8%204%201%207-9-5z'%20fill='%23032B40'%20/%3e%3c/svg%3e",
+        "natural": [
+          133,
+          150
+        ],
+        "bounds": [
+          28,
+          28
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20150'%20fill='none'%20aria-hidden='true'%20color='%23D680F6'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M50%204C28%204%2016%2020%2016%2039c0%2010%204%2016%208%2020v19l12%207v12h28V85l12-7V59c4-4%208-10%208-20C84%2020%2072%204%2050%204Z'%20/%3e%3cpath%20d='M29%2038c-8%202-9%2011-4%2017%204%204%2013%201%2017-8zM71%2038l-13%209c4%209%2013%2012%2017%208%205-6%204-15-4-17ZM50%2056l-7%2013h14z'%20fill='%23080513'%20/%3e%3cpath%20d='M35%2080v15M42%2082v15M50%2082v15M58%2082v15M65%2080v15'%20stroke='%23080513'%20stroke-width='3'%20/%3e%3cpath%20d='M16%20111l68%2033M16%20144l68-33'%20stroke='currentColor'%20stroke-width='7'%20stroke-linecap='round'%20/%3e%3ccircle%20cx='13'%20cy='108'%20r='6'%20/%3e%3ccircle%20cx='16'%20cy='116'%20r='6'%20/%3e%3ccircle%20cx='84'%20cy='139'%20r='6'%20/%3e%3ccircle%20cx='88'%20cy='147'%20r='6'%20/%3e%3ccircle%20cx='13'%20cy='147'%20r='6'%20/%3e%3ccircle%20cx='17'%20cy='138'%20r='6'%20/%3e%3ccircle%20cx='84'%20cy='116'%20r='6'%20/%3e%3ccircle%20cx='88'%20cy='108'%20r='6'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          100,
+          150
+        ],
+        "bounds": [
+          28,
+          32
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/hero-raptor-ring-512-DpEciXu3.png",
+        "natural": [
+          512,
+          512
+        ],
+        "bounds": [
+          224.953125,
+          224.953125
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%23D680F6'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          28,
+          32
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/crossed-sabers-512-CmEZTV6x.png",
+        "natural": [
+          512,
+          171
+        ],
+        "bounds": [
+          200,
+          66.65625
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%3e%3cg%20stroke='currentColor'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3e%3cpath%20d='M37%2011a19%2019%200%201%200%201%2026M31%2014a12%2012%200%201%200%203%2017'%20/%3e%3cpath%20d='M21%2027l20-20M35%207h6v6M19%2021v9M15%2025h9M31%2035l10%208%203-3-10-10'%20/%3e%3cpath%20d='M31%2035l8%208%205-3-10-10'%20fill='currentColor'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          20,
+          20
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/orbital-station-128-52Ad8KIb.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          64,
+          100
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%3e%3cg%20stroke='currentColor'%20stroke-width='2.1'%20stroke-linejoin='round'%3e%3cpath%20d='M24%203L44%2013v23L24%2046%204%2036V13zM4%2013l20%2010%2020-10M24%2023v23M4%2013l20%2033M24%2023L4%2036M44%2013L24%2046M24%2023l20%2013M24%203v20M4%2013l20-1%2020%201M24%203L14%2018M24%203l10%2015'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          20,
+          20
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-scam-128-CDx_xaaE.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-nft-128-CkAQhsXw.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-dust-128-CmMEMebR.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-dead-128-BxkFoEB5.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%2313F3F5'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          30,
+          30
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23EFD7FF'%3e%3cpath%20d='M4%2022L24%205l20%2017'%20stroke='currentColor'%20stroke-width='4'%20stroke-linejoin='round'%20/%3e%3cpath%20d='M9%2021l15-12%2015%2012v24H9z'%20fill='currentColor'%20/%3e%3cpath%20d='M20%2029h9v10h-9z'%20fill='%23160927'%20/%3e%3cpath%20d='M36%205h4v9h-4z'%20fill='currentColor'%20/%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20stroke='currentColor'%20stroke-width='2.1'%20stroke-linejoin='round'%3e%3cpath%20d='M24%203L44%2013v23L24%2046%204%2036V13zM4%2013l20%2010%2020-10M24%2023v23M4%2013l20%2033M24%2023L4%2036M44%2013L24%2046M24%2023l20%2013M24%203v20M4%2013l20-1%2020%201M24%203L14%2018M24%203l10%2015'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20stroke='currentColor'%20stroke-width='2.8'%20stroke-linecap='round'%3e%3ccircle%20cx='24'%20cy='24'%20r='16'%20/%3e%3cpath%20d='M24%202v13M24%2033v13M2%2024h13M33%2024h13M24%2020v8M20%2024h8'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20preserveAspectRatio='xMidYMid%20meet'%20color='%23C9ACEA'%3e%3cpath%20d='M24%203C12%203%206%2010%206%2021c0%206%202%2010%207%2012v7h6v5h10v-5h6v-7c5-2%207-6%207-12C42%2010%2036%203%2024%203z'%20fill='currentColor'%20/%3e%3cellipse%20cx='16'%20cy='25'%20rx='6'%20ry='5'%20transform='rotate(12%2016%2025)'%20fill='%23090811'%20/%3e%3cellipse%20cx='32'%20cy='25'%20rx='6'%20ry='5'%20transform='rotate(-12%2032%2025)'%20fill='%23090811'%20/%3e%3cpath%20d='M24%2029l-4%207h8z'%20fill='%23090811'%20/%3e%3cpath%20d='M18%2039v6M23%2039v6M28%2039v6M33%2038v5'%20stroke='%23090811'%20stroke-width='1.8'%20/%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      }
+    ],
+    "categoryOverflow": [
+      {
+        "text": "Not checked",
+        "overflow": 0
+      },
+      {
+        "text": "2 · Partial",
+        "overflow": 0
+      },
+      {
+        "text": "Not checked",
+        "overflow": 0
+      },
+      {
+        "text": "Not checked",
+        "overflow": 0
+      }
+    ]
+  },
+  "analysis": {
+    "inventory": {
+      "status": {
+        "status": "partial",
+        "reason": "compressed: DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": [
+        {
+          "id": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+          "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "kind": "nft",
+          "name": "Disposable cleanup NFT",
+          "accounts": [
+            "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC"
+          ],
+          "rawAmount": "1",
+          "decimals": 0,
+          "balance": "1",
+          "valueUsd": null,
+          "evidence": "metaplex_token_standard"
+        },
+        {
+          "id": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+          "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "kind": "fungible",
+          "name": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+          "accounts": [
+            "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk"
+          ],
+          "rawAmount": "42",
+          "decimals": 0,
+          "balance": "42",
+          "valueUsd": null,
+          "evidence": "Verified mint and token-program semantics"
+        },
+        {
+          "id": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+          "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "kind": "nft",
+          "name": "Disposable cleanup NFT",
+          "accounts": [
+            "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2"
+          ],
+          "rawAmount": "1",
+          "decimals": 0,
+          "balance": "1",
+          "valueUsd": null,
+          "evidence": "metaplex_token_standard"
+        },
+        {
+          "id": "So11111111111111111111111111111111111111112:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "mint": "So11111111111111111111111111111111111111112",
+          "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "kind": "fungible",
+          "name": "So11111111111111111111111111111111111111112",
+          "accounts": [
+            "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P"
+          ],
+          "rawAmount": "7960720",
+          "decimals": 9,
+          "balance": "0.00796072",
+          "valueUsd": null,
+          "evidence": "Verified mint and token-program semantics"
+        }
+      ]
+    },
+    "categories": {
+      "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+      "dustThresholdUsd": 0.01,
+      "categories": {
+        "dead_token": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter routing is mainnet-only"
+          },
+          "checkedAt": "1791632043",
+          "source": "Jupiter Swap V2",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Jupiter routing is mainnet-only",
+          "coverage": {}
+        },
+        "dust": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+          },
+          "checkedAt": "1791632043",
+          "source": "Jupiter Price V3",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+          "coverage": {}
+        },
+        "nft": {
+          "items": [
+            {
+              "id": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+              "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+              "program": null,
+              "name": "Disposable cleanup NFT",
+              "kind": "nft",
+              "accounts": [
+                "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC"
+              ],
+              "rawAmount": null,
+              "risk": null,
+              "valuation": "unpriced",
+              "valueUsd": null,
+              "tradability": "unknown",
+              "evidence": "Owner-verified NFT standard evidence",
+              "checkedAt": "1791632043",
+              "providerScope": null
+            },
+            {
+              "id": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+              "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+              "program": null,
+              "name": "Disposable cleanup NFT",
+              "kind": "nft",
+              "accounts": [
+                "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2"
+              ],
+              "rawAmount": null,
+              "risk": null,
+              "valuation": "unpriced",
+              "valueUsd": null,
+              "tradability": "unknown",
+              "evidence": "Owner-verified NFT standard evidence",
+              "checkedAt": "1791632043",
+              "providerScope": null
+            }
+          ],
+          "count": 2,
+          "status": {
+            "status": "partial",
+            "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable"
+          },
+          "checkedAt": "1791632043",
+          "source": "Solana / Metaplex / MPL Core / DAS",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+          "coverage": {
+            "das": {
+              "status": "unsupported",
+              "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+            },
+            "nft_classic": {
+              "status": "complete"
+            },
+            "nft_core": {
+              "status": "complete"
+            }
+          }
+        },
+        "scam": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Mainnet risk provider unavailable on this network"
+          },
+          "checkedAt": "1791632043",
+          "source": "Jupiter Tokens V2",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Mainnet risk provider unavailable on this network",
+          "coverage": {}
+        }
+      },
+      "providers": {
+        "das": {
+          "status": "unsupported",
+          "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "nft_classic": {
+          "status": "complete"
+        },
+        "nft_core": {
+          "status": "complete"
+        },
+        "pricing": {
+          "status": "unsupported",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+        },
+        "risk": {
+          "status": "unsupported",
+          "reason": "Mainnet risk provider unavailable on this network"
+        },
+        "routing": {
+          "status": "unsupported",
+          "reason": "Jupiter routing is mainnet-only"
+        },
+        "rpc": {
+          "status": "complete"
+        }
+      }
+    },
+    "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+    "commitment": "Confirmed (independent requests)",
+    "selected": {
+      "balance": true,
+      "tokens": true,
+      "allTokens": true,
+      "nfts": true,
+      "cnfts": true
+    },
+    "hasUsableResults": true,
+    "balance": {
+      "status": {
+        "status": "complete"
+      },
+      "value": {
+        "lamports": "9899766920",
+        "sol": "9.89976692",
+        "price": null,
+        "valueUsd": null
+      }
+    },
+    "tokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": [
+        {
+          "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+          "program": "legacy",
+          "totalRawAmount": "42",
+          "decimals": 0,
+          "balance": "42",
+          "accounts": [
+            "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk"
+          ],
+          "kind": "fungibleAsset",
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        },
+        {
+          "mint": "So11111111111111111111111111111111111111112",
+          "program": "legacy",
+          "totalRawAmount": "7960720",
+          "decimals": 9,
+          "balance": "0.00796072",
+          "accounts": [
+            "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P"
+          ],
+          "kind": "fungible",
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        }
+      ]
+    },
+    "allTokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": [
+        {
+          "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+          "program": "legacy",
+          "totalRawAmount": "1",
+          "decimals": 0,
+          "balance": "1",
+          "accounts": [
+            "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC"
+          ],
+          "kind": "nonFungible",
+          "metadata": {
+            "name": "Disposable cleanup NFT",
+            "symbol": "",
+            "uri": "https://fixture.invalid/nft.json",
+            "imageUri": null,
+            "tokenStandard": "NonFungible",
+            "source": "metaplex",
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        },
+        {
+          "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+          "program": "legacy",
+          "totalRawAmount": "42",
+          "decimals": 0,
+          "balance": "42",
+          "accounts": [
+            "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk"
+          ],
+          "kind": "fungibleAsset",
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        },
+        {
+          "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+          "program": "legacy",
+          "totalRawAmount": "1",
+          "decimals": 0,
+          "balance": "1",
+          "accounts": [
+            "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2"
+          ],
+          "kind": "programmableNonFungible",
+          "metadata": {
+            "name": "Disposable cleanup NFT",
+            "symbol": "",
+            "uri": "https://fixture.invalid/nft.json",
+            "imageUri": null,
+            "tokenStandard": "ProgrammableNonFungible",
+            "source": "metaplex",
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        },
+        {
+          "mint": "So11111111111111111111111111111111111111112",
+          "program": "legacy",
+          "totalRawAmount": "7960720",
+          "decimals": 9,
+          "balance": "0.00796072",
+          "accounts": [
+            "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P"
+          ],
+          "kind": "fungible",
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "price": null,
+          "valueUsd": null
+        }
+      ]
+    },
+    "nfts": {
+      "status": {
+        "status": "complete"
+      },
+      "classic": {
+        "status": {
+          "status": "complete"
+        },
+        "items": [
+          {
+            "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+            "tokenAccounts": [
+              "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC"
+            ],
+            "metadata": {
+              "name": "Disposable cleanup NFT",
+              "symbol": "",
+              "uri": "https://fixture.invalid/nft.json",
+              "imageUri": null,
+              "tokenStandard": "NonFungible",
+              "source": "metaplex",
+              "collection": null
+            },
+            "programmable": false,
+            "edition": false,
+            "evidence": "metaplex_token_standard"
+          },
+          {
+            "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+            "tokenAccounts": [
+              "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2"
+            ],
+            "metadata": {
+              "name": "Disposable cleanup NFT",
+              "symbol": "",
+              "uri": "https://fixture.invalid/nft.json",
+              "imageUri": null,
+              "tokenStandard": "ProgrammableNonFungible",
+              "source": "metaplex",
+              "collection": null
+            },
+            "programmable": true,
+            "edition": false,
+            "evidence": "metaplex_token_standard"
+          }
+        ]
+      },
+      "core": {
+        "status": {
+          "status": "complete"
+        },
+        "items": []
+      }
+    },
+    "cnfts": {
+      "status": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": null
+    },
+    "tokenAccounts": [
+      {
+        "address": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+        "program": "legacy",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "rawAmount": "42",
+        "decimals": 0,
+        "lamports": "2039280",
+        "dataLen": "165",
+        "state": "Initialized",
+        "delegate": null,
+        "delegatedAmount": "0",
+        "closeAuthority": null,
+        "isNative": false,
+        "nativeReserveLamports": null,
+        "extensionTypes": [],
+        "closure": {
+          "status": "notReclaimable",
+          "reason": "Nonzero token balance"
+        }
+      },
+      {
+        "address": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "mint": "So11111111111111111111111111111111111111112",
+        "program": "legacy",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "rawAmount": "7960720",
+        "decimals": 9,
+        "lamports": "10000000",
+        "dataLen": "165",
+        "state": "Initialized",
+        "delegate": null,
+        "delegatedAmount": "0",
+        "closeAuthority": null,
+        "isNative": true,
+        "nativeReserveLamports": "2039280",
+        "extensionTypes": [],
+        "closure": {
+          "status": "notReclaimable",
+          "reason": "Wrapped SOL principal is not empty-account rent; closing unwraps SOL"
+        }
+      },
+      {
+        "address": "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2",
+        "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+        "program": "legacy",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "rawAmount": "1",
+        "decimals": 0,
+        "lamports": "2039280",
+        "dataLen": "165",
+        "state": "Frozen",
+        "delegate": null,
+        "delegatedAmount": "0",
+        "closeAuthority": null,
+        "isNative": false,
+        "nativeReserveLamports": null,
+        "extensionTypes": [],
+        "closure": {
+          "status": "notReclaimable",
+          "reason": "Nonzero token balance"
+        }
+      },
+      {
+        "address": "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC",
+        "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+        "program": "legacy",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "rawAmount": "1",
+        "decimals": 0,
+        "lamports": "2039280",
+        "dataLen": "165",
+        "state": "Initialized",
+        "delegate": null,
+        "delegatedAmount": "0",
+        "closeAuthority": null,
+        "isNative": false,
+        "nativeReserveLamports": null,
+        "extensionTypes": [],
+        "closure": {
+          "status": "notReclaimable",
+          "reason": "Nonzero token balance"
+        }
+      }
+    ],
+    "mints": [
+      {
+        "mint": "So11111111111111111111111111111111111111112",
+        "program": "legacy",
+        "decimals": 9,
+        "supply": "0",
+        "mintAuthority": null,
+        "freezeAuthority": null,
+        "metadata": {
+          "name": null,
+          "symbol": null,
+          "uri": null,
+          "imageUri": null,
+          "tokenStandard": null,
+          "source": null,
+          "collection": null
+        },
+        "extensionTypes": []
+      },
+      {
+        "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+        "program": "legacy",
+        "decimals": 0,
+        "supply": "1",
+        "mintAuthority": "HQ4i91cYjXCaTDP1VaoKqoST3N8r1Ek8QZFnWGrpsmKu",
+        "freezeAuthority": "HQ4i91cYjXCaTDP1VaoKqoST3N8r1Ek8QZFnWGrpsmKu",
+        "metadata": {
+          "name": null,
+          "symbol": null,
+          "uri": null,
+          "imageUri": null,
+          "tokenStandard": null,
+          "source": null,
+          "collection": null
+        },
+        "extensionTypes": []
+      },
+      {
+        "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+        "program": "legacy",
+        "decimals": 0,
+        "supply": "42",
+        "mintAuthority": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "freezeAuthority": null,
+        "metadata": {
+          "name": null,
+          "symbol": null,
+          "uri": null,
+          "imageUri": null,
+          "tokenStandard": null,
+          "source": null,
+          "collection": null
+        },
+        "extensionTypes": []
+      },
+      {
+        "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+        "program": "legacy",
+        "decimals": 0,
+        "supply": "1",
+        "mintAuthority": "4WUSdfquDuRbY5FmQcRGfNVfycufHMdNT9KoWwQFandN",
+        "freezeAuthority": "4WUSdfquDuRbY5FmQcRGfNVfycufHMdNT9KoWwQFandN",
+        "metadata": {
+          "name": null,
+          "symbol": null,
+          "uri": null,
+          "imageUri": null,
+          "tokenStandard": null,
+          "source": null,
+          "collection": null
+        },
+        "extensionTypes": []
+      }
+    ],
+    "unknownAssets": [
+      {
+        "address": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "lamports": null,
+        "reason": "No recognized on-chain metadata"
+      },
+      {
+        "address": "So11111111111111111111111111111111111111112",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "lamports": null,
+        "reason": "No recognized on-chain metadata"
+      }
+    ],
+    "accountSummary": {
+      "tokenAccounts": 4,
+      "emptyTokenAccounts": 0,
+      "tokenAccountLamports": "16117840",
+      "potentiallyReclaimableLamports": "0",
+      "closureReviewAccounts": 0
+    },
+    "scanners": {
+      "all_tokens": {
+        "status": "complete"
+      },
+      "classic_nfts": {
+        "status": "complete"
+      },
+      "compressed_nfts": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "core_asset_v1": {
+        "status": "complete"
+      },
+      "legacy_tokens": {
+        "status": "complete"
+      },
+      "metaplex_metadata_and_nfts": {
+        "status": "complete"
+      },
+      "mint_metadata": {
+        "status": "complete"
+      },
+      "native_sol": {
+        "status": "complete"
+      },
+      "nfts": {
+        "status": "complete"
+      },
+      "prices": {
+        "status": "unsupported",
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+      },
+      "token_2022": {
+        "status": "complete"
+      },
+      "tokens": {
+        "status": "complete"
+      }
+    }
+  },
+  "plan": {
+    "planId": "4rG6fDiaV2tWPT6GGBVEFC9Wt8bPfjcQ4zwa6LF71JTn",
+    "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+    "revision": 1,
+    "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+    "expiresAt": "1791632166",
+    "entries": [
+      {
+        "assetId": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "tokenAccount": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+        "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "rawAmount": "42",
+        "action": "burn",
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reasonCode": "routing_unavailable",
+        "decimals": 0,
+        "supply": "42",
+        "kind": "FungibleAsset",
+        "mintAuthority": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+        "freezeAuthority": null,
+        "closeAuthority": null,
+        "accountExtensions": [],
+        "mintExtensions": [],
+        "expectedOutLamports": null,
+        "minOutLamports": null
+      },
+      {
+        "assetId": "So11111111111111111111111111111111111111112:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "tokenAccount": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "mint": "So11111111111111111111111111111111111111112",
+        "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "rawAmount": "7960720",
+        "action": "close",
+        "reason": "Unwrap native-backed WSOL and close to the owner wallet",
+        "reasonCode": "native_unwrap",
+        "decimals": 9,
+        "supply": "0",
+        "kind": "Fungible",
+        "mintAuthority": null,
+        "freezeAuthority": null,
+        "closeAuthority": null,
+        "accountExtensions": [],
+        "mintExtensions": [],
+        "expectedOutLamports": null,
+        "minOutLamports": null
+      },
+      {
+        "assetId": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "tokenAccount": "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC",
+        "account": "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC",
+        "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+        "program": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+        "rawAmount": "1",
+        "action": "burn",
+        "reason": "Burn the selected NFT with its standard-specific instruction; irreversible",
+        "reasonCode": "nft_burn",
+        "decimals": null,
+        "supply": null,
+        "kind": "TokenMetadata(NonFungible)",
+        "mintAuthority": null,
+        "freezeAuthority": null,
+        "closeAuthority": null,
+        "accountExtensions": [],
+        "mintExtensions": [],
+        "expectedOutLamports": null,
+        "minOutLamports": null
+      },
+      {
+        "assetId": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "tokenAccount": "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2",
+        "account": "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2",
+        "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+        "program": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+        "rawAmount": "1",
+        "action": "burn",
+        "reason": "Burn the selected NFT with its standard-specific instruction; irreversible",
+        "reasonCode": "nft_burn",
+        "decimals": null,
+        "supply": null,
+        "kind": "TokenMetadata(ProgrammableNonFungible)",
+        "mintAuthority": null,
+        "freezeAuthority": null,
+        "closeAuthority": null,
+        "accountExtensions": [],
+        "mintExtensions": [],
+        "expectedOutLamports": null,
+        "minOutLamports": null
+      }
+    ],
+    "selectedAssets": 4,
+    "executableAccounts": 4,
+    "skippedAccounts": 0,
+    "undecodableAccounts": [],
+    "canExecute": true,
+    "requiresBurn": true,
+    "swapCount": 0,
+    "burnCount": 3,
+    "closeCount": 2,
+    "estimatedSwapLamports": "0",
+    "estimatedReclaimedLamports": "12039280",
+    "maxPriceImpactBps": 100,
+    "maxPriorityFeeLamports": "1000000",
+    "slippageBps": 50
+  },
+  "report": {
+    "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+    "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+    "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+    "status": "completed",
+    "sequence": 19,
+    "progress": [
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 1,
+        "stage": "swap",
+        "completed": 0,
+        "total": 0,
+        "operation": "Swap",
+        "account": null,
+        "status": "skipped"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 2,
+        "stage": "planning",
+        "completed": 0,
+        "total": 4,
+        "operation": null,
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 3,
+        "stage": "close",
+        "completed": 0,
+        "total": 4,
+        "operation": "Close",
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 4,
+        "stage": "close",
+        "completed": 0,
+        "total": 4,
+        "operation": "Close",
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 5,
+        "stage": "confirmation",
+        "completed": 0,
+        "total": 4,
+        "operation": "Close",
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "status": "simulation/preflight/confirmation"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 6,
+        "stage": "confirmation",
+        "completed": 0,
+        "total": 4,
+        "operation": "Close",
+        "account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 7,
+        "stage": "planning",
+        "completed": 1,
+        "total": 4,
+        "operation": null,
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 8,
+        "stage": "burn",
+        "completed": 1,
+        "total": 4,
+        "operation": "Burn",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 9,
+        "stage": "confirmation",
+        "completed": 1,
+        "total": 4,
+        "operation": "Burn",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "simulation/preflight/confirmation"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 10,
+        "stage": "confirmation",
+        "completed": 1,
+        "total": 4,
+        "operation": "Burn",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 11,
+        "stage": "close",
+        "completed": 1,
+        "total": 4,
+        "operation": "Close",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 12,
+        "stage": "confirmation",
+        "completed": 1,
+        "total": 4,
+        "operation": "Close",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "simulation/preflight/confirmation"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 13,
+        "stage": "confirmation",
+        "completed": 1,
+        "total": 4,
+        "operation": "Close",
+        "account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 14,
+        "stage": "burn",
+        "completed": 2,
+        "total": 4,
+        "operation": "Burn",
+        "account": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 15,
+        "stage": "confirmation",
+        "completed": 2,
+        "total": 4,
+        "operation": "Burn",
+        "account": "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 16,
+        "stage": "burn",
+        "completed": 3,
+        "total": 4,
+        "operation": "Burn",
+        "account": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 17,
+        "stage": "confirmation",
+        "completed": 3,
+        "total": 4,
+        "operation": "Burn",
+        "account": "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2",
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 18,
+        "stage": "accounting",
+        "completed": 4,
+        "total": 4,
+        "operation": null,
+        "account": null,
+        "status": "running"
+      },
+      {
+        "jobId": "B2hMSANUTAHTmn1eVc8rpJmy1DUgsrqSm6m61prt5KhQ",
+        "sessionId": "98AQS9oGywL85wCG8WaK54jzSMkc2z9ZgqPtyPJnGA1w",
+        "sequence": 19,
+        "stage": "completed",
+        "completed": 4,
+        "total": 4,
+        "operation": null,
+        "account": null,
+        "status": "complete"
+      }
+    ],
+    "report": {
+      "results": [
+        {
+          "token_account": "5XNYV3UKHSLKZiBv9CmA1vVCkDWsLaazS5Jp9wNPGS1P",
+          "mint": "So11111111111111111111111111111111111111112",
+          "category": "Empty",
+          "status": "closed",
+          "reason": "confirmed and account absence verified",
+          "operations": [
+            {
+              "operation": "Close",
+              "signature": "2dqTwK3fQME1pjxYBKW4eaHuZJQhuNwKTZzudLGVFf6bno5mTVUCGv2zHNd1R2JETYwayi9pKZgskgQri3h4MsCm",
+              "wallet_delta_lamports": "9995000",
+              "reclaimed_lamports": "10000000"
+            }
+          ],
+          "uncertain_signature": null
+        },
+        {
+          "token_account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+          "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+          "category": "Burnable",
+          "status": "closed",
+          "reason": "confirmed and account absence verified",
+          "operations": [
+            {
+              "operation": "Burn",
+              "signature": "5WB2DikP1M6FEZaXVd7Vdeu8Yis956knxhs24rP8kRWdzowvnVh3BcVmFZpM7yCvonxKDEYqf8cqZs18WxTrpDeC",
+              "wallet_delta_lamports": "-5000",
+              "reclaimed_lamports": null
+            },
+            {
+              "operation": "Close",
+              "signature": "4yn5MnnhpbKYkpqfvYuM81oN9Wzc4sH1vqMLNSf9iA14zFQGX7bw7XVovsrh79YeHiYoBQCPdFtadqucbjofuemZ",
+              "wallet_delta_lamports": "2034280",
+              "reclaimed_lamports": "2039280"
+            }
+          ],
+          "uncertain_signature": null
+        },
+        {
+          "token_account": "Ht7Vgb6ehbFrHXC7jymYorNWAnRaUgxiMGyWQqiBfGC",
+          "mint": "2WQZiQpSRBaSKbwcbbgs1nfhK5xZ24ujhWJyTFgaGrC2",
+          "category": "Burnable",
+          "status": "burned",
+          "reason": "Standard-specific burn confirmed and resulting state verified",
+          "operations": [
+            {
+              "operation": "Burn",
+              "signature": "5aWpd7719CrMZ2aw4RemMgSr2j5yyNDJvsZq6MFHRmvJeDX4mWzf32hFSTYMyEY3RCbtNbFw5U9zyuuTJrLW6ZZ9",
+              "wallet_delta_lamports": "8179960",
+              "reclaimed_lamports": "2039280"
+            }
+          ],
+          "uncertain_signature": null
+        },
+        {
+          "token_account": "ETkJnjHGpwN9nAZBVLanD6NKb633gerutHMrycmeTRy2",
+          "mint": "9uiUBXkLyUAqKkcm7KyB8MJPYGQQfuJeSJP9DBiqhDHd",
+          "category": "Burnable",
+          "status": "burned",
+          "reason": "Standard-specific burn confirmed and resulting state verified",
+          "operations": [
+            {
+              "operation": "Burn",
+              "signature": "2q2VVLaegf9scWDmZTjnUUbWzdVYA8Uc1fBGbbQnDisUuCEq3Qr2Tsg1JHXM6PSnFMaEHw7dLKVPpkb5sLS2gmFe",
+              "wallet_delta_lamports": "9627640",
+              "reclaimed_lamports": "2039280"
+            }
+          ],
+          "uncertain_signature": null
+        }
+      ],
+      "closed": 4,
+      "completed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "known_swap_net_lamports": "0",
+      "known_reclaimed_lamports": "16117840",
+      "known_net_wallet_lamports": "29831880",
+      "accounting_complete": true
+    },
+    "error": null
+  },
+  "refreshed": {
+    "inventory": {
+      "status": {
+        "status": "partial",
+        "reason": "compressed: DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": []
+    },
+    "categories": {
+      "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+      "dustThresholdUsd": 0.01,
+      "categories": {
+        "dead_token": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter routing is mainnet-only"
+          },
+          "checkedAt": "1791632051",
+          "source": "Jupiter Swap V2",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Jupiter routing is mainnet-only",
+          "coverage": {}
+        },
+        "dust": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+          },
+          "checkedAt": "1791632051",
+          "source": "Jupiter Price V3",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+          "coverage": {}
+        },
+        "nft": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "partial",
+            "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable"
+          },
+          "checkedAt": "1791632051",
+          "source": "Solana / Metaplex / MPL Core / DAS",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+          "coverage": {
+            "das": {
+              "status": "unsupported",
+              "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+            },
+            "nft_classic": {
+              "status": "complete"
+            },
+            "nft_core": {
+              "status": "complete"
+            }
+          }
+        },
+        "scam": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Mainnet risk provider unavailable on this network"
+          },
+          "checkedAt": "1791632051",
+          "source": "Jupiter Tokens V2",
+          "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+          "reason": "Mainnet risk provider unavailable on this network",
+          "coverage": {}
+        }
+      },
+      "providers": {
+        "das": {
+          "status": "unsupported",
+          "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "nft_classic": {
+          "status": "complete"
+        },
+        "nft_core": {
+          "status": "complete"
+        },
+        "pricing": {
+          "status": "unsupported",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+        },
+        "risk": {
+          "status": "unsupported",
+          "reason": "Mainnet risk provider unavailable on this network"
+        },
+        "routing": {
+          "status": "unsupported",
+          "reason": "Jupiter routing is mainnet-only"
+        },
+        "rpc": {
+          "status": "complete"
+        }
+      }
+    },
+    "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+    "commitment": "Confirmed (independent requests)",
+    "selected": {
+      "balance": true,
+      "tokens": true,
+      "allTokens": true,
+      "nfts": true,
+      "cnfts": true
+    },
+    "hasUsableResults": true,
+    "balance": {
+      "status": {
+        "status": "complete"
+      },
+      "value": {
+        "lamports": "9929598800",
+        "sol": "9.9295988",
+        "price": null,
+        "valueUsd": null
+      }
+    },
+    "tokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": []
+    },
+    "allTokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": []
+    },
+    "nfts": {
+      "status": {
+        "status": "complete"
+      },
+      "classic": {
+        "status": {
+          "status": "complete"
+        },
+        "items": []
+      },
+      "core": {
+        "status": {
+          "status": "complete"
+        },
+        "items": []
+      }
+    },
+    "cnfts": {
+      "status": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": null
+    },
+    "tokenAccounts": [],
+    "mints": [],
+    "unknownAssets": [],
+    "accountSummary": {
+      "tokenAccounts": 0,
+      "emptyTokenAccounts": 0,
+      "tokenAccountLamports": "0",
+      "potentiallyReclaimableLamports": "0",
+      "closureReviewAccounts": 0
+    },
+    "scanners": {
+      "all_tokens": {
+        "status": "complete"
+      },
+      "classic_nfts": {
+        "status": "complete"
+      },
+      "compressed_nfts": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "core_asset_v1": {
+        "status": "complete"
+      },
+      "legacy_tokens": {
+        "status": "complete"
+      },
+      "metaplex_metadata_and_nfts": {
+        "status": "complete"
+      },
+      "mint_metadata": {
+        "status": "complete"
+      },
+      "native_sol": {
+        "status": "complete"
+      },
+      "nfts": {
+        "status": "complete"
+      },
+      "prices": {
+        "status": "unsupported",
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+      },
+      "token_2022": {
+        "status": "complete"
+      },
+      "tokens": {
+        "status": "complete"
+      }
+    }
+  }
+}

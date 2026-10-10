@@ -1,0 +1,53 @@
+{
+  "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+  "genesisHash": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+  "receipts": [
+    {
+      "signature": "2M7b37dgnhf6zBg77xESyu1hDCKhPEvXEAZWiFeFCnYhULPu8ou9ZFgf2K67mJUFpwRHpFhRidhw3b47eanNp8RR",
+      "operation": "Burn",
+      "reportedDeltaLamports": "-5000",
+      "transactionMetadata": null,
+      "metadataRetainedAtLaterAudit": false
+    },
+    {
+      "signature": "4ZXjMNzqLejakUKBGk5mAQdq7UX3dyR3HEruSV3oXh2vDKP2f3EyiSQvtArTENMwTKe9svuUzDMej4HZeL8RP6bG",
+      "operation": "Close",
+      "reportedDeltaLamports": "2034280",
+      "transactionMetadata": null,
+      "metadataRetainedAtLaterAudit": false
+    },
+    {
+      "signature": "2jxaotAcU8vc5QToxezo713ocKVcATwCpxuP216uTQnjssnmkNXvEBxhdWEEBYs4fx852iE99a6iQGnwgCET4da4",
+      "operation": "Burn",
+      "reportedDeltaLamports": "8179960",
+      "transactionMetadata": null,
+      "metadataRetainedAtLaterAudit": false
+    },
+    {
+      "signature": "LDDZHde7KUntRtCg1N99HxZ1gCPsrSyhx64CdPYztW5C438AECbnP9FVM9JmrWdGxmJRX792kWxr4Gruqi5egDj",
+      "operation": "Burn",
+      "reportedDeltaLamports": "9627640",
+      "transactionMetadata": null,
+      "metadataRetainedAtLaterAudit": false
+    }
+  ],
+  "sumOfConfirmedReportedDeltasLamports": "19836880",
+  "postAccounts": {
+    "context": {
+      "apiVersion": "3.1.10",
+      "slot": 2183
+    },
+    "value": [
+      null,
+      null,
+      null
+    ]
+  },
+  "postLegacyInventory": {
+    "context": {
+      "apiVersion": "3.1.10",
+      "slot": 2183
+    },
+    "value": []
+  }
+}

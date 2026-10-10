@@ -20,9 +20,13 @@ pub fn assets_from_portfolio(portfolio: &WalletSnapshot) -> Vec<CleanupAsset> {
                 .map(move |account| (account.as_str(), asset.kind))
         })
         .collect();
-    portfolio
+    let unique: std::collections::BTreeMap<_, _> = portfolio
         .token_accounts
         .iter()
+        .map(|a| (&a.address, a))
+        .collect();
+    unique
+        .into_values()
         .map(|account| CleanupAsset {
             account: account.clone(),
             mint: mints
@@ -89,8 +93,8 @@ pub fn request(
 }
 
 /// Return a read-only cleanup plan for the supplied backing accounts.
-/// Protection and eligibility checks precede route lookup; only an explicit `NoRoute`
-/// permits a burn classification. Provider failures remain unsupported, never burn fallbacks.
+/// Protection and eligibility checks precede route lookup; a genuine `NoRoute` or structurally unsupported swap capability
+/// permits an approved burn. Provider failures remain unsupported, never burn fallbacks.
 pub async fn build_plan_observed(
     wallet: &Pubkey,
     assets: Vec<CleanupAsset>,
@@ -108,6 +112,7 @@ pub async fn build_plan_observed(
         summary: CleanupSummary::default(),
         selection: options.selection.clone(),
         policy: options.policy,
+        nft_entries: vec![],
     };
     let total = assets.len();
     for (index, asset) in assets.into_iter().enumerate() {
@@ -146,6 +151,10 @@ pub async fn build_plan_observed(
             entry.category = CleanupCategory::Empty;
             entry.reason = "Close empty account".into();
             entry.reason_code = CleanupReasonCode::EmptyAccount;
+        } else if entry.asset.account.is_native {
+            entry.category = CleanupCategory::Empty;
+            entry.reason_code = CleanupReasonCode::NativeUnwrap;
+            entry.reason = "Unwrap native-backed WSOL and close to the owner wallet".into();
         } else if options.policy == CleanupPolicy::ExplicitDiscard {
             entry.category = CleanupCategory::Burnable;
             entry.reason_code = CleanupReasonCode::ExplicitDiscard;
@@ -173,6 +182,15 @@ pub async fn build_plan_observed(
                     entry.category = CleanupCategory::Burnable;
                     entry.reason_code = CleanupReasonCode::NoRoute;
                     entry.reason = format!("burn full balance then close; no route: {reason}");
+                }
+                Err(SwapError::UnsupportedNetwork(reason))
+                    if options.policy == CleanupPolicy::Complete =>
+                {
+                    entry.category = CleanupCategory::Burnable;
+                    entry.reason_code = CleanupReasonCode::RoutingUnavailable;
+                    entry.reason = format!(
+                        "Burn the approved balance, then close; swap capability unavailable: {reason}"
+                    );
                 }
                 Err(error) => {
                     entry.reason_code = match &error {
@@ -239,4 +257,139 @@ pub async fn build_plan(
         &(),
     )
     .await
+}
+
+/// Add standard-aware NFT actions to the same saved plan; unsupported targets remain visible.
+/// Preparation is read-only and never grants execution authority.
+pub async fn add_nfts_observed(
+    plan: &mut CleanupPlan,
+    snapshot: &WalletSnapshot,
+    compressed: &crate::core::categories::CompressedReport,
+    executor: &impl CleanupExecutor,
+    options: &CleanupOptions,
+    observer: &dyn crate::core::progress::CleanupObserver,
+) {
+    use crate::core::nft_cleanup::*;
+    let mut targets = std::collections::BTreeMap::new();
+    for entry in &plan.entries {
+        if !entry.asset.kind.is_nft() || entry.asset.account.raw_amount == 0 {
+            continue;
+        }
+        let target = NftTarget {
+            id: entry.asset.account.mint.clone(),
+            owner: plan.wallet.clone(),
+            standard: NftStandard::TokenMetadata(entry.asset.kind),
+            token_account: Some(entry.asset.account.address.clone()),
+            mint: Some(entry.asset.account.mint.clone()),
+        };
+        targets.insert(target.id.clone(), target);
+    }
+    // Each confirmed classic NFT account is represented once by its standard-aware target.
+    let removed = plan
+        .entries
+        .iter()
+        .filter(|e| e.asset.kind.is_nft() && e.asset.account.raw_amount > 0)
+        .count();
+    plan.entries
+        .retain(|e| !e.asset.kind.is_nft() || e.asset.account.raw_amount == 0);
+    plan.summary.unsupported = plan.summary.unsupported.saturating_sub(removed);
+    for core in &snapshot.core_assets {
+        targets.insert(
+            core.address.clone(),
+            NftTarget {
+                id: core.address.clone(),
+                owner: core.owner.clone(),
+                standard: NftStandard::Core,
+                token_account: None,
+                mint: None,
+            },
+        );
+    }
+    for cnft in &compressed.items {
+        targets.entry(cnft.id.clone()).or_insert_with(|| NftTarget {
+            id: cnft.id.clone(),
+            owner: cnft.owner.clone(),
+            standard: NftStandard::Compressed,
+            token_account: None,
+            mint: None,
+        });
+    }
+    let owner: Pubkey = plan.wallet.parse().expect("validated plan owner");
+    for (index, target) in targets.into_values().enumerate() {
+        observer.progress(crate::core::progress::CleanupProgress {
+            stage: "planning".into(),
+            completed: index,
+            total: snapshot.core_assets.len() + compressed.items.len() + removed,
+            operation: Some(CleanupOperation::Burn),
+            account: Some(target.id.clone()),
+            status: "running".into(),
+        });
+        let (prepared, reason_code, reason) = if options.selection.skip_nft(&target) {
+            (
+                None,
+                CleanupReasonCode::NotSelected,
+                "Asset protected or not selected".into(),
+            )
+        } else {
+            match executor.prepare_nft(&target, &owner).await {
+                Ok(prepared) => (
+                    Some(prepared),
+                    CleanupReasonCode::NftBurn,
+                    "Burn the selected NFT with its standard-specific instruction; irreversible"
+                        .into(),
+                ),
+                Err(error) => (
+                    None,
+                    match &error {
+                        SwapError::NftBlocked { code, .. } => *code,
+                        SwapError::Rpc(_) | SwapError::Api(_) => CleanupReasonCode::ProviderFailure,
+                        _ => CleanupReasonCode::NftEvidenceUnavailable,
+                    },
+                    error.to_string(),
+                ),
+            }
+        };
+        if prepared.is_none() {
+            plan.summary.unsupported += 1;
+        }
+        plan.nft_entries.push(NftCleanupEntry {
+            target,
+            prepared,
+            reason_code,
+            reason,
+        });
+    }
+    order_nft_dependencies(plan);
+}
+
+/// Keep masters alive for their selected prints; incomplete print ownership/selection blocks only the master.
+fn order_nft_dependencies(plan: &mut CleanupPlan) {
+    let mut prints = std::collections::BTreeMap::<String, u64>::new();
+    for entry in &plan.nft_entries {
+        if let Some(parent) = entry
+            .prepared
+            .as_ref()
+            .and_then(|p| p.edition_parent.as_ref())
+        {
+            *prints.entry(parent.clone()).or_default() += 1;
+        }
+    }
+    for entry in &mut plan.nft_entries {
+        if let Some(prepared) = &entry.prepared
+            && prepared.edition_count > 0
+            && prints.get(&entry.target.id).copied().unwrap_or(0) != prepared.edition_count
+        {
+            entry.prepared = None;
+            entry.reason_code = CleanupReasonCode::NftEvidenceUnavailable;
+            entry.reason = "Master NFT has unselected, unowned or blocked print editions; keep it until those prints are burned".into();
+            plan.summary.unsupported += 1;
+        }
+    }
+    // Prints must consume the still-existing master token; master supply changes are verified again at send.
+    plan.nft_entries.sort_by_key(|entry| {
+        entry
+            .prepared
+            .as_ref()
+            .is_none_or(|p| p.edition_parent.is_none())
+    });
 }

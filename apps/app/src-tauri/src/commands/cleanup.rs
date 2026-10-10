@@ -4,7 +4,7 @@ use dock_flints_core::{
         categories::ScopedSwap,
         cleanup::{
             execute::execute_plan_observed,
-            plan::{assets_from_portfolio, build_plan_observed},
+            plan::{add_nfts_observed, assets_from_portfolio, build_plan_observed},
         },
     },
     core::{ScanOptions, ScanSelection, ScanStatus, categories::now, cleanup::*, progress::*},
@@ -25,7 +25,7 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         .ignored_mints
         .iter()
         .chain(match &request.selection {
-            SelectionDto::Selected { mints } => mints.iter(),
+            SelectionDto::Selected { mints, .. } => mints.iter(),
             _ => request.ignored_mints.iter(),
         })
     {
@@ -60,20 +60,13 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         sequence: Default::default(),
     };
     let (network, mainnet) = network(&state.rpc).await?;
-    if request.policy == CleanupPolicy::ExplicitDiscard
-        && network != "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
-    {
-        return Err(AppError::cleanup(
-            "Explicit discard is available only on verified devnet",
-        ));
-    }
     let snapshot = dock_flints_core::app::scan_wallet::scan_wallet_observed::<()>(
         &state.rpc,
         &identity.address,
         &ScanOptions {
             selection: ScanSelection {
                 all_tokens: true,
-                ..Default::default()
+                ..ScanSelection::ALL
             },
             no_prices: true,
         },
@@ -81,31 +74,76 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         &observer,
     )
     .await;
-    let assets = assets_from_portfolio(&snapshot);
-    // Expand each selected mint to ALL its accounts, including zero-balance accounts.
-    let selected: Vec<_> = assets
+    let compressed = match &state.das {
+        Some(das) => {
+            das.compressed_on_network(&identity.address.to_string(), &network)
+                .await
+        }
+        None => dock_flints_core::core::categories::CompressedReport {
+            items: vec![],
+            status: ScanStatus::Unsupported(
+                "DAS unavailable; compressed inventory not checked".into(),
+            ),
+        },
+    };
+    let inventory = dock_flints_core::core::inventory::normalize(&snapshot, &compressed);
+    let selected_inventory: Vec<_> = inventory
         .iter()
         .filter(|a| match &request.selection {
             SelectionDto::All => true,
             SelectionDto::None => false,
-            SelectionDto::Selected { mints } => mints.contains(&a.account.mint),
+            SelectionDto::Selected { mints, asset_ids } => {
+                asset_ids.contains(&a.id)
+                    || a.mint
+                        .as_ref()
+                        .is_some_and(|mint| mints.contains(mint) || asset_ids.contains(mint))
+            }
         })
         .collect();
+    let mut ignored_mints = request.ignored_mints.clone();
+    let mut ignored_asset_ids = request.ignored_asset_ids.clone();
+    for asset in &inventory {
+        if (request.ignored_asset_ids.contains(&asset.id)
+            || asset
+                .mint
+                .as_ref()
+                .is_some_and(|mint| request.ignored_asset_ids.contains(mint)))
+            && let Some(mint) = &asset.mint
+        {
+            ignored_mints.insert(mint.clone());
+            ignored_asset_ids.insert(mint.clone());
+        }
+    }
     let options = CleanupOptions {
-        policy: request.policy,
         selection: CleanupSelection {
-            none: selected.is_empty(),
-            accounts: selected.iter().map(|a| a.account.address.clone()).collect(),
-            ignored_mints: request.ignored_mints.clone(),
+            selected_accounts_only: true,
+            none: selected_inventory.is_empty(),
+            accounts: selected_inventory
+                .iter()
+                .flat_map(|a| a.accounts.iter().cloned())
+                .collect(),
+            asset_ids: Some(
+                selected_inventory
+                    .iter()
+                    .map(|a| a.mint.clone().unwrap_or(a.id.clone()))
+                    .collect(),
+            ),
+            ignored_asset_ids,
+            ignored_mints,
         },
         quote_interval: std::time::Duration::ZERO,
         ..Default::default()
     };
+    let executor = dock_flints_core::infra::solana::nft_cleanup::SolanaCleanupExecutor {
+        rpc: &state.rpc,
+        das: state.das.as_ref(),
+    };
+    let assets = assets_from_portfolio(&snapshot);
     let provider = ScopedSwap {
         provider: state.jupiter.as_ref(),
         mainnet,
     };
-    let plan = build_plan_observed(
+    let mut plan = build_plan_observed(
         &identity.address,
         assets,
         snapshot
@@ -119,14 +157,14 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
                 .iter()
                 .filter(|asset| {
                     asset.lamports.is_some()
-                        && asset.program_id.as_ref().is_some_and(|id| {
-                            [
-                                dock_flints_core::core::TokenProgram::Legacy,
-                                dock_flints_core::core::TokenProgram::Token2022,
-                            ]
+                        && !snapshot
+                            .token_accounts
                             .iter()
-                            .any(|program| program.id().to_string() == *id)
-                        })
+                            .any(|known| known.address == asset.address)
+                        && !snapshot
+                            .core_assets
+                            .iter()
+                            .any(|known| known.address == asset.address)
                 })
                 .cloned()
                 .collect()
@@ -136,6 +174,20 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         &observer,
     )
     .await;
+    add_nfts_observed(
+        &mut plan,
+        &snapshot,
+        &compressed,
+        &executor,
+        &options,
+        &observer,
+    )
+    .await;
+    let nft_burns = plan
+        .nft_entries
+        .iter()
+        .filter(|e| e.prepared.is_some())
+        .count();
     let plan_id = new_id();
     let expires = now() + 120;
     let dto = CleanupPlanDto {
@@ -148,6 +200,12 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
             .entries
             .iter()
             .map(|entry| PlanEntryDto {
+                asset_id: format!(
+                    "{}:{}",
+                    entry.asset.account.mint,
+                    entry.asset.account.program.id()
+                ),
+                token_account: Some(entry.asset.account.address.clone()),
                 account: entry.asset.account.address.clone(),
                 mint: entry.asset.account.mint.clone(),
                 program: entry.asset.account.program.id().to_string(),
@@ -192,21 +250,72 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
                     .map(|q| q.expected_out_lamports.to_string()),
                 min_out_lamports: entry.quote.as_ref().map(|q| q.min_out_lamports.to_string()),
             })
+            .chain(plan.nft_entries.iter().map(|entry| {
+                PlanEntryDto {
+                    asset_id: entry
+                        .target
+                        .mint
+                        .as_ref()
+                        .map(|mint| {
+                            format!(
+                                "{}:{}",
+                                mint,
+                                dock_flints_core::core::TokenProgram::Legacy.id()
+                            )
+                        })
+                        .unwrap_or(entry.target.id.clone()),
+                    token_account: entry.target.token_account.clone(),
+                    account: entry
+                        .target
+                        .token_account
+                        .clone()
+                        .unwrap_or(entry.target.id.clone()),
+                    mint: entry.target.mint.clone().unwrap_or_default(),
+                    program: match entry.target.standard {
+                        dock_flints_core::core::nft_cleanup::NftStandard::TokenMetadata(_) => {
+                            "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+                        }
+                        dock_flints_core::core::nft_cleanup::NftStandard::Core => {
+                            "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+                        }
+                        dock_flints_core::core::nft_cleanup::NftStandard::Compressed => {
+                            "BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY"
+                        }
+                    }
+                    .into(),
+                    raw_amount: "1".into(),
+                    action: if entry.prepared.is_some() {
+                        "burn"
+                    } else {
+                        "skip"
+                    }
+                    .into(),
+                    reason: entry.reason.clone(),
+                    reason_code: entry.reason_code,
+                    decimals: None,
+                    supply: None,
+                    kind: format!("{:?}", entry.target.standard),
+                    mint_authority: None,
+                    freeze_authority: None,
+                    close_authority: None,
+                    account_extensions: vec![],
+                    mint_extensions: vec![],
+                    expected_out_lamports: None,
+                    min_out_lamports: None,
+                }
+            }))
             .collect(),
-        policy: plan.policy,
-        selected_assets: plan
-            .entries
+        selected_assets: selected_inventory
             .iter()
-            .filter(|entry| {
-                options
-                    .selection
-                    .skip_reason(&entry.asset.account)
-                    .is_none()
+            .filter(|a| {
+                !options.selection.ignored_asset_ids.contains(&a.id)
+                    && !a
+                        .mint
+                        .as_ref()
+                        .is_some_and(|mint| options.selection.ignored_mints.contains(mint))
             })
-            .map(|entry| &entry.asset.account.mint)
-            .collect::<std::collections::BTreeSet<_>>()
-            .len(),
-        executable_accounts: plan.summary.accounts_to_close,
+            .count(),
+        executable_accounts: plan.summary.accounts_to_close + nft_burns,
         skipped_accounts: plan.summary.unsupported,
         undecodable_accounts: plan
             .unparsed_accounts
@@ -219,10 +328,10 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
                 reason: account.reason.clone(),
             })
             .collect(),
-        can_execute: identity.signer().is_ok() && plan.summary.accounts_to_close > 0,
-        requires_burn: plan.summary.burnable > 0,
+        can_execute: identity.signer().is_ok() && (plan.summary.accounts_to_close + nft_burns) > 0,
+        requires_burn: (plan.summary.burnable + nft_burns) > 0,
         swap_count: plan.summary.swappable,
-        burn_count: plan.summary.burnable,
+        burn_count: plan.summary.burnable + nft_burns,
         close_count: plan.summary.accounts_to_close,
         estimated_swap_lamports: plan.summary.estimated_swap_lamports.to_string(),
         estimated_reclaimed_lamports: plan.summary.estimated_reclaimed_lamports.to_string(),
@@ -331,13 +440,23 @@ pub async fn execute_cleanup<R: tauri::Runtime>(
         let signer = identity
             .signer()
             .map_err(|_| AppError::cleanup("Signer unavailable"))?;
-        let result =
-            execute_plan_observed(&plan, &provider, &state.rpc, signer, &options, &observer).await;
+        let result = execute_plan_observed(
+            &plan,
+            &provider,
+            &dock_flints_core::infra::solana::nft_cleanup::SolanaCleanupExecutor {
+                rpc: &state.rpc,
+                das: state.das.as_ref(),
+            },
+            signer,
+            &options,
+            &observer,
+        )
+        .await;
         // Receipts are already confirmed; journal metadata can be reconciled without resending.
         observer.progress(CleanupProgress {
             stage: "accounting".into(),
-            completed: plan.entries.len(),
-            total: plan.entries.len(),
+            completed: plan.entries.len() + plan.nft_entries.len(),
+            total: plan.entries.len() + plan.nft_entries.len(),
             operation: None,
             account: None,
             status: "running".into(),
@@ -361,9 +480,12 @@ pub async fn execute_cleanup<R: tauri::Runtime>(
                     }
                     Err(_) => report.accounting_complete = false,
                 }
-                job.status = if report.failed == 0 && report.accounting_complete {
+                job.status = if report.failed == 0
+                    && report.accounting_complete
+                    && !plan.has_blocked_selection()
+                {
                     "completed"
-                } else if report.closed > 0 {
+                } else if report.completed > 0 {
                     "partial"
                 } else {
                     "failed"
@@ -382,8 +504,8 @@ pub async fn execute_cleanup<R: tauri::Runtime>(
         drop(store);
         observer.progress(CleanupProgress {
             stage: terminal,
-            completed: plan.entries.len(),
-            total: plan.entries.len(),
+            completed: plan.entries.len() + plan.nft_entries.len(),
+            total: plan.entries.len() + plan.nft_entries.len(),
             operation: None,
             account: None,
             status: "complete".into(),

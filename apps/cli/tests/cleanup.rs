@@ -190,7 +190,7 @@ impl CleanupExecutor for Executor {
                     .raw_amount = if self.leave_balance { 1 } else { 0 };
             }
             CleanupOperation::Close => {
-                assert_eq!(asset.account.raw_amount, 0);
+                assert!(asset.account.raw_amount == 0 || asset.account.is_native);
                 assets.remove(&asset.account.address);
             }
         }
@@ -1064,4 +1064,231 @@ fn empty_unknown_account_closes_without_mint_metadata_or_liquidation_classificat
     assert!(burn_instruction(&empty, &owner).is_err());
     empty.account.close_authority = Some(key(8).to_string());
     assert!(close_instruction(&empty, &owner).is_err());
+}
+
+#[tokio::test]
+async fn complete_plan_covers_every_recorded_devnet_account_without_fake_no_route() {
+    let fixture: Value = serde_json::from_str(include_str!(
+        "../../../docs/fixtures/devnet-account-audit.json"
+    ))
+    .unwrap();
+    let owner: Pubkey = fixture["wallet"].as_str().unwrap().parse().unwrap();
+    let mut assets = vec![];
+    for (index, row) in fixture["accounts"].as_array().unwrap().iter().enumerate() {
+        let amount = row["rawAmount"].as_str().unwrap().parse().unwrap();
+        let mut source = asset(owner, (index + 1) as u8, amount);
+        source.account.address = row["account"].as_str().unwrap().into();
+        source.account.mint = row["mint"].as_str().unwrap().into();
+        source.account.lamports = row["lamports"].as_str().unwrap().parse().unwrap();
+        source.account.decimals = Some(row["decimals"].as_u64().unwrap() as u8);
+        source.mint.as_mut().unwrap().mint = source.account.mint.clone();
+        source.mint.as_mut().unwrap().supply = row["supply"].as_str().unwrap().parse().unwrap();
+        assets.push(source);
+    }
+    let provider = dock_flints::app::categories::ScopedSwap::<dock_flints::infra::jupiter::Jupiter> {
+        provider: None,
+        mainnet: false,
+    };
+    let plan = build_plan(
+        &owner,
+        assets.clone(),
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options(),
+    )
+    .await;
+    assert_eq!(plan.entries.len(), 26);
+    assert_eq!(plan.summary.burnable, 20);
+    assert_eq!(plan.summary.accounts_to_close, 26);
+    assert!(
+        plan.entries
+            .iter()
+            .filter(|e| e.category == CleanupCategory::Burnable)
+            .all(|e| e.reason_code == CleanupReasonCode::RoutingUnavailable)
+    );
+    let expected: std::collections::BTreeMap<_, _> = fixture["accounts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|row| (row["account"].as_str().unwrap(), row))
+        .collect();
+    assert_eq!(
+        plan.entries
+            .iter()
+            .map(|entry| entry.asset.account.address.as_str())
+            .collect::<std::collections::BTreeSet<_>>(),
+        expected.keys().copied().collect()
+    );
+    for entry in &plan.entries {
+        let row = expected[entry.asset.account.address.as_str()];
+        assert_eq!(entry.asset.account.mint, row["mint"]);
+        assert_eq!(entry.asset.account.raw_amount.to_string(), row["rawAmount"]);
+        assert_eq!(entry.asset.account.program.id().to_string(), row["program"]);
+        assert_eq!(
+            entry.asset.account.decimals.unwrap(),
+            row["decimals"].as_u64().unwrap() as u8
+        );
+    }
+    if let Ok(path) = std::env::var("DOCK_FLINTS_FIXTURE_PLAN_REPORT") {
+        std::fs::write(path,serde_json::to_string_pretty(&json!({"source":"Historical RPC fixture replay through real core planner; not live inventory","capturedAt":fixture["capturedAt"],"network":fixture["network"],"wallet":owner.to_string(),"plan":plan,"transactionsSubmitted":0})).unwrap()).unwrap();
+    }
+    let mut options = options();
+    options
+        .selection
+        .ignored_mints
+        .insert(assets[0].account.mint.clone());
+    let protected = build_plan(
+        &owner,
+        assets.clone(),
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(protected.summary.accounts_to_close, 25);
+    assert_eq!(
+        protected.entries[0].reason_code,
+        CleanupReasonCode::IgnoredMint
+    );
+    options.selection.none = true;
+    let none = build_plan(
+        &owner,
+        assets,
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(none.executable_count(), 0);
+    assert!(!none.has_blocked_selection());
+}
+
+#[tokio::test]
+async fn structurally_unavailable_burn_is_revalidated_and_never_degrades_a_saved_swap() {
+    let signer = Keypair::new();
+    let sources = vec![asset(signer.pubkey(), 1, 20)];
+    let provider = dock_flints::app::categories::ScopedSwap::<dock_flints::infra::jupiter::Jupiter> {
+        provider: None,
+        mainnet: false,
+    };
+    let plan = build_plan(
+        &signer.pubkey(),
+        sources.clone(),
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options(),
+    )
+    .await;
+    let executor = Executor::new(&sources);
+    let report = execute_plan(&plan, &provider, &executor, &signer, &options())
+        .await
+        .unwrap();
+    assert_eq!((report.completed, report.closed, report.failed), (1, 1, 0));
+    assert_eq!(
+        executor
+            .events
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|e| e.1)
+            .collect::<Vec<_>>(),
+        [CleanupOperation::Burn, CleanupOperation::Close]
+    );
+    // Capability changed after approval: a real route is not replaced with the old burn intent.
+    let route = Provider::new(vec![Answer::Route]);
+    let executor = Executor::new(&sources);
+    let report = execute_plan(&plan, &route, &executor, &signer, &options())
+        .await
+        .unwrap();
+    assert_eq!(report.failed, 1);
+    assert!(executor.events.lock().unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn selected_wsol_unwraps_without_burn_or_route_lookup() {
+    let signer = Keypair::new();
+    let mut wsol = asset(signer.pubkey(), 1, 100_000);
+    wsol.account.is_native = true;
+    wsol.account.mint = WRAPPED_SOL.into();
+    wsol.account.native_reserve_lamports = Some(2_039_280);
+    let provider = Provider::new(vec![]);
+    let plan = plan(&signer, vec![wsol.clone()], &provider).await;
+    assert_eq!(plan.entries[0].reason_code, CleanupReasonCode::NativeUnwrap);
+    assert_eq!(plan.summary.burnable, 0);
+    let instruction = close_instruction(&wsol, &signer.pubkey()).unwrap();
+    assert_eq!(instruction.data, [9]);
+    assert_eq!(instruction.accounts[1].pubkey, signer.pubkey());
+    assert!(burn_instruction(&wsol, &signer.pubkey()).is_err());
+}
+
+#[tokio::test]
+async fn approved_wsol_unwrap_precedes_swaps_even_when_discovered_last() {
+    let signer = Keypair::new();
+    let token = asset(signer.pubkey(), 1, 5);
+    let mut wsol = asset(signer.pubkey(), 2, 100_000);
+    wsol.account.is_native = true;
+    wsol.account.mint = WRAPPED_SOL.into();
+    wsol.account.native_reserve_lamports = Some(2_039_280);
+    let sources = vec![token.clone(), wsol.clone()];
+    let provider = Provider::new(vec![Answer::Route, Answer::Route]);
+    let plan = plan(&signer, sources.clone(), &provider).await;
+    let executor = Executor::new(&sources);
+    let report = execute_plan(&plan, &provider, &executor, &signer, &options())
+        .await
+        .unwrap();
+    assert_eq!((report.completed, report.failed), (2, 0));
+    assert_eq!(
+        *executor.events.lock().unwrap(),
+        vec![
+            (wsol.account.address, CleanupOperation::Close),
+            (token.account.address.clone(), CleanupOperation::Swap),
+            (token.account.address, CleanupOperation::Close),
+        ]
+    );
+}
+
+#[tokio::test]
+async fn unresolved_wsol_unwrap_blocks_dependent_swaps_without_resend() {
+    let signer = Keypair::new();
+    let token = asset(signer.pubkey(), 1, 5);
+    let mut wsol = asset(signer.pubkey(), 2, 100_000);
+    wsol.account.is_native = true;
+    wsol.account.mint = WRAPPED_SOL.into();
+    wsol.account.native_reserve_lamports = Some(2_039_280);
+    let sources = vec![token, wsol.clone()];
+    let provider = Provider::new(vec![Answer::Route]);
+    let plan = plan(&signer, sources.clone(), &provider).await;
+    let executor = Executor {
+        fail_address: Some(wsol.account.address.clone()),
+        fail_operation: Some(CleanupOperation::Close),
+        uncertain: true,
+        ..Executor::new(&sources)
+    };
+    let report = execute_plan(&plan, &provider, &executor, &signer, &options())
+        .await
+        .unwrap();
+    assert_eq!((report.completed, report.failed, report.skipped), (0, 1, 1));
+    assert!(!report.accounting_complete);
+    assert_eq!(
+        *executor.events.lock().unwrap(),
+        vec![(wsol.account.address, CleanupOperation::Close)]
+    );
+    assert_eq!(
+        report.results[0].uncertain_signature.as_deref(),
+        Some("pending-signature")
+    );
+    assert!(
+        report.results[1]
+            .reason
+            .contains("WSOL source was not safely unwrapped")
+    );
+    assert_eq!(
+        provider.requests.lock().unwrap().len(),
+        1,
+        "No quote or send for a swap depending on unresolved WSOL"
+    );
 }

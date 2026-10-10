@@ -18,7 +18,7 @@ DOCK_FLINTS_JOURNAL_PATH=/tmp/flints-native-test/signatures.json \
 
 Connect using base64 `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=`. This is public
 test input, not a user key. The UI should show two accounts and one selectable
-mint. Uncheck it: close count zero, CTA disabled. Check it, approve close, observe
+mint. Uncheck it: close count zero, CTA disabled. Check it, click RECOVER SOL once, observe
 actual RPC waiting stages, then a confirmed **+0.00406856 SOL** net change for two
 close transactions. Gross returned account lamports are 0.00407856 SOL; the
 10,000-lamport difference represents the two fixture fees. Inspect fixture state
@@ -35,3 +35,8 @@ This smoke test verifies native React/Tauri/core wiring for empty-account close.
 Rust tests separately cover swap/burn, failed/uncertain signatures, stale plans,
 DAS and provider failures. Neither this fixture nor devnet validates mainnet
 Jupiter routing. See `../../docs/desktop-verification.md` for executed results.
+
+The unified WSOL unwrap + nonempty fungible + classic/pNFT scenario was also executed with a real
+local validator through the packaged release React/Tauri app. See
+[unified verification](../../../../docs/unified-cleanup-verification.md) for exact
+receipts, coverage limits, screenshots and reproduction using `nft_local --prepare-only`.

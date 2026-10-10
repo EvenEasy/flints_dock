@@ -39,22 +39,19 @@ async function desktop(page: Page, partial = false, devnet = false) {
           if (command === 'analyze_wallet') return analysis;
           if (command === 'prepare_cleanup') {
             const request = (payload as { request: PrepareCleanupRequest }).request;
-            const mints = request.selection.mode === 'selected' ? request.selection.mints : [];
+            const mints =
+              request.selection.mode === 'selected'
+                ? (request.selection.assetIds ?? request.selection.mints ?? [])
+                : [];
             const entries = plan.entries
               .filter((entry) => mints.includes(entry.mint))
               .map((entry) => {
                 if (!devnet) return entry;
                 return {
                   ...entry,
-                  action: request.policy === 'explicitDiscard' ? 'burn' : 'skip',
-                  reasonCode:
-                    request.policy === 'explicitDiscard'
-                      ? 'explicit_discard'
-                      : 'routing_unavailable',
-                  reason:
-                    request.policy === 'explicitDiscard'
-                      ? 'Explicit discard; irreversible burn then close'
-                      : 'Routing unavailable on this network',
+                  action: 'burn',
+                  reasonCode: 'routing_unavailable',
+                  reason: 'Swap capability unavailable; approved burn then close',
                   expectedOutLamports: null,
                   minOutLamports: null,
                 };
@@ -62,7 +59,6 @@ async function desktop(page: Page, partial = false, devnet = false) {
             const executable = entries.filter((entry) => entry.action !== 'skip').length;
             return {
               ...plan,
-              policy: request.policy ?? 'auto',
               revision: request.revision,
               planId: `plan-${request.revision}`,
               entries,
@@ -116,8 +112,8 @@ async function desktop(page: Page, partial = false, devnet = false) {
 
 test('Cleanup_AllUncheckedSendsExplicitNoneAndCannotExecute', async ({ page }) => {
   await desktop(page);
-  await page.getByRole('checkbox', { name: `Include Same name mint ${address}` }).uncheck();
-  await page.getByRole('checkbox', { name: `Include Same name mint ${secondMint}` }).uncheck();
+  await page.getByRole('checkbox', { name: `Include Same name asset ${address}` }).uncheck();
+  await page.getByRole('checkbox', { name: `Include Same name asset ${secondMint}` }).uncheck();
   await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
   const calls = await page.evaluate(
     () =>
@@ -139,10 +135,8 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await desktop(page);
     await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
-    await expect(page.getByRole('dialog')).toContainText('This cannot be undone');
-    await page.getByRole('button', { name: 'APPROVE SWAP, BURN AND CLOSE' }).click();
     await expect(page.getByRole('heading', { name: 'WALLET CLEANUP' })).toBeVisible();
-    await expect(page.getByRole('status')).toContainText('1 / 2 accounts · Closing');
+    await expect(page.getByRole('status')).toContainText('1 / 2 items · Closing');
     await page.screenshot({ path: `.cache/desktop-cleanup/processing-${viewport.width}.png` });
     await page.evaluate(() => Reflect.get(window, '__finishCleanup')());
     await expect(
@@ -175,7 +169,6 @@ for (const viewport of [
 test('Cleanup_PartialAndMissingMetadataAreNeverFullSuccess', async ({ page }) => {
   await desktop(page, true);
   await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
-  await page.getByRole('button', { name: 'APPROVE SWAP, BURN AND CLOSE' }).click();
   await page.evaluate(() => Reflect.get(window, '__finishCleanup')());
   await expect(page.getByRole('heading', { name: 'PARTIAL CLEANUP' })).toBeVisible();
   await expect(page.locator('.returned-sol')).toContainText('ACCOUNTING INCOMPLETE');
@@ -190,23 +183,13 @@ for (const viewport of [
   { width: 360, height: 800 },
   { width: 1440, height: 900 },
 ]) {
-  test(`Devnet_DiscardRequiresExplicitPolicyAndBurnApproval_${viewport.width}`, async ({
-    page,
-  }) => {
+  test(`Devnet_OneApprovedPlanBurnsWithoutPolicySelector_${viewport.width}`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await desktop(page, false, true);
-    await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
-    await expect(
-      page.getByText('Routing unavailable on this network', { exact: true }),
-    ).toHaveCount(2);
-    await expect(page.getByText('Executable accounts: 0', { exact: false })).toBeVisible();
-    await expect(page.locator('.asset-valuation > strong')).toHaveText([
-      'NOT ESTIMATED',
-      'NOT ESTIMATED',
-    ]);
-    await page.getByLabel('Cleanup policy').selectOption('explicitDiscard');
+    await expect(page.getByLabel('Cleanup policy')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeEnabled();
-    await expect(page.getByText('Burn: 2', { exact: false })).toBeVisible();
+    await expect(page.getByText('Executable operations: 2', { exact: false })).toBeVisible();
+    await expect(page.getByRole('status')).toContainText('Burn 2 selected assets permanently');
     await expect(page.locator('.asset-valuation > span')).toHaveText(['BURN', 'BURN']);
     const callCount = await page.evaluate(
       () =>
@@ -225,13 +208,6 @@ for (const viewport of [
     expect(action!.y + action!.height).toBeLessThanOrEqual(nav!.y);
     await page.screenshot({ path: `.cache/desktop-cleanup/devnet-plan-${viewport.width}.png` });
     await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
-    await expect(page.getByRole('dialog')).toContainText(
-      'No swaps. Only account rent can be recovered.',
-    );
-    await expect(page.getByRole('dialog')).toContainText(
-      'Burn the full balance of 2 accounts. This cannot be undone.',
-    );
-    await page.getByRole('button', { name: 'APPROVE SWAP, BURN AND CLOSE' }).click();
     await expect(page.getByRole('status')).toContainText('Burning');
     await page.screenshot({ path: `.cache/desktop-cleanup/devnet-discard-${viewport.width}.png` });
     await page.evaluate(() => Reflect.get(window, '__finishCleanup')());
@@ -240,3 +216,187 @@ for (const viewport of [
     ).toBeVisible();
   });
 }
+
+test('NFT_AssetIdsRemainSelectableAndCompressedBurnCompletesWithoutCloseOrFictitiousRent', async ({
+  page,
+}) => {
+  const analysis = wallet();
+  const template = cleanupPlan();
+  analysis.inventory = {
+    status: { status: 'complete' },
+    items: [
+      {
+        id: 'holding',
+        mint: address,
+        program: 'SPL',
+        kind: 'fungible',
+        name: 'Retained token',
+        accounts: ['source'],
+        rawAmount: '9007199254740993',
+        decimals: 0,
+        balance: '9007199254740993',
+        valueUsd: null,
+        evidence: 'RPC',
+      },
+      {
+        id: 'core',
+        mint: null,
+        program: 'MPL Core',
+        kind: 'core',
+        name: 'Retained Core NFT',
+        accounts: [],
+        rawAmount: null,
+        decimals: null,
+        balance: null,
+        valueUsd: null,
+        evidence: 'Core ownership',
+      },
+      {
+        id: 'compressed',
+        mint: null,
+        program: 'Bubblegum',
+        kind: 'compressed',
+        name: 'Selected compressed NFT',
+        accounts: [],
+        rawAmount: null,
+        decimals: null,
+        balance: null,
+        valueUsd: null,
+        evidence: 'DAS ownership',
+      },
+    ],
+  };
+  const entries = analysis.inventory.items!.map((asset) => ({
+    ...template.entries[0]!,
+    assetId: asset.id,
+    tokenAccount: asset.accounts[0] ?? null,
+    account: asset.accounts[0] ?? asset.id,
+    mint: asset.mint ?? '',
+    program: asset.program,
+    action: 'burn' as const,
+    kind: asset.kind,
+    reasonCode: 'nft_burn',
+    reason: 'Standard-specific burn',
+    expectedOutLamports: null,
+    minOutLamports: null,
+  }));
+  const job = cleanupJob();
+  job.report = {
+    ...job.report!,
+    completed: 1,
+    closed: 0,
+    failed: 0,
+    skipped: 2,
+    known_swap_net_lamports: '0',
+    known_reclaimed_lamports: '0',
+    known_net_wallet_lamports: '-5000',
+    results: [
+      {
+        token_account: 'compressed',
+        mint: 'compressed',
+        category: 'Burnable',
+        status: 'burned',
+        reason: 'Burn confirmed',
+        uncertain_signature: null,
+        operations: [
+          {
+            operation: 'Burn',
+            signature: 'fixture-burn',
+            wallet_delta_lamports: '-5000',
+            reclaimed_lamports: null,
+          },
+        ],
+      },
+    ],
+  };
+  await page.addInitScript(
+    ({ analysis, template, entries, job }) => {
+      const calls: { command: string; request: unknown }[] = [];
+      Reflect.set(window, '__assetCalls', calls);
+      let completed = false;
+      Reflect.set(window, '__TAURI_INTERNALS__', {
+        transformCallback: () => 1,
+        invoke: async (command: string, payload: { request: PrepareCleanupRequest }) => {
+          calls.push({ command, request: payload.request });
+          if (command === 'connect_wallet')
+            return {
+              sessionId: 'session',
+              walletAddress: analysis.owner,
+              sourceKind: 'seed',
+              canSign: true,
+            };
+          if (command === 'analyze_wallet')
+            return completed
+              ? {
+                  ...analysis,
+                  inventory: {
+                    ...analysis.inventory,
+                    items: analysis.inventory!.items!.filter((a) => a.id !== 'compressed'),
+                  },
+                }
+              : analysis;
+          if (command === 'prepare_cleanup') {
+            const selected =
+              payload.request.selection.mode === 'selected'
+                ? (payload.request.selection.assetIds ?? [])
+                : [];
+            const planned = entries.map((entry) =>
+              selected.includes(entry.assetId)
+                ? entry
+                : { ...entry, action: 'skip', reasonCode: 'not_selected' },
+            );
+            return {
+              ...template,
+              planId: `plan-${payload.request.revision}`,
+              revision: payload.request.revision,
+              entries: planned,
+              canExecute: selected.length > 0,
+              selectedAssets: selected.length,
+              burnCount: selected.length,
+              swapCount: 0,
+              closeCount: 0,
+              executableAccounts: selected.length,
+              skippedAccounts: planned.length - selected.length,
+              estimatedSwapLamports: '0',
+              estimatedReclaimedLamports: '0',
+            };
+          }
+          if (command === 'execute_cleanup') {
+            completed = true;
+            return job;
+          }
+          if (command === 'get_cleanup_job') return job;
+          throw new Error(`Unexpected fixture command ${command}`);
+        },
+      });
+    },
+    { analysis, template, entries, job },
+  );
+  await page.goto('/');
+  await page.getByRole('button', { name: 'CONNECT WALLET' }).click();
+  await page.getByLabel('SEED BASE64').fill('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
+  await page.getByRole('button', { name: 'SCAN WALLET' }).click();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
+  await expect(page.getByRole('checkbox')).toHaveCount(3);
+  await page.getByRole('checkbox', { name: 'Include Retained token asset holding' }).uncheck();
+  await page.getByRole('checkbox', { name: 'Include Retained Core NFT asset core' }).uncheck();
+  await expect(page.getByRole('status')).toContainText('Burn: 1 · Close: 0');
+  await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'CLEANUP COMPLETE', exact: true })).toBeVisible();
+  await expect(page.locator('.returned-sol .exact-amount')).toHaveAttribute(
+    'title',
+    '-0.000005 SOL',
+  );
+  await expect(page.getByText('Report · completed 1 · closed 0 · failed 0')).toBeVisible();
+  const calls = await page.evaluate(
+    () =>
+      Reflect.get(window, '__assetCalls') as { command: string; request: PrepareCleanupRequest }[],
+  );
+  expect(calls.filter((c) => c.command === 'prepare_cleanup').at(-1)!.request.selection).toEqual({
+    mode: 'selected',
+    assetIds: ['compressed'],
+  });
+  expect(calls.filter((c) => c.command === 'execute_cleanup')).toHaveLength(1);
+  expect(calls.filter((c) => c.command === 'analyze_wallet')).toHaveLength(2);
+});

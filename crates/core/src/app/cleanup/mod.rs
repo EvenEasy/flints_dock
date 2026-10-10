@@ -7,7 +7,7 @@ use solana_keypair::Keypair;
 use solana_pubkey::Pubkey;
 use std::time::Duration;
 
-/// Application-facing chain boundary. Planning never receives this executor.
+/// Application-facing chain boundary. Planning uses only read-only preparation, never execution.
 pub trait CleanupExecutor {
     /// Return current, enriched account state, or `None` if the account is absent.
     /// Unreadable state must be an error, not absence.
@@ -40,6 +40,28 @@ pub trait CleanupExecutor {
         _observer: &dyn crate::core::progress::CleanupObserver,
     ) -> impl std::future::Future<Output = Result<OperationReceipt>> + Send {
         self.perform(operation, asset, fresh, signer, limits)
+    }
+
+    /// Prepare a standard-aware NFT burn through read-only chain/provider checks.
+    fn prepare_nft(
+        &self,
+        _target: &crate::core::nft_cleanup::NftTarget,
+        _owner: &Pubkey,
+    ) -> impl std::future::Future<Output = Result<crate::core::nft_cleanup::PreparedNftBurn>> + Send
+    {
+        async { Err(SwapError::InvalidRequest("NFT adapter unavailable".into())) }
+    }
+
+    /// Revalidate the saved NFT identity, then simulate/send/confirm without generic token burn.
+    fn burn_nft(
+        &self,
+        _target: &crate::core::nft_cleanup::NftTarget,
+        _approved: &crate::core::nft_cleanup::PreparedNftBurn,
+        _signer: &Keypair,
+        _limits: &SwapLimits,
+        _observer: &dyn crate::core::progress::CleanupObserver,
+    ) -> impl std::future::Future<Output = Result<OperationReceipt>> + Send {
+        async { Err(SwapError::InvalidRequest("NFT adapter unavailable".into())) }
     }
 
     /// Retrieve metadata for a confirmed failed transaction, which can still charge fees.
@@ -113,4 +135,72 @@ pub async fn plan_wallet(
         .cloned()
         .unwrap_or(ScanStatus::Failed("discovery did not run".into()));
     Ok(plan::build_plan(owner, assets, status, unknown, provider, options).await)
+}
+
+/// Complete wallet scenario, including standard-specific NFT preparation through the same executor.
+/// The caller supplies only a network-verified compressed report; planning never receives a signer.
+pub async fn plan_wallet_complete(
+    reader: &impl crate::app::scan_wallet::WalletReader,
+    owner: &Pubkey,
+    provider: &impl SwapProvider,
+    executor: &impl CleanupExecutor,
+    options: &CleanupOptions,
+    compressed: &crate::core::categories::CompressedReport,
+) -> Result<CleanupPlan> {
+    let snapshot = crate::app::scan_wallet::scan_wallet::<()>(
+        reader,
+        owner,
+        &ScanOptions {
+            selection: ScanSelection {
+                all_tokens: true,
+                ..ScanSelection::ALL
+            },
+            no_prices: true,
+        },
+        None,
+    )
+    .await;
+    for address in &options.selection.accounts {
+        if !snapshot
+            .token_accounts
+            .iter()
+            .any(|a| &a.address == address)
+            && !snapshot
+                .unknown_assets
+                .iter()
+                .any(|a| &a.address == address)
+        {
+            return Err(SwapError::InvalidRequest(format!(
+                "Requested account {address} was not discovered"
+            )));
+        }
+    }
+    let unparsed = snapshot
+        .unknown_assets
+        .iter()
+        .filter(|a| {
+            a.lamports.is_some()
+                && !snapshot
+                    .token_accounts
+                    .iter()
+                    .any(|t| t.address == a.address)
+                && !snapshot.core_assets.iter().any(|c| c.address == a.address)
+        })
+        .cloned()
+        .collect();
+    let mut plan = plan::build_plan(
+        owner,
+        plan::assets_from_portfolio(&snapshot),
+        snapshot
+            .scanners
+            .get("all_tokens")
+            .cloned()
+            .unwrap_or(ScanStatus::Failed("Discovery unavailable".into())),
+        unparsed,
+        provider,
+        options,
+    )
+    .await;
+    plan::add_nfts_observed(&mut plan, &snapshot, compressed, executor, options, &()).await;
+    Ok(plan)
 }

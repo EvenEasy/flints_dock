@@ -4,10 +4,20 @@ use std::collections::BTreeSet;
 
 /// Explicit IPC selection: NONE can never become the CLI's empty-allowlist ALL.
 #[derive(Clone, Deserialize)]
-#[serde(tag = "mode", rename_all = "camelCase", deny_unknown_fields)]
+#[serde(
+    tag = "mode",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    deny_unknown_fields
+)]
 pub enum SelectionDto {
     All,
-    Selected { mints: BTreeSet<String> },
+    Selected {
+        #[serde(default)]
+        mints: BTreeSet<String>,
+        #[serde(default)]
+        asset_ids: BTreeSet<String>,
+    },
     None,
 }
 #[derive(Clone, Deserialize)]
@@ -18,7 +28,7 @@ pub struct PrepareRequest {
     pub selection: SelectionDto,
     pub ignored_mints: BTreeSet<String>,
     #[serde(default)]
-    pub policy: CleanupPolicy,
+    pub ignored_asset_ids: BTreeSet<String>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -44,6 +54,8 @@ pub struct JobRequest {
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlanEntryDto {
+    pub asset_id: String,
+    pub token_account: Option<String>,
     pub account: String,
     pub mint: String,
     pub program: String,
@@ -81,7 +93,6 @@ pub struct CleanupPlanDto {
     pub network: String,
     pub expires_at: String,
     pub entries: Vec<PlanEntryDto>,
-    pub policy: CleanupPolicy,
     pub selected_assets: usize,
     pub executable_accounts: usize,
     pub skipped_accounts: usize,

@@ -26,6 +26,8 @@ spl-token-2022-interface = "3.1.1"
 spl-token-interface = "3.0.0"
 tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "time"] }
 mpl-core = "0.12.1"
+mpl-bubblegum = "4.0.0"
+solana-keccak-hasher = "3.1.0"
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

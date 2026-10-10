@@ -1,8 +1,4 @@
-import type {
-  CleanupPlan,
-  CleanupProgress,
-  CleanupPolicy,
-} from '../../../frontend-contract/cleanup';
+import type { CleanupPlan, CleanupProgress } from '../../../frontend-contract/cleanup';
 import { lamportsToSol } from '../../shared/format';
 import type { WalletAnalysis } from '../../../frontend-contract/types';
 import { Brand, MascotHero, MechanicalPanel } from '../../shared/ui/Design';
@@ -16,7 +12,9 @@ const skipLabels: Record<string, string> = {
   ignored_mint: 'Protected mint',
   not_selected: 'Not selected',
   unknown_classification: 'Unknown asset kind',
-  nft_unsupported: 'NFT cleanup unsupported',
+  asset_signer_funds: 'Asset Signer must be emptied first',
+  nft_evidence_unavailable: 'NFT evidence or capability unavailable',
+  nft_unsupported: 'NFT adapter unavailable',
   frozen: 'Frozen account',
   routing_unavailable: 'Routing unavailable on this network',
   provider_failure: 'Provider unavailable',
@@ -46,8 +44,6 @@ export function CleanupScreen({
   canSign = false,
   onExecute,
   onRetry,
-  policy = 'auto',
-  onPolicyChange,
 }: {
   preview: boolean;
   analysis: WalletAnalysis | null;
@@ -61,13 +57,12 @@ export function CleanupScreen({
   canSign?: boolean;
   onExecute?: () => void;
   onRetry?: () => void;
-  policy?: CleanupPolicy;
-  onPolicyChange?: (policy: CleanupPolicy) => void;
 }) {
   const assets = selectableAssets(analysis);
   const rows = preview ? previewAssets : assets;
   const selectedCount = rows.filter((row) => !ignoredMints.has(row.key)).length;
   const hasInventory =
+    analysis?.inventory?.items != null ||
     analysis?.tokens?.items != null ||
     analysis?.allTokens?.items != null ||
     analysis?.nfts?.classic.items != null;
@@ -80,29 +75,6 @@ export function CleanupScreen({
           CLEANUP
         </h1>
         <p>Uncheck the assets you want to keep.</p>
-        {!preview && (
-          <label className="type-caption">
-            Cleanup policy{' '}
-            <select
-              aria-label="Cleanup policy"
-              value={policy}
-              onChange={(event) => onPolicyChange?.(event.target.value as CleanupPolicy)}
-              disabled={preparing}
-            >
-              <option value="auto">Auto: swap / no-route burn</option>
-              <option
-                value="explicitDiscard"
-                disabled={
-                  analysis?.categories?.network !==
-                    'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG' &&
-                  plan?.network !== 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG'
-                }
-              >
-                Devnet: discard selected
-              </option>
-            </select>
-          </label>
-        )}
       </header>
       <MechanicalPanel className="asset-manifest">
         <h2 className="manifest-columns">
@@ -110,7 +82,11 @@ export function CleanupScreen({
           <span>{preview ? 'VALUE IN SOL' : 'SOL ESTIMATE / ACTION'}</span>
         </h2>
         {!preview && (
-          <CategoryNotice status={analysis?.tokens?.status ?? analysis?.allTokens?.status} />
+          <CategoryNotice
+            status={
+              analysis?.inventory?.status ?? analysis?.tokens?.status ?? analysis?.allTokens?.status
+            }
+          />
         )}
         {plan && plan.undecodableAccounts.length > 0 && (
           <details className="type-caption">
@@ -137,47 +113,61 @@ export function CleanupScreen({
                   onToggle={() => onToggleMint(asset.key)}
                 />
               ))
-            : assets.map((asset) => (
-                <AssetRow
-                  key={asset.key}
-                  identity={asset.mint}
-                  name={asset.name}
-                  quantity={asset.quantity}
-                  value={(() => {
-                    const total = (plan?.entries ?? [])
-                      .filter((entry) => entry.mint === asset.mint)
-                      .reduce((sum, entry) => sum + BigInt(entry.expectedOutLamports ?? '0'), 0n);
-                    return total > 0n ? `${lamportsToSol(total.toString())} SOL` : 'NOT ESTIMATED';
-                  })()}
-                  action={
-                    plan
-                      ? [
-                          ...new Set(
-                            plan.entries
-                              .filter((entry) => entry.mint === asset.mint)
-                              .map((entry) => entry.action.toUpperCase()),
-                          ),
-                        ].join(' / ')
-                      : preparing
-                        ? 'PLANNING'
-                        : undefined
-                  }
-                  reason={plan?.entries
-                    .filter((entry) => entry.mint === asset.mint && entry.action === 'skip')
-                    .map((entry) => skipLabels[entry.reasonCode] ?? 'Review required')
-                    .filter((reason, index, all) => all.indexOf(reason) === index)
-                    .join(' · ')}
-                  details={plan?.entries
-                    .filter((entry) => entry.mint === asset.mint)
-                    .map(
-                      (entry) =>
-                        `${entry.account} · ${entry.program} · raw ${entry.rawAmount} · ${entry.reasonCode}: ${entry.reason} · close authority ${entry.closeAuthority ?? 'owner'} · extensions ${[...entry.accountExtensions, ...entry.mintExtensions].join(', ') || 'none'}`,
-                    )
-                    .join(' | ')}
-                  selected={!ignoredMints.has(asset.mint)}
-                  onToggle={() => onToggleMint(asset.mint)}
-                />
-              ))}
+            : assets.map((asset) => {
+                const entries = (plan?.entries ?? []).filter(
+                  (entry) =>
+                    entry.assetId === asset.key || (!entry.assetId && entry.mint === asset.mint),
+                );
+                const unreadable = plan?.undecodableAccounts.find(
+                  (account) =>
+                    asset.accounts.includes(account.address) || account.address === asset.key,
+                );
+                const output = entries.reduce(
+                  (sum, entry) => sum + BigInt(entry.expectedOutLamports ?? '0'),
+                  0n,
+                );
+                const actions = [
+                  ...new Set(
+                    entries.map((entry) =>
+                      entry.reasonCode === 'native_unwrap' ? 'UNWRAP' : entry.action.toUpperCase(),
+                    ),
+                  ),
+                ];
+                const reasons = [
+                  ...new Set(
+                    entries
+                      .filter((entry) => entry.action === 'skip')
+                      .map((entry) => skipLabels[entry.reasonCode] ?? 'Review required'),
+                  ),
+                ];
+                const details = entries.map(
+                  (entry) =>
+                    `${entry.account} · ${entry.program} · raw ${entry.rawAmount} · ${entry.reasonCode}: ${entry.reason} · close authority ${entry.closeAuthority ?? 'owner'} · extensions ${[...entry.accountExtensions, ...entry.mintExtensions].join(', ') || 'none'}`,
+                );
+                if (unreadable) {
+                  actions.push('SKIP');
+                  reasons.push('Account data unavailable');
+                  details.push(
+                    `${unreadable.address} · ${unreadable.program ?? 'unknown program'} · ${unreadable.reasonCode}: ${unreadable.reason}`,
+                  );
+                }
+                return (
+                  <AssetRow
+                    key={asset.key}
+                    identity={asset.key}
+                    name={asset.name}
+                    quantity={asset.quantity}
+                    value={
+                      output > 0n ? `${lamportsToSol(output.toString())} SOL` : 'NOT ESTIMATED'
+                    }
+                    action={plan ? actions.join(' / ') : preparing ? 'PLANNING' : undefined}
+                    reason={reasons.join(' · ')}
+                    details={details.join(' | ')}
+                    selected={!ignoredMints.has(asset.key)}
+                    onToggle={() => onToggleMint(asset.key)}
+                  />
+                );
+              })}
         </ul>
         {!preview && rows.length === 0 && (
           <p className="empty-state">
@@ -195,9 +185,9 @@ export function CleanupScreen({
           </strong>
           {!preview && (
             <span className="account-counts type-caption">
-              Executable accounts: {plan?.executableAccounts ?? '—'}
+              Executable operations: {plan?.executableAccounts ?? '—'}
               <br />
-              Skipped accounts: {plan?.skippedAccounts ?? '—'}
+              Skipped operations: {plan?.skippedAccounts ?? '—'}
             </span>
           )}
         </p>
@@ -229,13 +219,17 @@ export function CleanupScreen({
             ) : (
               'Checking routes and accounts…'
             )
-          ) : !canSign ? (
-            'Read-only wallet. Connect a seed or keypair to run cleanup.'
           ) : plan ? (
             `Swap: ${plan.swapCount} · Burn: ${plan.burnCount} · Close: ${plan.closeCount}. Estimate before fees.`
           ) : (
             'A fresh plan is required before cleanup.'
           )}
+          {plan && !preparing && !error && plan.requiresBurn && (
+            <p>
+              Burn {plan.burnCount} selected assets permanently. RECOVER SOL approves this plan.
+            </p>
+          )}
+          {!canSign && <p>Read-only wallet. Connect a seed or keypair to run cleanup.</p>}
         </div>
       )}
       <RecoverButton

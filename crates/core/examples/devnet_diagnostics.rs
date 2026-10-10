@@ -54,27 +54,33 @@ async fn main() -> anyhow::Result<()> {
         })
         .cloned()
         .collect();
-    let auto = build_plan(
-        &owner,
-        assets_from_portfolio(&snapshot),
-        snapshot.scanners["all_tokens"].clone(),
-        unparsed.clone(),
-        &provider,
-        &options,
-    )
-    .await;
-    let discard = build_plan(
+    let mut plan = build_plan(
         &owner,
         assets_from_portfolio(&snapshot),
         snapshot.scanners["all_tokens"].clone(),
         unparsed,
         &provider,
-        &CleanupOptions {
-            policy: CleanupPolicy::ExplicitDiscard,
-            ..options
-        },
+        &options,
     )
     .await;
+    let compressed = dock_flints_core::core::categories::CompressedReport {
+        items: vec![],
+        status: ScanStatus::Unsupported("DAS not configured".into()),
+    };
+    let executor = solana::nft_cleanup::SolanaCleanupExecutor {
+        rpc: &rpc,
+        das: None,
+    };
+    dock_flints_core::app::cleanup::plan::add_nfts_observed(
+        &mut plan,
+        &snapshot,
+        &compressed,
+        &executor,
+        &options,
+        &(),
+    )
+    .await;
+    let inventory = dock_flints_core::core::inventory::normalize(&snapshot, &compressed);
     let categories = classify::<Jupiter>(
         &snapshot,
         &owner,
@@ -91,7 +97,7 @@ async fn main() -> anyhow::Result<()> {
     println!(
         "{}",
         serde_json::to_string_pretty(
-            &serde_json::json!({"network":network,"snapshot":{"owner":snapshot.owner,"tokenAccounts":snapshot.token_accounts,"mints":snapshot.mints,"allTokens":snapshot.all_tokens,"classicNfts":snapshot.classic_nfts,"coreAssets":snapshot.core_assets,"unknownAssets":snapshot.unknown_assets,"scanners":snapshot.scanners},"auto":auto,"explicitDiscardPreview":discard,"categories":categories,"transactionsSubmitted":0})
+            &serde_json::json!({"network":network,"snapshot":{"owner":snapshot.owner,"tokenAccounts":snapshot.token_accounts,"mints":snapshot.mints,"allTokens":snapshot.all_tokens,"classicNfts":snapshot.classic_nfts,"coreAssets":snapshot.core_assets,"unknownAssets":snapshot.unknown_assets,"scanners":snapshot.scanners},"plan":plan,"inventory":inventory,"categories":categories,"transactionsSubmitted":0})
         )?
     );
     Ok(())

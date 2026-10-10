@@ -87,14 +87,16 @@ impl DesktopStore {
                 "Plan expired or selection changed; prepare again",
             ));
         }
-        if !plan.dto.can_execute || plan.core.summary.accounts_to_close == 0 {
+        if !plan.dto.can_execute || plan.core.executable_count() == 0 {
             return Err(AppError::cleanup(
                 "No selected eligible accounts; nothing will be submitted",
             ));
         }
-        if !request.approval.close
+        if (plan.dto.close_count > 0 && !request.approval.close)
             || (plan.core.summary.swappable > 0 && !request.approval.swap)
-            || (plan.core.summary.burnable > 0 && !request.approval.burn)
+            || ((plan.core.summary.burnable > 0
+                || plan.core.nft_entries.iter().any(|e| e.prepared.is_some()))
+                && !request.approval.burn)
         {
             return Err(AppError::cleanup(
                 "Explicit approval of every planned action is required",
@@ -276,7 +278,6 @@ mod tests {
             network: "network".into(),
             expires_at: (now() + 100).to_string(),
             entries: vec![],
-            policy: CleanupPolicy::Auto,
             selected_assets: 1,
             executable_accounts: 1,
             skipped_accounts: 0,
@@ -302,7 +303,8 @@ mod tests {
                 ..Default::default()
             },
             selection: Default::default(),
-            policy: CleanupPolicy::Auto,
+            policy: CleanupPolicy::Complete,
+            nft_entries: vec![],
         };
         DesktopStore {
             session: Some(Session {

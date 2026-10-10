@@ -26,23 +26,26 @@ for (const viewport of [
           if (command === 'analyze_wallet') return fixture.analysis;
           if (command === 'prepare_cleanup') {
             const request = (payload as { request: PrepareCleanupRequest }).request;
-            const source =
-              request.policy === 'explicitDiscard' ? fixture.explicitDiscardPreview : fixture.auto;
+            const source = fixture.explicitDiscardPreview;
             const selected = new Set(
               request.selection.mode === 'selected'
-                ? request.selection.mints
+                ? (request.selection.assetIds ?? request.selection.mints ?? [])
                 : request.selection.mode === 'all'
                   ? source.entries.map((e) => e.mint)
                   : [],
             );
             const entries = source.entries.map((entry) =>
-              request.ignoredMints.includes(entry.mint) || !selected.has(entry.mint)
+              request.ignoredMints.includes(entry.mint) ||
+              request.ignoredAssetIds?.includes(entry.mint) ||
+              !selected.has(entry.mint)
                 ? {
                     ...entry,
                     action: 'skip',
-                    reasonCode: request.ignoredMints.includes(entry.mint)
-                      ? 'ignored_mint'
-                      : 'not_selected',
+                    reasonCode:
+                      request.ignoredMints.includes(entry.mint) ||
+                      request.ignoredAssetIds?.includes(entry.mint)
+                        ? 'ignored_mint'
+                        : 'not_selected',
                     reason: 'Protected by current selection',
                   }
                 : entry,
@@ -70,7 +73,7 @@ for (const viewport of [
     await page.getByRole('button', { name: 'SCAN WALLET' }).click();
     await expect(page.getByRole('button', { name: /^NFT:/ })).toHaveAttribute(
       'aria-label',
-      'NFT: —',
+      'NFT: Not checked',
     );
     await page.getByRole('button', { name: /^NFT:/ }).click();
     await expect(page.getByRole('dialog')).toContainText('compressed NFT inventory unavailable');
@@ -78,23 +81,14 @@ for (const viewport of [
     await page.getByRole('button', { name: 'RECOVER SOL', exact: true }).click();
     const mints = new Set(captured.analysis.tokenAccounts.map((account) => account.mint));
     await expect(page.getByRole('checkbox')).toHaveCount(mints.size);
+    await expect(page.getByLabel('Cleanup policy')).toHaveCount(0);
     await expect(
-      page.getByText(`Executable accounts: ${captured.auto.executableAccounts}`, { exact: false }),
+      page.getByText(
+        `Executable operations: ${captured.explicitDiscardPreview.executableAccounts}`,
+        { exact: false },
+      ),
     ).toBeVisible();
-    await expect(
-      page.getByText(`Skipped accounts: ${captured.auto.skippedAccounts}`, { exact: false }),
-    ).toBeVisible();
-    await expect(
-      page.getByText('Routing unavailable on this network', { exact: true }),
-    ).toHaveCount(
-      captured.auto.entries.filter((e) => e.reasonCode === 'routing_unavailable').length,
-    );
-    await page.getByLabel('Cleanup policy').selectOption('explicitDiscard');
-    await expect(
-      page.getByText(`Executable accounts: ${captured.explicitDiscardPreview.executableAccounts}`, {
-        exact: false,
-      }),
-    ).toBeVisible();
+    await expect(page.getByText('Burn: 20', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: 'RECOVER SOL', exact: true })).toBeDisabled();
     await expect(page.getByRole('status')).toContainText('Read-only wallet');
     const last = page.getByRole('checkbox').last();

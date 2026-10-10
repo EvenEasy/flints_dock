@@ -32,7 +32,7 @@ export function CleanupProcessingScreen({
       <MechanicalPanel tone="cyan" className="scan-process">
         <p role="status">
           {progress
-            ? `${progress.completed} / ${progress.total} accounts · ${stages.find(([key]) => key === progress.stage)?.[1] ?? progress.stage}`
+            ? `${progress.completed} / ${progress.total} items · ${stages.find(([key]) => key === progress.stage)?.[1] ?? progress.stage}`
             : 'Checking the approved plan'}
         </p>
         {progress?.account && (

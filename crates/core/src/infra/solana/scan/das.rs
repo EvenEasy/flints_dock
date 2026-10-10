@@ -24,6 +24,57 @@ impl DasClient {
                 .build()?,
         })
     }
+    /// Fetch current mutation evidence with bounded retries. Secrets/provider bodies stay in Rust.
+    pub async fn call(&self, method: &str, params: Value) -> crate::app::swap::Result<Value> {
+        use crate::app::swap::SwapError;
+        for attempt in 0..3 {
+            let response = self
+                .http
+                .post(&self.endpoint)
+                .json(&json!({"jsonrpc":"2.0","id":1,"method":method,"params":params}))
+                .send()
+                .await;
+            match response {
+                Ok(response) if response.status().is_success() => {
+                    let value = response
+                        .json::<Value>()
+                        .await
+                        .map_err(|_| SwapError::Api("Malformed DAS response".into()))?;
+                    if value.get("error").is_some() || value.get("result").is_none() {
+                        return Err(SwapError::Api("DAS method unavailable".into()));
+                    }
+                    return Ok(value["result"].clone());
+                }
+                Ok(response)
+                    if response.status().as_u16() == 429 || response.status().is_server_error() =>
+                {
+                    let wait = response
+                        .headers()
+                        .get("retry-after")
+                        .and_then(|h| h.to_str().ok())
+                        .and_then(|h| h.parse::<u64>().ok())
+                        .unwrap_or(1 << attempt);
+                    if wait > 10 || attempt == 2 {
+                        break;
+                    }
+                    tokio::time::sleep(Duration::from_secs(wait)).await;
+                }
+                Ok(_) => return Err(SwapError::Api("DAS authentication/request failed".into())),
+                Err(_) if attempt < 2 => {
+                    tokio::time::sleep(Duration::from_secs(1 << attempt)).await
+                }
+                Err(_) => break,
+            }
+        }
+        Err(SwapError::Api(
+            "DAS unavailable after bounded retries".into(),
+        ))
+    }
+    /// Exact ID lookup used for fresh proof preparation and post-confirmation burned-state checks.
+    pub async fn asset(&self, id: &str) -> crate::app::swap::Result<Value> {
+        self.call("getAsset", json!({"id":id})).await
+    }
+
     /// Ensure the configured indexer serves the same genesis hash as the Solana reader.
     pub async fn compressed_on_network(&self, owner: &str, network: &str) -> CompressedReport {
         let response = self

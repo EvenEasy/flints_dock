@@ -4,7 +4,7 @@ import { Icon } from '../../shared/ui/Icon';
 import { SurfaceFrame } from '../../shared/ui/Design';
 import { ExactAmount } from '../../shared/ui/ExactAmount';
 
-/** Checked means include; unchecked means keep. The row identity is always a mint or preview key. */
+/** Checked means include; unchecked means keep. The row identity is a normalized holding, NFT asset ID or preview key. */
 export function AssetRow({
   name,
   quantity,
@@ -38,7 +38,7 @@ export function AssetRow({
           type="checkbox"
           checked={selected}
           onChange={onToggle}
-          aria-label={`Include ${name} mint ${identity}`}
+          aria-label={`Include ${name} asset ${identity}`}
           aria-describedby={quantityId}
         />
         <img

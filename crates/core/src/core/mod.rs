@@ -5,6 +5,8 @@ pub mod categories;
 pub mod classification;
 pub mod cleanup;
 pub mod error;
+pub mod inventory;
+pub mod nft_cleanup;
 pub mod progress;
 pub mod swap;
 pub mod wallet;

@@ -47,15 +47,11 @@ impl From<WalletCategories> for CategoriesDto {
                                     Some(reason.clone())
                                 }
                             },
-                            source: if key != "nft" && providers.contains_key("test_data") {
-                                "TEST DATA: devnet manifest"
-                            } else {
-                                match key.as_str() {
-                                    "scam" => "Jupiter Tokens V2",
-                                    "dust" => "Jupiter Price V3",
-                                    "dead_token" => "Jupiter Swap V2",
-                                    _ => "Solana / Metaplex / MPL Core / DAS",
-                                }
+                            source: match key.as_str() {
+                                "scam" => "Jupiter Tokens V2",
+                                "dust" => "Jupiter Price V3",
+                                "dead_token" => "Jupiter Swap V2",
+                                _ => "Solana / Metaplex / MPL Core / DAS",
                             }
                             .into(),
                             network: network.clone(),

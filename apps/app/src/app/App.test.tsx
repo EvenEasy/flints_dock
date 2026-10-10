@@ -273,8 +273,8 @@ describe('Real asset selection and available results', () => {
     await connect(user);
     await ready();
     await user.click(screen.getByRole('button', { name: 'RECOVER SOL' }));
-    const first = screen.getByRole('checkbox', { name: `Include Same name mint ${address}` });
-    const second = screen.getByRole('checkbox', { name: `Include Same name mint ${secondMint}` });
+    const first = screen.getByRole('checkbox', { name: `Include Same name asset ${address}` });
+    const second = screen.getByRole('checkbox', { name: `Include Same name asset ${secondMint}` });
     expect(first).toBeChecked();
     expect(second).toBeChecked();
     await user.click(first);
@@ -283,7 +283,7 @@ describe('Real asset selection and available results', () => {
     await user.click(screen.getByRole('button', { name: 'STATION' }));
     await user.click(screen.getByRole('button', { name: 'RECOVER SOL' }));
     expect(
-      screen.getByRole('checkbox', { name: `Include Same name mint ${address}` }),
+      screen.getByRole('checkbox', { name: `Include Same name asset ${address}` }),
     ).not.toBeChecked();
     expect(ipc).toHaveBeenCalledTimes(1);
   });

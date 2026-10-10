@@ -1,0 +1,1336 @@
+{
+  "capturedAt": "2026-10-09T21:33:52+00:00",
+  "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "plan": {
+    "discovery_status": {
+      "status": "complete"
+    },
+    "entries": [
+      {
+        "asset": {
+          "account": {
+            "address": "48zXLcu4BPaXow2pTwPiG5MjEfSdQgBSFwwsp17gvWDy",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "100000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "100000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "4YfYZZFedUuQdNrU3GiANC1WQa3xzPvWuNX5L5s7YrRr",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "10000000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "10000000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "5e1KwQRu3hWNDaSYWiWWPv11FagCJy9mQ9857NWXT8BG",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "10000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "10000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "5mHMn28uhLLpr3Kg8MZ4WjRJQwMJvGMHeDZYML1VTCeh",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "3pVH7hgxnSGVD34BH6RbWPnVvigbJRbx8En87NBixMUq",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "3pVH7hgxnSGVD34BH6RbWPnVvigbJRbx8En87NBixMUq",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "79QSGTfbHb8KedRKDarbWD1L6qd9P7byu9Swj31tfYP",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "31jvXrawXfyiQrSzZ1MM93BrD3nkfAV5g4pAFaK8cen7",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "1337000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "31jvXrawXfyiQrSzZ1MM93BrD3nkfAV5g4pAFaK8cen7",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "1337000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "8hWkzjzGqyyiMB9r4RP4HoLswqNwSnv8VLzKfMckPGXz",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "144pKjVYj45TRX9nucSgDYRzSDrDzVHqLW93FX8cNEV8",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "144pKjVYj45TRX9nucSgDYRzSDrDzVHqLW93FX8cNEV8",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "91NBGyzjXGpAMJVTPbjv5vYPSrDh2JGyit9NBMfmTA7B",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "BUmvFqdrKUSDztQmVaWYHmAhhUTKN5CtaiQ3VvHVXwQn",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "100000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "BUmvFqdrKUSDztQmVaWYHmAhhUTKN5CtaiQ3VvHVXwQn",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "100000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "9j9kdKrRXu3Vsj9S1PixfRb1qvyaLxoidz7gZVWoxjGM",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "8EJyoSfx4TKRrKvULNQy5eLzpnD1h2gwD3yRU1jhqQso",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "10000000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "8EJyoSfx4TKRrKvULNQy5eLzpnD1h2gwD3yRU1jhqQso",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "10000000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "A2KWYdLS2j2oSfTJASf5NPP5wFDfrJnHWztuzNYteyEX",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "CAA21Htmj1GLP9XFboMsWXs4HNT9EwpyzyfaDjskLVJZ",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "10000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "CAA21Htmj1GLP9XFboMsWXs4HNT9EwpyzyfaDjskLVJZ",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "10000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "AKziFnTWhAG2R9jhEJnir1Ro6ue5bRXRQTyNpmFQPXQf",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "1325cQDpA5cT1qChQrm3Gad8EiPHwGqp7WFW8j3HFrFi",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "1325cQDpA5cT1qChQrm3Gad8EiPHwGqp7WFW8j3HFrFi",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "BWLjCQ7EwFV29EbLzifjY5oqgmJHwB4sGR3d55zJLHe4",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "8i1GvDWWREw6CdnDHsbXnqE2W3qogMKnutQiJdsLRDHp",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "42069000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "8i1GvDWWREw6CdnDHsbXnqE2W3qogMKnutQiJdsLRDHp",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "42069000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "CCdfdTxvtaHuKPfAGzmcKJ1HetmhDuahmS64QDt8DHou",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "6V4RhTQJapM4vk4sL5B3wukXuQQLN4UTijCn5UhJzRiL",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "6V4RhTQJapM4vk4sL5B3wukXuQQLN4UTijCn5UhJzRiL",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "CQtuwz94BXd6tyiPVUoMQsh2diYbPtEsDnztVYQL14wS",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "4VPfX1iyzRQknTYX15yMg7P3jHBnB2gmAFcxCQU81ha4",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "5000000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "4VPfX1iyzRQknTYX15yMg7P3jHBnB2gmAFcxCQU81ha4",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "5000000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "CgUsynH624kV3Gg2BhKUAkR5kqB5hKjjsxnehZhXEghW",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "CQi8qv2xBpnqRz33FszWHQzEC7g5AsL9yL2LQmqb6YpV",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "100000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "CQi8qv2xBpnqRz33FszWHQzEC7g5AsL9yL2LQmqb6YpV",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "100000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "D19PNVXsEFdiM4WJVkmRZEeudVig6hqH3a2K8twAJSjF",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "E861r4hYMLcdCb7CXQ2n2QKSAdXNNMc8DU6JD1BYgBjg",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "E861r4hYMLcdCb7CXQ2n2QKSAdXNNMc8DU6JD1BYgBjg",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "DZA37doCKHPv67HynLzVnsyM36phTX8tvmfj9oogFQSA",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "52WWAL2urufggwtmFKoD7upaZvFsh5mAtJg6CVREbvL1",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "42069000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "52WWAL2urufggwtmFKoD7upaZvFsh5mAtJg6CVREbvL1",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "42069000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "E2QtBtHGYz3KkgsXPFY1HsAZu3JLBoVibkEU9wvSfD5P",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "CL83rkA4MoXu9TaN3kst7BMHEspAshW7Z5LenaUzsyVo",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "0",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "CL83rkA4MoXu9TaN3kst7BMHEspAshW7Z5LenaUzsyVo",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "0"
+          }
+        },
+        "category": "Empty",
+        "quote": null,
+        "reason": "Close empty account",
+        "reason_code": "empty_account"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "FsDf5rZBpAqanRuxmy2JEM6zrsET1mAS4WwpcF7aqGt4",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "3KTxE2kjiPCsncgpLoMHoyo4gfd8BgZoQLcsaASAbLmh",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "100000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "3KTxE2kjiPCsncgpLoMHoyo4gfd8BgZoQLcsaASAbLmh",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "100000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "GWZ4yMRmekQfFKYdRdQVUzVtCoBo3KXMLR2fpcbU5WN2",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "AqqzTM1FqVHnnVpTRrf75RPHwWSeMZB8j7Mgp3YqzPkT",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "420000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "AqqzTM1FqVHnnVpTRrf75RPHwWSeMZB8j7Mgp3YqzPkT",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "420000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "GffqW5ww4dQ64rk2xFR1UYQfrFvCxc1gyhAtG14h1rGB",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "7rD7xxsQjQbkjDEUUUTR6BYyJ19r5LeWwe4CBnGVvoyb",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "420000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "7rD7xxsQjQbkjDEUUUTR6BYyJ19r5LeWwe4CBnGVvoyb",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "420000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "HFx8JHB62ECiCTYKvFeKc8CCKUHtREYVChr81qcNn7Po",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "C4PrtESQaZMf9CFYJmJCnFYRZgUnpaqQd6e2y1cPj3n6",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "5000000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "C4PrtESQaZMf9CFYJmJCnFYRZgUnpaqQd6e2y1cPj3n6",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "5000000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "HG7in5oYrY6uEboZg8AsYeMbAZWAhxCqe5GFbeQw3Xq5",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "5Asyp5VyyEGJxopnzS1NkAfk7DeaHX9T7bCJAkUL64pM",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "13000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "5Asyp5VyyEGJxopnzS1NkAfk7DeaHX9T7bCJAkUL64pM",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "13000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "HWRSqMCURWrtJXxhDmf6LwARAxXEA7C9TuCAi8nCzn9F",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "Hk1d7uMYam1BU8qHgZHmc1PV3oGXsPog5TLkxAecgvL5",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "999999000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "Hk1d7uMYam1BU8qHgZHmc1PV3oGXsPog5TLkxAecgvL5",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "999999000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "JBpTyV2A9RvVZL2UQmb4xQocYsJc4pbUKi9tKPZthmMG",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "Btnyi3NZ9kV1qXsH2F864mr9aWfFehrz7tTw83V8Lfj6",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "42069000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "Btnyi3NZ9kV1qXsH2F864mr9aWfFehrz7tTw83V8Lfj6",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "42069000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "S3nHHnjcw9QJ2xyCiFoyweYoe4Wj1ndQxWyd3eMET4D",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "wesnpmyaxpqm7dRbHUrXoKpUrfVUULNYbPM8xEFC3Y1",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "13000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "wesnpmyaxpqm7dRbHUrXoKpUrfVUULNYbPM8xEFC3Y1",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "13000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      },
+      {
+        "asset": {
+          "account": {
+            "address": "zAYUKMMcPykxzKBroNxrkRrCNaUY8eQA8DjknUSuHLg",
+            "close_authority": null,
+            "closure": {
+              "status": "potentially_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": [],
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "94e6pYCFcfA793rgYzQ2hYNHgDNHbPq7uuJymqrf54Ka",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "5000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "94e6pYCFcfA793rgYzQ2hYNHgDNHbPq7uuJymqrf54Ka",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "5000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      }
+    ],
+    "nft_entries": [],
+    "policy": "complete",
+    "selection": {
+      "accounts": [],
+      "asset_ids": null,
+      "ignored_asset_ids": [],
+      "ignored_mints": [],
+      "none": false,
+      "selected_accounts_only": false
+    },
+    "summary": {
+      "accounts_to_close": 26,
+      "burnable": 20,
+      "empty": 6,
+      "estimated_reclaimed_lamports": "38699440",
+      "estimated_swap_lamports": "0",
+      "swappable": 0,
+      "token_accounts": 26,
+      "unsupported": 0
+    },
+    "unparsed_accounts": [],
+    "wallet": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv"
+  },
+  "source": "Historical RPC fixture replay through real core planner; not live inventory",
+  "transactionsSubmitted": 0,
+  "wallet": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv"
+}

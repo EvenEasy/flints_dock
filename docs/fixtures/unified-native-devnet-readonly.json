@@ -1,0 +1,479 @@
+{
+  "mode": "readonly",
+  "runtime": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15",
+    "dpr": 2,
+    "viewport": [
+      1100,
+      1000
+    ],
+    "origin": "tauri://localhost",
+    "fontReady": "loaded",
+    "mainOverflow": 0,
+    "images": [
+      {
+        "src": "tauri://localhost/assets/station-scene-pPwRel2V.png",
+        "natural": [
+          1024,
+          1536
+        ],
+        "bounds": [
+          430,
+          930.5625
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2072'%20fill='none'%20aria-hidden='true'%3e%3cdefs%3e%3clinearGradient%20id='flint_emblem-gradient'%20x1='9'%20y1='7'%20x2='48'%20y2='68'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23D76FFF'%20/%3e%3cstop%20offset='.46'%20stop-color='%239C46E8'%20/%3e%3cstop%20offset='.57'%20stop-color='%230AE9D3'%20/%3e%3cstop%20offset='1'%20stop-color='%2317CCD9'%20/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath%20d='M58%206H31C14%206%204%2017%204%2033s10%2027%2025%2029l21%2010-2-24H32c-9%200-15-6-15-15s6-15%2015-15h16z'%20fill='url(%23flint_emblem-gradient)'%20/%3e%3cpath%20d='M47%2027H32a7%207%200%200%200%200%2014h9l7-8H32v-2h15z'%20fill='%230EF3CE'%20/%3e%3cpath%20d='M34%2052l8%204%201%207-9-5z'%20fill='%23032B40'%20/%3e%3c/svg%3e",
+        "natural": [
+          133,
+          150
+        ],
+        "bounds": [
+          28,
+          28
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20150'%20fill='none'%20aria-hidden='true'%20color='%23D680F6'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M50%204C28%204%2016%2020%2016%2039c0%2010%204%2016%208%2020v19l12%207v12h28V85l12-7V59c4-4%208-10%208-20C84%2020%2072%204%2050%204Z'%20/%3e%3cpath%20d='M29%2038c-8%202-9%2011-4%2017%204%204%2013%201%2017-8zM71%2038l-13%209c4%209%2013%2012%2017%208%205-6%204-15-4-17ZM50%2056l-7%2013h14z'%20fill='%23080513'%20/%3e%3cpath%20d='M35%2080v15M42%2082v15M50%2082v15M58%2082v15M65%2080v15'%20stroke='%23080513'%20stroke-width='3'%20/%3e%3cpath%20d='M16%20111l68%2033M16%20144l68-33'%20stroke='currentColor'%20stroke-width='7'%20stroke-linecap='round'%20/%3e%3ccircle%20cx='13'%20cy='108'%20r='6'%20/%3e%3ccircle%20cx='16'%20cy='116'%20r='6'%20/%3e%3ccircle%20cx='84'%20cy='139'%20r='6'%20/%3e%3ccircle%20cx='88'%20cy='147'%20r='6'%20/%3e%3ccircle%20cx='13'%20cy='147'%20r='6'%20/%3e%3ccircle%20cx='17'%20cy='138'%20r='6'%20/%3e%3ccircle%20cx='84'%20cy='116'%20r='6'%20/%3e%3ccircle%20cx='88'%20cy='108'%20r='6'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          100,
+          150
+        ],
+        "bounds": [
+          28,
+          32
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/hero-raptor-ring-512-DpEciXu3.png",
+        "natural": [
+          512,
+          512
+        ],
+        "bounds": [
+          224.953125,
+          224.953125
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%23D680F6'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          28,
+          32
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/crossed-sabers-512-CmEZTV6x.png",
+        "natural": [
+          512,
+          171
+        ],
+        "bounds": [
+          200,
+          66.65625
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%3e%3cg%20stroke='currentColor'%20stroke-width='2.5'%20stroke-linecap='round'%20stroke-linejoin='round'%3e%3cpath%20d='M37%2011a19%2019%200%201%200%201%2026M31%2014a12%2012%200%201%200%203%2017'%20/%3e%3cpath%20d='M21%2027l20-20M35%207h6v6M19%2021v9M15%2025h9M31%2035l10%208%203-3-10-10'%20/%3e%3cpath%20d='M31%2035l8%208%205-3-10-10'%20fill='currentColor'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          20,
+          20
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/orbital-station-128-52Ad8KIb.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          64,
+          100
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%3e%3cg%20stroke='currentColor'%20stroke-width='2.1'%20stroke-linejoin='round'%3e%3cpath%20d='M24%203L44%2013v23L24%2046%204%2036V13zM4%2013l20%2010%2020-10M24%2023v23M4%2013l20%2033M24%2023L4%2036M44%2013L24%2046M24%2023l20%2013M24%203v20M4%2013l20-1%2020%201M24%203L14%2018M24%203l10%2015'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          20,
+          20
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-scam-128-CDx_xaaE.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-nft-128-CkAQhsXw.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-dust-128-CmMEMebR.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "tauri://localhost/assets/category-dead-128-BxkFoEB5.png",
+        "natural": [
+          128,
+          128
+        ],
+        "bounds": [
+          42,
+          36
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%2313F3F5'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          30,
+          30
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23EFD7FF'%3e%3cpath%20d='M4%2022L24%205l20%2017'%20stroke='currentColor'%20stroke-width='4'%20stroke-linejoin='round'%20/%3e%3cpath%20d='M9%2021l15-12%2015%2012v24H9z'%20fill='currentColor'%20/%3e%3cpath%20d='M20%2029h9v10h-9z'%20fill='%23160927'%20/%3e%3cpath%20d='M36%205h4v9h-4z'%20fill='currentColor'%20/%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2096%2096'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20fill='currentColor'%3e%3cpath%20d='M89%207c-26-2-46%2010-61%2036L42%2057l14%2014C81%2056%2092%2034%2089%207ZM67%2028a8%208%200%201%201-11%2011%208%208%200%200%201%2011-11Z'%20fill-rule='evenodd'%20/%3e%3cpath%20d='M32%2035C20%2036%2011%2046%207%2059l18-5%2010-13zM61%2065l-8%207-5%2018c14-5%2023-14%2024-27zM29%2057l10%2010-12%205-6-6zM19%2067l-5%2013%209-4-9%2017%2020-19-2%209%2014-16-13-4z'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20stroke='currentColor'%20stroke-width='2.1'%20stroke-linejoin='round'%3e%3cpath%20d='M24%203L44%2013v23L24%2046%204%2036V13zM4%2013l20%2010%2020-10M24%2023v23M4%2013l20%2033M24%2023L4%2036M44%2013L24%2046M24%2023l20%2013M24%203v20M4%2013l20-1%2020%201M24%203L14%2018M24%203l10%2015'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20color='%23C9ACEA'%3e%3cg%20stroke='currentColor'%20stroke-width='2.8'%20stroke-linecap='round'%3e%3ccircle%20cx='24'%20cy='24'%20r='16'%20/%3e%3cpath%20d='M24%202v13M24%2033v13M2%2024h13M33%2024h13M24%2020v8M20%2024h8'%20/%3e%3c/g%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      },
+      {
+        "src": "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%20fill='none'%20aria-hidden='true'%20preserveAspectRatio='xMidYMid%20meet'%20color='%23C9ACEA'%3e%3cpath%20d='M24%203C12%203%206%2010%206%2021c0%206%202%2010%207%2012v7h6v5h10v-5h6v-7c5-2%207-6%207-12C42%2010%2036%203%2024%203z'%20fill='currentColor'%20/%3e%3cellipse%20cx='16'%20cy='25'%20rx='6'%20ry='5'%20transform='rotate(12%2016%2025)'%20fill='%23090811'%20/%3e%3cellipse%20cx='32'%20cy='25'%20rx='6'%20ry='5'%20transform='rotate(-12%2032%2025)'%20fill='%23090811'%20/%3e%3cpath%20d='M24%2029l-4%207h8z'%20fill='%23090811'%20/%3e%3cpath%20d='M18%2039v6M23%2039v6M28%2039v6M33%2038v5'%20stroke='%23090811'%20stroke-width='1.8'%20/%3e%3c/svg%3e",
+        "natural": [
+          150,
+          150
+        ],
+        "bounds": [
+          24,
+          24
+        ]
+      }
+    ],
+    "categoryOverflow": [
+      {
+        "text": "Not checked",
+        "overflow": 0
+      },
+      {
+        "text": "Not checked",
+        "overflow": 0
+      },
+      {
+        "text": "Not checked",
+        "overflow": 0
+      },
+      {
+        "text": "Not checked",
+        "overflow": 0
+      }
+    ]
+  },
+  "analysis": {
+    "inventory": {
+      "status": {
+        "status": "partial",
+        "reason": "compressed: DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": []
+    },
+    "categories": {
+      "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+      "dustThresholdUsd": 0.01,
+      "categories": {
+        "dead_token": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter routing is mainnet-only"
+          },
+          "checkedAt": "1791624124",
+          "source": "Jupiter Swap V2",
+          "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+          "reason": "Jupiter routing is mainnet-only",
+          "coverage": {}
+        },
+        "dust": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+          },
+          "checkedAt": "1791624124",
+          "source": "Jupiter Price V3",
+          "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+          "coverage": {}
+        },
+        "nft": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "partial",
+            "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable"
+          },
+          "checkedAt": "1791624124",
+          "source": "Solana / Metaplex / MPL Core / DAS",
+          "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+          "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+          "coverage": {
+            "das": {
+              "status": "unsupported",
+              "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+            },
+            "nft_classic": {
+              "status": "complete"
+            },
+            "nft_core": {
+              "status": "complete"
+            }
+          }
+        },
+        "scam": {
+          "items": [],
+          "count": 0,
+          "status": {
+            "status": "unsupported",
+            "reason": "Mainnet risk provider unavailable on this network"
+          },
+          "checkedAt": "1791624124",
+          "source": "Jupiter Tokens V2",
+          "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+          "reason": "Mainnet risk provider unavailable on this network",
+          "coverage": {}
+        }
+      },
+      "providers": {
+        "das": {
+          "status": "unsupported",
+          "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "nft_classic": {
+          "status": "complete"
+        },
+        "nft_core": {
+          "status": "complete"
+        },
+        "pricing": {
+          "status": "unsupported",
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+        },
+        "risk": {
+          "status": "unsupported",
+          "reason": "Mainnet risk provider unavailable on this network"
+        },
+        "routing": {
+          "status": "unsupported",
+          "reason": "Jupiter routing is mainnet-only"
+        },
+        "rpc": {
+          "status": "complete"
+        }
+      }
+    },
+    "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+    "commitment": "Confirmed (independent requests)",
+    "selected": {
+      "balance": true,
+      "tokens": true,
+      "allTokens": true,
+      "nfts": true,
+      "cnfts": true
+    },
+    "hasUsableResults": true,
+    "balance": {
+      "status": {
+        "status": "complete"
+      },
+      "value": {
+        "lamports": "18416513200",
+        "sol": "18.4165132",
+        "price": null,
+        "valueUsd": null
+      }
+    },
+    "tokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": []
+    },
+    "allTokens": {
+      "status": {
+        "status": "complete"
+      },
+      "items": []
+    },
+    "nfts": {
+      "status": {
+        "status": "complete"
+      },
+      "classic": {
+        "status": {
+          "status": "complete"
+        },
+        "items": []
+      },
+      "core": {
+        "status": {
+          "status": "complete"
+        },
+        "items": []
+      }
+    },
+    "cnfts": {
+      "status": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "items": null
+    },
+    "tokenAccounts": [],
+    "mints": [],
+    "unknownAssets": [],
+    "accountSummary": {
+      "tokenAccounts": 0,
+      "emptyTokenAccounts": 0,
+      "tokenAccountLamports": "0",
+      "potentiallyReclaimableLamports": "0",
+      "closureReviewAccounts": 0
+    },
+    "scanners": {
+      "all_tokens": {
+        "status": "complete"
+      },
+      "classic_nfts": {
+        "status": "complete"
+      },
+      "compressed_nfts": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "core_asset_v1": {
+        "status": "complete"
+      },
+      "legacy_tokens": {
+        "status": "complete"
+      },
+      "metaplex_metadata_and_nfts": {
+        "status": "complete"
+      },
+      "mint_metadata": {
+        "status": "complete"
+      },
+      "native_sol": {
+        "status": "complete"
+      },
+      "nfts": {
+        "status": "complete"
+      },
+      "prices": {
+        "status": "unsupported",
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+      },
+      "token_2022": {
+        "status": "complete"
+      },
+      "tokens": {
+        "status": "complete"
+      }
+    }
+  },
+  "plan": {
+    "planId": "CRhGGyuw4SeHRRdUKDcsFVoPnrn1AztAVCaNGLis7uS9",
+    "sessionId": "6ESPVmkCWUaP1tPL1Le2hqe6WKX3ejNJ4A8GLviiQQZz",
+    "revision": 1,
+    "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "expiresAt": "1791624246",
+    "entries": [],
+    "selectedAssets": 0,
+    "executableAccounts": 0,
+    "skippedAccounts": 0,
+    "undecodableAccounts": [],
+    "canExecute": false,
+    "requiresBurn": false,
+    "swapCount": 0,
+    "burnCount": 0,
+    "closeCount": 0,
+    "estimatedSwapLamports": "0",
+    "estimatedReclaimedLamports": "0",
+    "maxPriceImpactBps": 100,
+    "maxPriorityFeeLamports": "1000000",
+    "slippageBps": 50
+  },
+  "report": null,
+  "refreshed": null
+}

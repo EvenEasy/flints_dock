@@ -1,6 +1,6 @@
 # Архітектура та підтримка
 
-`dock_flints` — бібліотечне ядро й CLI для читання Solana wallet, swap і послідовного cleanup. Cargo workspace із reusable `dock-flints-core`, незміненим CLI і read-only Tauri 2 adapter, без DI-контейнера, event bus чи repository. Внутрішні `core`, `app`, `infra` перенесено без зміни логіки. gRPC у проєкті немає.
+`dock_flints` — бібліотечне ядро й CLI для читання Solana wallet, swap і послідовного cleanup. Cargo workspace із reusable `dock-flints-core`, сумісним CLI і Tauri 2 adapter для аналізу та очищення, без DI-контейнера, event bus чи repository. Внутрішні `core`, `app`, `infra` відокремлюють правила, сценарії та зовнішні інтеграції. gRPC у проєкті немає.
 
 ## Результат аудиту
 
@@ -15,7 +15,7 @@
 | Повторні `.find()` для кожного account | Квадратичні проходи mint/metadata списків | Локальні `BTreeMap`/`BTreeSet` індекси |
 | `solana-client` | Невикористані TPU/QUIC/pubsub dependencies | RPC-only client + API |
 
-Усі прямі dependencies мають використання. RPC-only прибрав 127 записів із lockfile (654 → 527), без нових пакетів і оновлень версій. Дві версії Pubkey потрібні через різні Solana/Metaplex SDK: конвертація за байтами залишається в adapter. Перевірені декодери не замінюємо власними заради меншої кількості dependencies.
+Усі прямі dependencies мають використання. Перехід на RPC-only прибрав зайві транспортні залежності; NFT adapters використовують офіційні Metaplex/Bubblegum SDK. Дві версії Pubkey потрібні через різні Solana/Metaplex SDK: конвертація за байтами залишається в adapter. Перевірені декодери не замінюємо власними заради меншої кількості dependencies.
 
 ## Де що змінювати
 
@@ -25,6 +25,8 @@ crates/core/src/
     asset.rs            token accounts, mint, metadata, closure eligibility
     wallet.rs           WalletSnapshot, selection, partial scan statuses
     classification.rs   fungible/NFT classification
+    inventory.rs        нормалізовані holdings, backing accounts і standalone IDs
+    nft_cleanup.rs      стандарт-aware NFT targets та prepared operations
     amount.rs           точні суми й агрегація
     swap.rs             request, quote, limits, neutral transaction ingredients
     cleanup.rs          plan/results, eligibility, protected mint selection
@@ -38,7 +40,8 @@ crates/core/src/
     wallet.rs           keypair/base64 seed → address + optional signer
     jupiter/            HTTP, auth, Price/Swap DTO → core types
     solana/             RPC, instructions, simulation, send/confirm, accounting
-      scan/             token/mint/Metaplex/Core decoders, inventory enrichment
+      scan/             token/mint/Metaplex/Core/DAS discovery
+      nft_cleanup/      Metaplex/Core/Bubblegum preparation, validation і burn
 apps/cli/src/cli/
     args.rs             спільні wallet/RPC/quote/execution аргументи
     scan.rs             scan dependency wiring та вивід
@@ -46,7 +49,9 @@ apps/cli/src/cli/
     cleanup.rs          cleanup command та підтвердження
     output/             table/JSON presentation
 apps/app/src-tauri/src/
-  commands/wallet.rs    analyze_wallet: validation → use case → DTO
+  commands/wallet.rs    analyze/connect/disconnect: validation → use case → DTO
+  commands/cleanup.rs   prepare/execute/job: server plans, approval і progress
+  cleanup.rs            durable public signature journal та reconciliation
   state.rs              shared RPC/Jupiter clients initialized once
   dto/                  camelCase IPC, exact integers as strings
   error.rs              stable frontend-safe errors
@@ -65,7 +70,7 @@ apps/app/frontend-contract/
 - **Спосіб підписання:** execution boundary і `infra/wallet.rs`. Snapshot/plan містять лише public address. Поточний MVP працює з локальним signer.
 - **Формат виводу:** `cli/output/`, без blockchain-запитів.
 - **CLI параметри:** спочатку перевірити `cli/args.rs`. Wallet/RPC/quote/execution конфігурація визначена один раз і згрупована в `--help`. Scan-specific display flags не потрапляють у swap/cleanup.
-- **cNFT:** як і раніше, чесний `Unsupported`, а не порожній inventory. Повна підтримка потребує індексу; див. `cnfts.md`.
+- **NFT/cNFT:** `infra/solana/nft_cleanup/` для стандарт-aware burn. DAS забезпечує owner inventory та актуальні proofs; без відповідного network-scoped endpoint compressed coverage чесно Unsupported. Див. [coverage](cleanup.md) та історичне дослідження `cnfts.md`.
 
 ## Контракти, які не можна послаблювати
 
@@ -73,7 +78,7 @@ apps/app/frontend-contract/
 
 `--ignore-mint` сильніший за вибір account: захищає всі balances та empty accounts, без quote/burn/close. Selection зберігається в plan і перевіряється execution. Якщо захищений WSOL, swap до native SOL пропускається, оскільки provider міг би unwrap наявний WSOL account. Нові execution restrictions можуть додати пропуски; вони не скасовують збережені restrictions.
 
-Burn дозволений лише для явно схваленого cleanup, перевіреного fungible account і повторного семантичного `NoRoute`. API/auth/timeout/liquidity errors не означають «мертвий токен». Після send з невідомим результатом зберігати signature, не перебудовувати економічну транзакцію. Перед close перечитати source і перевірити нульовий balance.
+Burn дозволений лише у погодженому незмінному плані: для fungible після підтвердженого provider-specific `NoRoute` або структурної відсутності swap capability, з повторною перевіркою цієї підстави. NFT використовують власні стандарт-aware adapters. API/auth/timeout/liquidity errors не означають «мертвий токен». Після send з невідомим результатом зберігати signature, не перебудовувати економічну транзакцію. Перед close перечитати source і перевірити нульовий balance.
 
 ## Перевірки
 
@@ -88,6 +93,6 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 
 ## Desktop boundary
 
-CLI і Tauri залежать від `dock-flints-core`; ядро не залежить від adapters. CLI має compatibility re-exports для попередніх library paths. Tauri викликає лише read-only `scan_wallet` і не експортує swap, burn, close чи signing. DTO не використовують terminal JSON або serialization внутрішніх моделей. Повні raw account blobs не є IPC-контрактом. Shared fixture лишається в `tests/fixtures/`.
+CLI і Tauri залежать від `dock-flints-core`; ядро не залежить від adapters. CLI має compatibility re-exports для попередніх library paths. Tauri викликає спільні scan/plan/execute use cases; signer і prepared instructions залишаються у Rust. Execute приймає лише ID збереженого плану та погодження дій. Public-key session не може виконувати транзакції. DTO не використовують terminal JSON або serialization внутрішніх моделей. Повні raw account blobs не є IPC-контрактом. Shared fixture лишається в `tests/fixtures/`.
 
-Налаштування клієнтів, точні TypeScript types, capability для локального main window і кроки підключення майбутнього frontend описано в [apps/app/README.md](../apps/app/README.md). React-проєкт не створено.
+Налаштування клієнтів, точні TypeScript types, capability для локального main window і кроки запуску React frontend і desktop описано в [apps/app/README.md](../apps/app/README.md). React відображає канонічний inventory, immutable plan, фактичний progress і confirmed report.

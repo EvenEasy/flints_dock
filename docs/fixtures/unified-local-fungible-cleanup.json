@@ -1,0 +1,120 @@
+{
+  "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+  "plan": {
+    "discovery_status": {
+      "status": "complete"
+    },
+    "entries": [
+      {
+        "asset": {
+          "account": {
+            "address": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+            "close_authority": null,
+            "closure": {
+              "reason": "Nonzero token balance",
+              "status": "not_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 0,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": null,
+            "is_native": false,
+            "lamports": 2039280,
+            "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+            "native_reserve_lamports": null,
+            "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "42",
+            "state": "Initialized"
+          },
+          "kind": "fungible_asset",
+          "mint": {
+            "decimals": 0,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+            "mint_authority": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+            "program": "legacy",
+            "supply": "42"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Burn the approved balance, then close; swap capability unavailable: Jupiter supports mainnet only; routing unavailable on this network",
+        "reason_code": "routing_unavailable"
+      }
+    ],
+    "nft_entries": [],
+    "policy": "complete",
+    "selection": {
+      "accounts": [
+        "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk"
+      ],
+      "asset_ids": null,
+      "ignored_asset_ids": [],
+      "ignored_mints": [],
+      "none": false,
+      "selected_accounts_only": false
+    },
+    "summary": {
+      "accounts_to_close": 1,
+      "burnable": 1,
+      "empty": 0,
+      "estimated_reclaimed_lamports": "2039280",
+      "estimated_swap_lamports": "0",
+      "swappable": 0,
+      "token_accounts": 1,
+      "unsupported": 0
+    },
+    "unparsed_accounts": [],
+    "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe"
+  },
+  "report": {
+    "accounting_complete": true,
+    "closed": 1,
+    "completed": 1,
+    "failed": 0,
+    "known_net_wallet_lamports": "2029280",
+    "known_reclaimed_lamports": "2039280",
+    "known_swap_net_lamports": "0",
+    "results": [
+      {
+        "category": "Burnable",
+        "mint": "3re4HKsoEMMxGTpWpiaqpG1SdnPN4ZnzVnmhcpc74bJj",
+        "operations": [
+          {
+            "operation": "Burn",
+            "reclaimed_lamports": null,
+            "signature": "4Wht4hbnHwquYVa43nsnZ335HWbYjetuFSseT3WucWkmQtmKd3D2t57hGCnDHmfNFXQmhhpu1k65ndm4AtG1iKoD",
+            "wallet_delta_lamports": "-5000"
+          },
+          {
+            "operation": "Close",
+            "reclaimed_lamports": "2039280",
+            "signature": "3yCCFWUZRdwSun8p6vbJEUt54roU3QfapfgZW9Zqc48qwEtwpd8rFMfq1rEVtYxz5rQcveRTNqfBJLH5inRsGDmc",
+            "wallet_delta_lamports": "2034280"
+          }
+        ],
+        "reason": "confirmed and account absence verified",
+        "status": "closed",
+        "token_account": "4etauGvT8DtuG8ZRFkoJLUNzohwMC2exoEbkgAz6fBVk",
+        "uncertain_signature": null
+      }
+    ],
+    "skipped": 0
+  },
+  "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe"
+}

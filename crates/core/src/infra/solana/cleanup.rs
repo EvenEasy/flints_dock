@@ -68,7 +68,7 @@ pub fn close_instruction(asset: &CleanupAsset, owner: &Pubkey) -> Result<Instruc
     if let Some(reason) = unsupported_reason(asset, &owner.to_string()) {
         return Err(invalid(reason));
     }
-    if asset.account.raw_amount != 0 {
+    if asset.account.raw_amount != 0 && !asset.account.is_native {
         return Err(invalid("refusing to close a nonempty account"));
     }
     close_account(

@@ -9,7 +9,6 @@ export function cleanupPlan(revision = 1, mints = [address, secondMint]): Cleanu
     revision,
     network: 'mock-genesis',
     expiresAt: '9999999999',
-    policy: 'auto',
     selectedAssets: mints.length,
     executableAccounts: mints.length,
     skippedAccounts: 0,

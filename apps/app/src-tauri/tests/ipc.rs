@@ -218,8 +218,6 @@ fn blockchain_integers_and_decimal_balances_preserve_precision() {
         );
     }
     for path in [
-        "/tokens/items/0/totalRawAmount",
-        "/allTokens/items/0/totalRawAmount",
         "/accountSummary/tokenAccountLamports",
         "/accountSummary/potentiallyReclaimableLamports",
     ] {
@@ -229,10 +227,18 @@ fn blockchain_integers_and_decimal_balances_preserve_precision() {
             "{path}"
         );
     }
-    assert_eq!(value["balance"]["value"]["sol"], "18446744073.709551615");
     assert_eq!(
-        value["tokens"]["items"][0]["balance"],
-        amount::exact_amount(u128::MAX, 9)
+        value["tokens"]["items"][0]["totalRawAmount"],
+        u64::MAX.to_string()
+    );
+    assert_eq!(
+        value["allTokens"]["items"][0]["totalRawAmount"],
+        u64::MAX.to_string()
+    );
+    assert_eq!(value["balance"]["value"]["sol"], "18446744073.709551615");
+    assert!(
+        value["tokens"]["items"][0]["balance"].is_null(),
+        "Missing account decimals cannot be overwritten by a stale view"
     );
     assert!(value["tokenAccounts"][0]["decimals"].is_null());
     assert_eq!(value["tokens"]["items"][0]["kind"], "unknown");
@@ -651,13 +657,22 @@ fn cleanup_commands_enforce_actual_ipc_input_and_window_permissions() {
 /// Real Tauri IPC with a deterministic local JSON-RPC chain, never an external wallet or cluster.
 #[test]
 fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
-    run_cleanup_ipc(false);
+    run_cleanup_ipc(false, 0);
 }
 #[test]
-fn explicit_discard_ipc_burns_confirmed_sources_then_closes_without_jupiter() {
-    run_cleanup_ipc(true);
+fn unified_devnet_ipc_burns_confirmed_sources_then_closes_without_jupiter() {
+    run_cleanup_ipc(true, 0);
 }
-fn run_cleanup_ipc(explicit: bool) {
+#[test]
+fn core_asset_only_ipc_selection_cannot_expand_to_all_spl_accounts_and_needs_no_close() {
+    run_cleanup_ipc(false, 1);
+}
+#[test]
+fn malformed_core_account_survives_normalization_selection_and_plan_without_submission() {
+    run_cleanup_ipc(false, 2);
+}
+fn run_cleanup_ipc(explicit: bool, core_mode: u8) {
+    let core_fixture = core_mode > 0;
     use base64::{Engine, engine::general_purpose::STANDARD};
     use solana_transaction::versioned::VersionedTransaction;
     use std::{
@@ -692,6 +707,25 @@ fn run_cleanup_ipc(explicit: bool) {
     mint_bytes[44] = 6;
     mint_bytes[45] = 1;
     let mint_value = json!({"lamports":1000000,"owner":TokenProgram::Legacy.id().to_string(),"data":[STANDARD.encode(mint_bytes),"base64"],"executable":false,"rentEpoch":0});
+    let core_id = solana_pubkey::Pubkey::new_from_array([9; 32]).to_string();
+    let core_program = "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d";
+    let mut core_bytes = vec![1]; // AssetV1, owner, UpdateAuthority::None, name, URI, seq=None.
+    core_bytes.extend(fixture.address.to_bytes());
+    core_bytes.push(0);
+    for text in [
+        "Owned Core IPC fixture",
+        "https://fixture.invalid/core.json",
+    ] {
+        core_bytes.extend((text.len() as u32).to_le_bytes());
+        core_bytes.extend(text.as_bytes());
+    }
+    core_bytes.push(0);
+    if core_mode == 2 {
+        core_bytes.truncate(33);
+    }
+    let core_value = json!({"lamports":2039280,"owner":core_program,"data":[STANDARD.encode(core_bytes),"base64"],"executable":false,"rentEpoch":0});
+    let core_address = core_id.clone();
+    let owner_bytes = fixture.address.to_bytes();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     listener.set_nonblocking(true).unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
@@ -741,14 +775,31 @@ fn run_cleanup_ipc(explicit: bool) {
             };
             let result = match request["method"].as_str().unwrap() {
                 "getGenesisHash" => json!("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"),
+                "getBalance" => {
+                    json!({"context":{"slot":1},"value":if request["params"][0] == wallet {1_000_000_000u64}else{0}})
+                }
+                "getProgramAccounts" => {
+                    let bytes = &request["params"][1]["filters"][1]["memcmp"]["bytes"];
+                    let owns = *bytes == wallet || *bytes == json!(owner_bytes.to_vec());
+                    json!(if core_fixture
+                        && request["params"][0] == core_program
+                        && owns
+                        && !closed.contains(&core_address)
+                    {
+                        vec![json!({"pubkey":core_address,"account":core_value})]
+                    } else {
+                        vec![]
+                    })
+                }
+                "getAssetsByOwner" => json!({"total":0,"items":[]}),
                 "getTokenAccountsByOwner" => {
-                    json!({"context":{"slot":1},"value":if request["params"][1]["programId"]==TokenProgram::Legacy.id().to_string(){account_list.iter().filter(|a| !closed.contains(*a)).map(|a|json!({"pubkey":a,"account":if burned.contains(a) { &empty_token } else { &token }})).collect::<Vec<_>>()}else{vec![]}})
+                    json!({"context":{"slot":1},"value":if request["params"][0] == wallet && request["params"][1]["programId"]==TokenProgram::Legacy.id().to_string(){account_list.iter().filter(|a| !closed.contains(*a)).map(|a|json!({"pubkey":a,"account":if burned.contains(a) { &empty_token } else { &token }})).collect::<Vec<_>>()}else{vec![]}})
                 }
                 "getMultipleAccounts" => {
                     json!({"context":{"slot":1},"value":request["params"][0].as_array().unwrap().iter().map(|key|if key==&mint_address {mint_value.clone()}else{Value::Null}).collect::<Vec<_>>()})
                 }
                 "getAccountInfo" => {
-                    json!({"context":{"slot":1},"value":if account_list.iter().any(|a|request["params"][0]==*a && !closed.contains(a)){if burned.contains(request["params"][0].as_str().unwrap()) { empty_token.clone() } else { token.clone() }}else{Value::Null}})
+                    json!({"context":{"slot":1},"value":if core_fixture && request["params"][0] == core_address && !closed.contains(&core_address) {core_value.clone()}else if account_list.iter().any(|a|request["params"][0]==*a && !closed.contains(a)){if burned.contains(request["params"][0].as_str().unwrap()) { empty_token.clone() } else { token.clone() }}else{Value::Null}})
                 }
                 "getLatestBlockhash" => {
                     json!({"context":{"slot":1},"value":{"blockhash":"11111111111111111111111111111111","lastValidBlockHeight":1000}})
@@ -771,6 +822,22 @@ fn run_cleanup_ipc(explicit: bool) {
                     let instructions = transaction.message.instructions();
                     assert_eq!(instructions.len(), 2);
                     let close = &instructions[1];
+                    let is_core =
+                        keys[usize::from(close.program_id_index)].to_string() == core_program;
+                    if is_core {
+                        assert!(core_fixture);
+                        let source = keys[usize::from(close.accounts[0])].to_string();
+                        assert_eq!(source, core_address);
+                        assert!(closed.insert(source.clone()));
+                        let signature = transaction.signatures[0].to_string();
+                        sent.lock().unwrap().push(signature.clone());
+                        signatures.insert(signature.clone(), (source, false));
+                        let response =
+                            json!({"jsonrpc":"2.0","id":request["id"],"result":signature})
+                                .to_string();
+                        write!(stream,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{response}",response.len()).unwrap();
+                        continue;
+                    }
                     let is_burn = close.data.first() == Some(&15);
                     if is_burn {
                         assert!(explicit);
@@ -821,12 +888,14 @@ fn run_cleanup_ipc(explicit: bool) {
     });
     let directory =
         std::env::temp_dir().join(format!("dock-ipc-{}", solana_pubkey::Pubkey::new_unique()));
-    let app = desktop(
-        AppState::new(url, 5, None)
-            .unwrap()
-            .with_journal(directory.join("signatures.json"))
-            .unwrap(),
-    );
+    let mut state = AppState::new(url.clone(), 5, None)
+        .unwrap()
+        .with_journal(directory.join("signatures.json"))
+        .unwrap();
+    if core_fixture {
+        state = state.with_das(url).unwrap();
+    }
+    let app = desktop(state);
     let main = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
         .build()
         .unwrap();
@@ -838,7 +907,7 @@ fn run_cleanup_ipc(explicit: bool) {
     )
     .unwrap();
     let readonly=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"all"},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
-    assert_eq!(readonly["closeCount"], if explicit { 0 } else { 2 });
+    assert_eq!(readonly["closeCount"], 2);
     assert_eq!(readonly["canExecute"], false);
     assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":readonly["planId"],"approval":{"swap":true,"burn":true,"close":true}}),LOCAL_ORIGIN).is_err());
     let connection = invoke(
@@ -848,6 +917,64 @@ fn run_cleanup_ipc(explicit: bool) {
         LOCAL_ORIGIN,
     )
     .unwrap();
+    if core_fixture {
+        if core_mode == 2 {
+            let plan=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"selected","assetIds":[core_id]},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
+            assert_eq!(plan["selectedAssets"], 1);
+            assert_eq!(plan["canExecute"], false);
+            assert_eq!(plan["undecodableAccounts"][0]["address"], core_id);
+            assert_eq!(plan["undecodableAccounts"][0]["reasonCode"], "undecodable");
+            assert_eq!(plan["closeCount"], 0);
+            assert!(sends.lock().unwrap().is_empty());
+            stop.store(true, Ordering::Relaxed);
+            server.join().unwrap();
+            let _ = std::fs::remove_dir_all(directory);
+            return;
+        }
+        let protected = invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"selected","assetIds":[core_id]},"ignoredMints":[],"ignoredAssetIds":[core_id]}),LOCAL_ORIGIN).unwrap();
+        assert_eq!(protected["canExecute"], false);
+        let plan = invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":2,"selection":{"mode":"selected","assetIds":[core_id]},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
+        assert_eq!(plan["burnCount"], 1, "{plan}");
+        assert_eq!(plan["closeCount"], 0);
+        assert_eq!(plan["canExecute"], true);
+        assert_eq!(plan["executableAccounts"], 1);
+        assert_eq!(plan["selectedAssets"], 1);
+        assert!(
+            plan["entries"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|e| e["tokenAccount"].is_string())
+                .all(|e| e["action"] == "skip")
+        );
+        let execute = json!({"sessionId":connection["sessionId"],"planId":plan["planId"],"approval":{"swap":false,"burn":true,"close":false}});
+        let job = invoke(&main, "execute_cleanup", execute.clone(), LOCAL_ORIGIN).unwrap();
+        assert_eq!(job["status"], "completed");
+        assert_eq!(job["report"]["completed"], 1);
+        assert_eq!(job["report"]["closed"], 0);
+        assert_eq!(job["report"]["known_net_wallet_lamports"], "2034280");
+        assert_eq!(
+            invoke(&main, "execute_cleanup", execute, LOCAL_ORIGIN).unwrap()["jobId"],
+            job["jobId"]
+        );
+        assert_eq!(sends.lock().unwrap().len(), 1);
+        let analysis=invoke(&main,"analyze_wallet",json!({"walletAddress":owner,"selection":{"all":true,"allTokens":true},"noPrices":true}),LOCAL_ORIGIN).unwrap();
+        assert_eq!(
+            analysis["tokenAccounts"].as_array().unwrap().len(),
+            2,
+            "Core-only selection preserves both SPL accounts"
+        );
+        assert!(
+            analysis["nfts"]["core"]["items"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
+        stop.store(true, Ordering::Relaxed);
+        server.join().unwrap();
+        let _ = std::fs::remove_dir_all(directory);
+        return;
+    }
     for (revision, selection, ignored) in [
         (1, json!({"mode":"none"}), json!([])),
         (2, json!({"mode":"selected","mints":[]}), json!([])),
@@ -859,37 +986,21 @@ fn run_cleanup_ipc(explicit: bool) {
         assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":plan["planId"],"approval":{"swap":true,"burn":true,"close":true}}),LOCAL_ORIGIN).is_err());
     }
     assert!(sends.lock().unwrap().is_empty());
-    let plan=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":4,"selection":{"mode":"selected","mints":[mint]},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
-    let plan = if explicit {
-        assert_eq!(plan["burnCount"], 0);
-        assert_eq!(plan["closeCount"], 0);
+    let plan=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":4,"selection":{"mode":"selected","assetIds":[format!("{}:{}",mint,TokenProgram::Legacy.id())]},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
+    if explicit {
+        assert_eq!(plan["burnCount"], 2);
+        assert_eq!(plan["executableAccounts"], 2);
+        assert_eq!(plan["selectedAssets"], 1);
         assert!(
             plan["entries"]
                 .as_array()
                 .unwrap()
                 .iter()
-                .all(|e| e["reasonCode"] == "routing_unavailable")
+                .all(|e| e["rawAmount"] == "20" && e["reasonCode"] == "routing_unavailable")
         );
-        let old_plan = plan["planId"].clone();
-        let discard = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":5,"selection":{"mode":"selected","mints":[mint]},"ignoredMints":[],"policy":"explicitDiscard"}), LOCAL_ORIGIN).unwrap();
-        assert_eq!(discard["policy"], "explicitDiscard");
-        assert_eq!(discard["burnCount"], 2);
-        assert_eq!(discard["executableAccounts"], 2);
-        assert_eq!(discard["selectedAssets"], 1);
-        assert!(
-            discard["entries"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .all(|e| e["rawAmount"] == "20" && e["reasonCode"] == "explicit_discard")
-        );
-        assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":old_plan,"approval":{"swap":true,"burn":true,"close":true}}),LOCAL_ORIGIN).is_err());
-        assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":discard["planId"],"approval":{"swap":true,"burn":false,"close":true}}),LOCAL_ORIGIN).is_err());
+        assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":plan["planId"],"approval":{"swap":true,"burn":false,"close":true}}),LOCAL_ORIGIN).is_err());
         assert!(sends.lock().unwrap().is_empty());
-        discard
-    } else {
-        plan
-    };
+    }
     assert_eq!(plan["entries"].as_array().unwrap().len(), 2);
     assert_eq!(plan["closeCount"], 2);
     let execution = json!({"sessionId":connection["sessionId"],"planId":plan["planId"],"approval":{"swap":true,"burn":true,"close":true}});
@@ -955,13 +1066,11 @@ fn live_devnet_readonly_report() {
         LOCAL_ORIGIN,
     )
     .unwrap();
-    let auto = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"all"},"ignoredMints":[],"policy":"auto"}), LOCAL_ORIGIN).unwrap();
-    let discard = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":2,"selection":{"mode":"all"},"ignoredMints":[],"policy":"explicitDiscard"}), LOCAL_ORIGIN).unwrap();
+    let plan = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"all"},"ignoredMints":[]}), LOCAL_ORIGIN).unwrap();
     assert_eq!(connection["canSign"], false);
-    assert_eq!(discard["canExecute"], false);
-    assert_eq!(auto["burnCount"], 0);
+    assert_eq!(plan["canExecute"], false);
     assert_eq!(
-        auto["network"],
+        plan["network"],
         "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
     );
     let accounts: std::collections::BTreeSet<_> = analysis["tokenAccounts"]
@@ -970,17 +1079,22 @@ fn live_devnet_readonly_report() {
         .iter()
         .map(|a| a["address"].as_str().unwrap())
         .collect();
-    for plan in [&auto, &discard] {
-        let entries: std::collections::BTreeSet<_> = plan["entries"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|a| a["account"].as_str().unwrap())
-            .collect();
-        assert_eq!(
-            entries, accounts,
-            "Every discovered decoded account must have a plan entry"
-        );
-    }
-    std::fs::write(path, serde_json::to_string_pretty(&json!({"wallet":owner,"analysis":analysis,"auto":auto,"explicitDiscardPreview":discard,"transactionsSubmitted":0})).unwrap()).unwrap();
+    let entries: std::collections::BTreeSet<_> = plan["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|a| a["tokenAccount"].as_str())
+        .collect();
+    assert_eq!(
+        entries, accounts,
+        "Every decoded account must have a plan entry"
+    );
+    std::fs::write(
+        path,
+        serde_json::to_string_pretty(
+            &json!({"wallet":owner,"analysis":analysis,"plan":plan,"transactionsSubmitted":0}),
+        )
+        .unwrap(),
+    )
+    .unwrap();
 }

@@ -57,11 +57,7 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
         .unwrap_or(ScanStatus::Unsupported(
             "Token inventory unavailable".into(),
         ));
-    let holdings = crate::core::amount::aggregate_holdings(if snapshot.selected.all_tokens {
-        &snapshot.all_tokens
-    } else {
-        &snapshot.tokens
-    });
+    let holdings = crate::core::inventory::holdings(snapshot);
     let mints: Vec<_> = holdings
         .iter()
         .filter(|a| a.total_raw_amount > 0)
@@ -167,7 +163,7 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
         valuation: "unpriced".into(),
         value_usd: None,
         tradability: "unknown".into(),
-        evidence: Some("Owner-verified read-only NFT discovery; liquidation excluded".into()),
+        evidence: Some("Owner-verified NFT standard evidence".into()),
         checked_at: checked_at.clone(),
         provider_scope: None,
     };

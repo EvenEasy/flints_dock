@@ -60,6 +60,20 @@ pub fn write_plan(mut out: impl Write, plan: &CleanupPlan) -> io::Result<()> {
             writeln!(out, "  {}", safe(&entry.reason))?;
         }
     }
+    for entry in &plan.nft_entries {
+        writeln!(
+            out,
+            "{}  asset={}  standard={:?}  {}",
+            if entry.prepared.is_some() {
+                "NFT BURN"
+            } else {
+                "SKIP"
+            },
+            entry.target.id,
+            entry.target.standard,
+            safe(&entry.reason)
+        )?;
+    }
     for unknown in &plan.unparsed_accounts {
         writeln!(
             out,
@@ -76,10 +90,10 @@ pub fn write_plan(mut out: impl Write, plan: &CleanupPlan) -> io::Result<()> {
 
 /// Render per-account outcomes, confirmed signatures and known balance accounting.
 pub fn write_report(mut out: impl Write, report: &CleanupReport) -> io::Result<()> {
-    let delta = report.known_swap_net_lamports;
+    let delta = report.known_net_wallet_lamports;
     writeln!(
         out,
-        "Cleanup results\nClosed: {}\nFailed/uncertain: {}\nSkipped: {}\nKnown swap wallet change (net fees/rent): {}{} SOL\nKnown reclaimed lamports: {}\nAccounting complete: {}",
+        "Cleanup results\nClosed: {}\nFailed/uncertain: {}\nSkipped: {}\nConfirmed wallet change (net fees/rent): {}{} SOL\nKnown reclaimed lamports: {}\nAccounting complete: {}",
         report.closed,
         report.failed,
         report.skipped,

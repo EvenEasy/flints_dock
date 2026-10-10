@@ -80,6 +80,7 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
         status: "running".into(),
     });
     let mut compressed_inventory = None;
+    let mut normalized_inventory = None;
     let categories = if options.selection.needs_token_accounts()
         || options.selection.nfts
         || options.selection.cnfts
@@ -112,7 +113,31 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
                 .then(|| compressed.items.clone()),
             });
         }
-        let mut category_report = dock_flints_core::app::categories::classify(
+        let items = dock_flints_core::core::inventory::normalize(&snapshot, &compressed);
+        let onchain = snapshot
+            .scanners
+            .get("all_tokens")
+            .or(snapshot.scanners.get("tokens"))
+            .cloned()
+            .unwrap_or(ScanStatus::Skipped("Token inventory not requested".into()));
+        let coverage = dock_flints_core::core::combine_statuses(&[
+            ("tokens", &onchain),
+            (
+                "Core",
+                snapshot
+                    .scanners
+                    .get("core_asset_v1")
+                    .unwrap_or(&ScanStatus::Skipped("Core not requested".into())),
+            ),
+            ("compressed", &compressed.status),
+        ]);
+        normalized_inventory = Some(crate::dto::assets::AssetListDto {
+            status: coverage.clone().into(),
+            items: (!items.is_empty()
+                || matches!(coverage, ScanStatus::Complete | ScanStatus::Partial(_)))
+            .then_some(items),
+        });
+        let category_report = dock_flints_core::app::categories::classify(
             &snapshot,
             &owner,
             state.jupiter.as_ref(),
@@ -124,9 +149,6 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
             compressed,
         )
         .await;
-        if let Some(observations) = &state.test_observations {
-            observations.apply(&mut category_report, &snapshot);
-        }
         Some(category_report.into())
     } else {
         None
@@ -134,6 +156,7 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
 
     let mut response: WalletAnalysisDto = snapshot.into();
     response.categories = categories;
+    response.inventory = normalized_inventory;
     if let Some(inventory) = compressed_inventory {
         response
             .scanners

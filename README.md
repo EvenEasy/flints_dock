@@ -1,6 +1,6 @@
 # flints_dock
 
-A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair or seed and confirmation; NFT/cNFT liquidation, parallel cleanup and multi-swap transaction batching are excluded.
+A Rust CLI for Solana wallet scanning, Jupiter swaps to native SOL, and explicit sequential wallet cleanup. Scans and cleanup previews are read-only. Execution uses a local keypair or seed and confirmation; NFT cleanup uses standard-specific Metaplex/Core/Bubblegum adapters. Parallel cleanup and multi-swap transaction batching are excluded.
 
 ## Wallet identity
 
@@ -55,7 +55,7 @@ cargo run -- quote -p <WALLET> --mint <TOKEN_MINT> --raw-amount <INTEGER>
 cargo run -- swap --keypair /path/to/wallet.json --mint <TOKEN_MINT> --raw-amount <INTEGER>
 ```
 
-`quote` gets a real Jupiter Swap V2 route independently of Price V3. `swap` shows a preview, asks for confirmation, obtains a fresh route, simulates, signs locally, submits through Solana RPC and waits for confirmed status. Set `JUPITER_API_KEY` for authenticated access; Swap V2 also supports limited keyless access. See [swap options, execution guarantees and limitations](docs/swaps.md).
+`quote` gets a real Jupiter Swap V2 route independently of Price V3. `swap` shows a preview, asks for confirmation, obtains a fresh route, simulates, signs locally, submits through Solana RPC and waits for confirmed status. Set `JUPITER_API_KEY` for authenticated access; The client can omit the header, but keyless availability is provider-controlled; authentication failures remain explicit. See [swap options, execution guarantees and limitations](docs/swaps.md).
 
 ## Wallet cleanup
 
@@ -65,15 +65,17 @@ cargo run -- cleanup --keypair /path/to/wallet.json --execute \
   --ignore-mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 ```
 
-Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; repeatable `--ignore-mint <MINT>` protects every account of a mint from swap, burn and close (the example preserves USDC); `--format json` provides per-account results. Devnet has a separate opt-in `--explicit-discard --account <ACCOUNT>` policy for
-irreversibly discarding selected eligible test tokens without Jupiter. The desktop
-exposes the same policy with a burn confirmation. See
+Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for approved eligible fungibles when there is confirmed NoRoute or structurally unavailable routing, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; repeatable `--ignore-mint <MINT>` protects every account of a mint from swap, burn and close (the example preserves USDC); `--format json` provides per-account results. The same complete strategy applies to all verified clusters: a structurally unavailable
+swap provider permits a displayed, explicitly approved burn/close plan; transient
+provider failures do not. Desktop has one RECOVER SOL action, with burn counts and
+an irreversible notice. `--explicit-discard --account ...` remains accepted as a
+compatibility alias; it no longer selects another network policy. See
 [cleanup behavior, options and limitations](docs/cleanup.md) and
-[verified devnet diagnostics](docs/devnet-cleanup-verification.md).
+[current inventory, desktop execution and coverage verification](docs/unified-cleanup-verification.md).
 
 ## Classification
 
-Validated Metaplex TokenStandard and mint semantics distinguish Fungible, FungibleAsset, classic/programmable NFTs and their editions. Legacy metadata without TokenStandard requires a valid MasterEdition or Edition PDA. Raw amount 1 and zero decimals identify candidates only; UI balance 1 never proves an NFT. Positive-decimal mints without metadata remain fungible. Zero-decimal or missing-mint assets without enough evidence remain visibly Unknown, retained in both token views and never priced. Token-2022 names, metadata URIs and non-transferability alone are not NFT proof.
+Validated Metaplex TokenStandard and mint semantics distinguish Fungible, FungibleAsset, classic/programmable NFTs and their editions. Legacy metadata without TokenStandard requires a valid MasterEdition or Edition PDA. Raw amount 1 and zero decimals identify candidates only; UI balance 1 never proves an NFT. Positive-decimal mints without metadata remain fungible. Valid zero-decimal mints with supply greater than one are indivisible fungible assets when no contradictory NFT evidence exists. Ambiguous supply-one or missing-mint assets remain visibly Unknown, retained in both token views and never priced. Token-2022 names, metadata URIs and non-transferability alone are not NFT proof.
 
 Only confirmed fungibles aggregate by mint and token program. Unknowns stay per account. `--tokens --nfts` places verified NFTs only in NFTs; `--all-tokens` intentionally overlaps those categories and preserves each backing account. Empty accounts remain available through `--include-empty` and the detailed raw inventory. NFT and Unknown entries never receive Jupiter valuations.
 
@@ -125,7 +127,7 @@ Normal requested cNFT output is exactly one short notice:
 cNFTs: unavailable (requires historical index)
 ```
 
-Complete Bubblegum V1/V2 discovery is not implemented with the current infrastructure. A self-hosted index is technically possible, but needs complete historical events (or a verifiable snapshot plus continuous events), persistent ownership state and synchronization. A recent wallet-transaction scan cannot prove an inventory. No Helius/DAS, Solscan asset API, QuickNode DAS, Shyft, SimpleHash or other external asset index is queried. The reported Solscan count was not independently enumerated.
+The standalone CLI `scan` command retains its RPC-only compressed discovery limitation. Desktop analysis and the complete cleanup planner can instead use `DOCK_FLINTS_DAS_URL`: its genesis must match the active RPC, and its paginated owner inventory is merged into the canonical inventory. Bubblegum v1/v2 cleanup uses fresh DAS proofs verified against RPC tree/config data. Missing or partial DAS remains explicit; it never hides confirmed classic/Core NFTs. A recent wallet-transaction scan still cannot prove a compressed inventory, and no Solscan count is substituted. See [current cleanup coverage](docs/cleanup.md).
 
 See [cNFT investigation and infrastructure requirements](docs/cnfts.md). Uncompressed Core AssetV1 is supported; hashed Core records are not owner-enumerated. Core plugin permissions, encrypted Token-2022 balances and arbitrary external metadata pointers remain outside the decoded scope. Off-chain metadata URLs are not fetched.
 

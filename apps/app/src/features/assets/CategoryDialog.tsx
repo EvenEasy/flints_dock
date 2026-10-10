@@ -6,7 +6,7 @@ const descriptions: Record<string, string> = {
   dust: 'Nonzero holdings with a low estimated value. Swapping may still cost more than it returns.',
   dead_token:
     'Jupiter found no TOKEN → SOL route when checked. This does not mean the asset is permanently worthless.',
-  nft: 'Classic, programmable, Core and compressed NFTs. NFT liquidation is not supported.',
+  nft: 'Verified classic, programmable, Core and compressed NFTs. Supported burns appear in cleanup.',
 };
 export function CategoryDialog({
   name,

@@ -39,7 +39,13 @@ export function MainScreen({
   const observedNfts = nftKnown
     ? (analysis!.nfts!.classic.items?.length ?? 0) + (analysis!.nfts!.core.items?.length ?? 0)
     : 0;
-  const nftCount = observedNfts > 0 ? `${observedNfts}+` : '—';
+  function categoryDisplay(key: CargoCategory): string {
+    const result = analysis?.categories?.categories[key];
+    if (result?.status.status === 'complete') return String(result.items.length);
+    if (result?.items.length) return `${result.items.length} · Partial`;
+    if (key === 'nft' && observedNfts > 0) return `${observedNfts} · Partial`;
+    return result?.status.status === 'failed' ? 'Unavailable' : 'Not checked';
+  }
   const rent = lamportsToSol(analysis?.accountSummary?.potentiallyReclaimableLamports);
   return (
     <div className="page page--main">
@@ -134,7 +140,7 @@ export function MainScreen({
               key={key}
               type="button"
               onClick={() => onInspect(key)}
-              aria-label={`${label}: ${preview ? sample : analysis?.categories?.categories[key]?.status.status === 'complete' ? analysis.categories.categories[key].count : analysis?.categories?.categories[key]?.count ? `${analysis.categories.categories[key].count}+ · incomplete` : key === 'nft' ? nftCount : 'classification unavailable'}`}
+              aria-label={`${label}: ${preview ? sample : categoryDisplay(key)}`}
               title={
                 !preview && analysis?.categories?.categories[key]?.status.status !== 'complete'
                   ? 'Check incomplete or unavailable'
@@ -162,15 +168,21 @@ export function MainScreen({
               />
               <span className="category-label type-caption">{label}</span>
               <strong className="type-numeric type-numeric--count">
-                {preview
-                  ? sample
-                  : analysis?.categories?.categories[key]?.status.status === 'complete'
-                    ? analysis.categories.categories[key].count
-                    : analysis?.categories?.categories[key]?.count
-                      ? `${analysis.categories.categories[key].count}+`
-                      : key === 'nft'
-                        ? nftCount
-                        : '—'}
+                {preview ? (
+                  sample
+                ) : (
+                  <span
+                    className={
+                      categoryDisplay(key).includes('checked') ||
+                      categoryDisplay(key).includes('Partial') ||
+                      categoryDisplay(key) === 'Unavailable'
+                        ? 'type-caption'
+                        : undefined
+                    }
+                  >
+                    {categoryDisplay(key)}
+                  </span>
+                )}
               </strong>
             </button>
           ))}

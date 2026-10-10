@@ -1,4 +1,5 @@
 pub mod cleanup;
+pub mod nft_cleanup;
 pub mod scan;
 pub mod swap;
 pub mod transactions;

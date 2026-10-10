@@ -1,6 +1,11 @@
 /// Distinguish route and validation failures from submission or confirmation uncertainty.
 #[derive(Debug, thiserror::Error)]
 pub enum SwapError {
+    #[error("NFT cleanup blocked: {reason}")]
+    NftBlocked {
+        code: crate::core::cleanup::CleanupReasonCode,
+        reason: String,
+    },
     #[error("Invalid swap request: {0}")]
     InvalidRequest(String),
     #[error("No TOKEN/SOL route: {0}")]

@@ -160,6 +160,16 @@ pub async fn send_instructions_observed(
 
     // Use simulation consumption to rebuild the same operation with an appropriate compute limit.
     let initial = compile(1_400_000)?;
+    if bincode::serialize(&initial)
+        .map_err(|e| SwapError::InvalidRequest(e.to_string()))?
+        .len()
+        > 1232
+    {
+        return Err(SwapError::InvalidRequest(
+            "Transaction exceeds Solana packet limit; proof/account set needs lookup-table support"
+                .into(),
+        ));
+    }
     let units = simulate(rpc, &initial).await?;
     let transaction = compile(units)?;
     if rpc

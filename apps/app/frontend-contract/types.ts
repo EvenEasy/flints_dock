@@ -62,8 +62,24 @@ export interface Balance {
   value: NativeBalance | null;
 }
 
+/** Canonical, account-deduplicated holding or NFT identity supplied by Rust. */
+export interface InventoryAsset {
+  id: string;
+  mint: string | null;
+  program: string;
+  kind: string;
+  name: string;
+  accounts: string[];
+  rawAmount: string | null;
+  decimals: number | null;
+  balance: string | null;
+  valueUsd: number | null;
+  evidence: string;
+}
+
 /** Never coerce exact amounts to Number. Use BigInt for integer arithmetic if needed. */
 export interface WalletAnalysis {
+  inventory?: AssetList<InventoryAsset> | null;
   categories?: import('./categories').WalletCategories | null;
   owner: string;
   commitment: string;

@@ -1,8 +1,10 @@
 # cNFT discovery investigation
 
-Reviewed 2026-09-24. **The current CLI cannot reliably enumerate a wallet's compressed NFTs.** The existing infrastructure is an on-demand standard-RPC client with no historical archive, snapshot or persistent owner index. Adding a recent-wallet-history loop would not solve that gap.
+Historical investigation, reviewed 2026-09-24. **At that time the CLI could not reliably enumerate a wallet's compressed NFTs.** The existing infrastructure is an on-demand standard-RPC client with no historical archive, snapshot or persistent owner index. Adding a recent-wallet-history loop would not solve that gap.
 
 The reported approximately 53 items on Solscan are not evidence that `getTokenAccountsByOwner` or a Merkle account exposes those assets. We did not query Solscan or another external asset index, and do not claim to have independently verified that count.
+
+Current implementation: a matching-network DAS supplies paginated owner discovery and fresh proofs. Bubblegum v1/v2 burn adapters validate these against RPC tree/config data. Missing DAS remains explicitly unsupported; standard RPC alone still cannot enumerate compressed ownership. See [current cleanup coverage](cleanup.md) and [verification](unified-cleanup-verification.md). The investigation below records the earlier RPC-only limitation.
 
 ## Bubblegum V1 and V2
 

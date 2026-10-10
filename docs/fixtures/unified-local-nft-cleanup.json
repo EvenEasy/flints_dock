@@ -1,0 +1,166 @@
+{
+  "network": "BCE2vG87r74T8BeXPeRK21PFxNEs4LMKBKfPKSvrmrgU",
+  "results": [
+    {
+      "mint": "vevGXkUtQtEDjgmWa1CX6GH8wSkGxEFQNMiqvoDBXuW",
+      "plan": {
+        "discovery_status": {
+          "status": "complete"
+        },
+        "entries": [],
+        "nft_entries": [
+          {
+            "reason": "Burn the selected NFT with its standard-specific instruction; irreversible",
+            "reason_code": "nft_burn",
+            "target": {
+              "id": "vevGXkUtQtEDjgmWa1CX6GH8wSkGxEFQNMiqvoDBXuW",
+              "mint": "vevGXkUtQtEDjgmWa1CX6GH8wSkGxEFQNMiqvoDBXuW",
+              "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+              "standard": {
+                "tokenMetadata": "non_fungible"
+              },
+              "tokenAccount": "7h46WCykjzNnFCUP9Ae8Jzacd6cr5iDf3rnz4uixdZHh"
+            }
+          }
+        ],
+        "policy": "complete",
+        "selection": {
+          "accounts": [
+            "7h46WCykjzNnFCUP9Ae8Jzacd6cr5iDf3rnz4uixdZHh"
+          ],
+          "asset_ids": [
+            "vevGXkUtQtEDjgmWa1CX6GH8wSkGxEFQNMiqvoDBXuW"
+          ],
+          "ignored_asset_ids": [],
+          "ignored_mints": [],
+          "none": false,
+          "selected_accounts_only": true
+        },
+        "summary": {
+          "accounts_to_close": 0,
+          "burnable": 0,
+          "empty": 0,
+          "estimated_reclaimed_lamports": "0",
+          "estimated_swap_lamports": "0",
+          "swappable": 0,
+          "token_accounts": 1,
+          "unsupported": 0
+        },
+        "unparsed_accounts": [],
+        "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe"
+      },
+      "programmable": false,
+      "report": {
+        "accounting_complete": true,
+        "closed": 1,
+        "completed": 1,
+        "failed": 0,
+        "known_net_wallet_lamports": "8179960",
+        "known_reclaimed_lamports": "2039280",
+        "known_swap_net_lamports": "0",
+        "results": [
+          {
+            "category": "Burnable",
+            "mint": "vevGXkUtQtEDjgmWa1CX6GH8wSkGxEFQNMiqvoDBXuW",
+            "operations": [
+              {
+                "operation": "Burn",
+                "reclaimed_lamports": "2039280",
+                "signature": "3tx3UegAVmtqQmMvjQLAxv4nSqmapCgBoivMGey37GbfiuUNi1Eft3pkv7K6sn6iMmpPeidEGJN7n3fSDU47U18t",
+                "wallet_delta_lamports": "8179960"
+              }
+            ],
+            "reason": "Standard-specific burn confirmed and resulting state verified",
+            "status": "burned",
+            "token_account": "7h46WCykjzNnFCUP9Ae8Jzacd6cr5iDf3rnz4uixdZHh",
+            "uncertain_signature": null
+          }
+        ],
+        "skipped": 0
+      },
+      "setupSignature": "5r91RC5eN6eCVFmE3MvehSE7N3pWW3eASALm5B1SXMrbC1BVifph92ntoEg3yLmZSr5sMZqXxKeYN5PDPVqgfamL",
+      "tokenAccount": "7h46WCykjzNnFCUP9Ae8Jzacd6cr5iDf3rnz4uixdZHh"
+    },
+    {
+      "mint": "4PveyprPrxnfLnd8PAH4m9keemMEQ5VivHHKxh77xhUE",
+      "plan": {
+        "discovery_status": {
+          "status": "complete"
+        },
+        "entries": [],
+        "nft_entries": [
+          {
+            "reason": "Burn the selected NFT with its standard-specific instruction; irreversible",
+            "reason_code": "nft_burn",
+            "target": {
+              "id": "4PveyprPrxnfLnd8PAH4m9keemMEQ5VivHHKxh77xhUE",
+              "mint": "4PveyprPrxnfLnd8PAH4m9keemMEQ5VivHHKxh77xhUE",
+              "owner": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe",
+              "standard": {
+                "tokenMetadata": "programmable_non_fungible"
+              },
+              "tokenAccount": "Ge6Wg2aroNQ6iM6sMZuP5CaByDCd5QpT744hKTseSba7"
+            }
+          }
+        ],
+        "policy": "complete",
+        "selection": {
+          "accounts": [
+            "Ge6Wg2aroNQ6iM6sMZuP5CaByDCd5QpT744hKTseSba7"
+          ],
+          "asset_ids": [
+            "4PveyprPrxnfLnd8PAH4m9keemMEQ5VivHHKxh77xhUE"
+          ],
+          "ignored_asset_ids": [],
+          "ignored_mints": [],
+          "none": false,
+          "selected_accounts_only": true
+        },
+        "summary": {
+          "accounts_to_close": 0,
+          "burnable": 0,
+          "empty": 0,
+          "estimated_reclaimed_lamports": "0",
+          "estimated_swap_lamports": "0",
+          "swappable": 0,
+          "token_accounts": 1,
+          "unsupported": 0
+        },
+        "unparsed_accounts": [],
+        "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe"
+      },
+      "programmable": true,
+      "report": {
+        "accounting_complete": true,
+        "closed": 1,
+        "completed": 1,
+        "failed": 0,
+        "known_net_wallet_lamports": "9627640",
+        "known_reclaimed_lamports": "2039280",
+        "known_swap_net_lamports": "0",
+        "results": [
+          {
+            "category": "Burnable",
+            "mint": "4PveyprPrxnfLnd8PAH4m9keemMEQ5VivHHKxh77xhUE",
+            "operations": [
+              {
+                "operation": "Burn",
+                "reclaimed_lamports": "2039280",
+                "signature": "271BjV2SivYWT5kp5xExzEHy7TprAAuPEVvraFpdv9hpEmuJpZu92St6QzRw9a4gQWP4N588eBhDu3vBDPZWvQmz",
+                "wallet_delta_lamports": "9627640"
+              }
+            ],
+            "reason": "Standard-specific burn confirmed and resulting state verified",
+            "status": "burned",
+            "token_account": "Ge6Wg2aroNQ6iM6sMZuP5CaByDCd5QpT744hKTseSba7",
+            "uncertain_signature": null
+          }
+        ],
+        "skipped": 0
+      },
+      "setupSignature": "4oaVQarQUbiSLM6Y8zhoixCcZyGTutDMMgtPWHG2E8LCF3xsmc9U5voHqoKF4hhaa6zJkbujHaWfzYQMTYLpHhQb",
+      "tokenAccount": "Ge6Wg2aroNQ6iM6sMZuP5CaByDCd5QpT744hKTseSba7"
+    }
+  ],
+  "wallet": "BkC3FX6o6bjJ8aDRF8BkhpQA8NqQneoWp2FR3VwoxMMe"
+}

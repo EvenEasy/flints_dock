@@ -68,7 +68,8 @@ export function SuccessScreen({
       {job && (
         <details className="cleanup-report type-caption">
           <summary>
-            Report · closed {job.report?.closed ?? 0} · failed {job.report?.failed ?? 0}
+            Report · completed {job.report?.completed ?? job.report?.closed ?? 0} · closed{' '}
+            {job.report?.closed ?? 0} · failed {job.report?.failed ?? 0}
           </summary>
           {job.error && <p>{job.error}</p>}
           {job.report?.results.map((result) => (

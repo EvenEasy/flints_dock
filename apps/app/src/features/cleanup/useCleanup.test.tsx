@@ -15,7 +15,8 @@ it('NoneIsExplicitAndIgnoredMintsSurviveTheContract', async () => {
     expect(command).toBe('prepare_cleanup');
     const request = (payload as { request: PrepareCleanupRequest }).request;
     expect(request.selection).toEqual({ mode: 'none' });
-    expect(request.ignoredMints).toEqual([address, secondMint].sort());
+    expect(request.ignoredAssetIds).toEqual([address, secondMint].sort());
+    expect(request.ignoredMints).toEqual([]);
     return cleanupPlan(request.revision, []);
   });
   mockIPC(ipc);
@@ -187,7 +188,7 @@ it('ManualRecoveryKeepsPollingAnExistingJobWithoutResubmission', async () => {
   expect(ipc.mock.calls.filter(([command]) => command === 'execute_cleanup')).toHaveLength(1);
 });
 
-it('PolicyChangesInvalidateOlderPlansAndIgnoreLateAutoResponses', async () => {
+it('SelectionChangesInvalidateOlderPlansWithoutAClientPolicy', async () => {
   const responses: ((plan: CleanupPlan) => void)[] = [];
   const requests: PrepareCleanupRequest[] = [];
   mockIPC((command: string, payload: unknown) => {
@@ -196,15 +197,15 @@ it('PolicyChangesInvalidateOlderPlansAndIgnoreLateAutoResponses', async () => {
     return new Promise<CleanupPlan>((resolve) => responses.push(resolve));
   });
   const { result, rerender } = renderHook(
-    ({ policy }: { policy: 'auto' | 'explicitDiscard' }) =>
-      useCleanup('session', true, [address], new Set(), policy),
-    { initialProps: { policy: 'auto' as 'auto' | 'explicitDiscard' } },
+    ({ assets }: { assets: string[] }) => useCleanup('session', true, assets, new Set()),
+    { initialProps: { assets: [address] } },
   );
   await waitFor(() => expect(responses).toHaveLength(1));
-  rerender({ policy: 'explicitDiscard' });
+  rerender({ assets: [] });
   await waitFor(() => expect(responses).toHaveLength(2));
-  await act(async () => responses[1]!({ ...cleanupPlan(2, [address]), policy: 'explicitDiscard' }));
+  await act(async () => responses[1]!(cleanupPlan(2, [])));
   await act(async () => responses[0]!(cleanupPlan(1, [address])));
-  expect(result.current.plan?.policy).toBe('explicitDiscard');
-  expect(requests.map((request) => request.policy)).toEqual(['auto', 'explicitDiscard']);
+  expect(result.current.plan?.revision).toBe(2);
+  expect(requests[1]?.selection).toEqual({ mode: 'none' });
+  expect(requests.every((request) => !('policy' in request))).toBe(true);
 });

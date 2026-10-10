@@ -10,7 +10,6 @@ pub struct AppState {
     pub(crate) store: Arc<Mutex<DesktopStore>>,
     pub(crate) journal: Arc<Journal>,
     pub(crate) das: Option<dock_flints_core::infra::solana::scan::das::DasClient>,
-    pub(crate) test_observations: Option<dock_flints_core::app::test_observations::TestManifest>,
     pub(crate) dust_threshold_usd: f64,
     pub(crate) jupiter: Option<Jupiter>,
     pub(crate) pricing_error: Option<String>,
@@ -82,22 +81,6 @@ impl AppState {
                 .map_err(|_| {
                     AppError::configuration("DOCK_FLINTS_DAS_URL", "Invalid DAS endpoint")
                 })?,
-            test_observations: std::env::var("DOCK_FLINTS_DEVNET_TEST_MANIFEST")
-                .ok()
-                .map(|path| {
-                    let text = std::fs::read_to_string(path).map_err(|_| {
-                        AppError::configuration(
-                            "DOCK_FLINTS_DEVNET_TEST_MANIFEST",
-                            "Cannot read test observations",
-                        )
-                    })?;
-                    dock_flints_core::app::test_observations::TestManifest::parse(&text).map_err(
-                        |reason| {
-                            AppError::configuration("DOCK_FLINTS_DEVNET_TEST_MANIFEST", &reason)
-                        },
-                    )
-                })
-                .transpose()?,
             dust_threshold_usd: std::env::var("DOCK_FLINTS_DUST_USD")
                 .unwrap_or_else(|_| "0.01".into())
                 .parse::<f64>()
@@ -118,6 +101,16 @@ impl AppState {
     /// Override the durable nonsensitive journal location for an isolated desktop instance or test.
     pub fn with_journal(mut self, path: std::path::PathBuf) -> Result<Self, AppError> {
         self.journal = Arc::new(Journal::open(path)?);
+        Ok(self)
+    }
+
+    /// Supply a backend-owned DAS endpoint without mutating process-wide environment state.
+    pub fn with_das(mut self, endpoint: String) -> Result<Self, AppError> {
+        self.das = Some(
+            dock_flints_core::infra::solana::scan::das::DasClient::new(endpoint).map_err(|_| {
+                AppError::configuration("DOCK_FLINTS_DAS_URL", "Invalid DAS endpoint")
+            })?,
+        );
         Ok(self)
     }
 

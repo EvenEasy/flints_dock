@@ -123,6 +123,7 @@ pub struct BalanceDto {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletAnalysisDto {
+    pub inventory: Option<AssetListDto<core::inventory::InventoryAsset>>,
     pub categories: Option<super::categories::CategoriesDto>,
     pub owner: String,
     pub commitment: String,
@@ -143,6 +144,7 @@ pub struct WalletAnalysisDto {
 impl From<WalletSnapshot> for WalletAnalysisDto {
     fn from(snapshot: WalletSnapshot) -> Self {
         let has_usable_results = snapshot.has_usable_results();
+        let normalized = core::inventory::holdings(&snapshot);
         let selected = snapshot.selected;
         let status = |name: &str| {
             snapshot
@@ -181,13 +183,18 @@ impl From<WalletSnapshot> for WalletAnalysisDto {
         let tokens = selected.tokens.then(|| {
             AssetListDto::from_scan(
                 status("tokens"),
-                snapshot.tokens.into_iter().map(Into::into).collect(),
+                normalized
+                    .iter()
+                    .filter(|a| a.kind.is_fungible() || a.kind == core::AssetKind::Unknown)
+                    .cloned()
+                    .map(Into::into)
+                    .collect(),
             )
         });
         let all_tokens = selected.all_tokens.then(|| {
             AssetListDto::from_scan(
                 status("all_tokens"),
-                snapshot.all_tokens.into_iter().map(Into::into).collect(),
+                normalized.into_iter().map(Into::into).collect(),
             )
         });
         let nfts = selected.nfts.then(|| NftsDto {
@@ -209,6 +216,7 @@ impl From<WalletSnapshot> for WalletAnalysisDto {
         // Expose exact diagnostics only for inventory that was actually available.
         Self {
             categories: None,
+            inventory: None,
             owner: snapshot.owner,
             commitment: snapshot.commitment,
             selected: selected.into(),
