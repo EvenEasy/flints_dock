@@ -1,29 +1,20 @@
-# Якщо запуск або scan не вдався
+# Troubleshooting
 
-Спочатку перевірте режим запуску й RPC. [Початок роботи](getting-started.md)
-містить перевірений devnet walkthrough, а [desktop README](../apps/app/README.md)
-— системні передумови й конфігурацію.
+Start with the selected runtime mode and RPC. [Getting started](getting-started.md) provides the devnet workflow; the [desktop README](../apps/app/README.md) lists prerequisites and configuration.
 
-## У браузері не підключається гаманець
+## Wallet connection does not work in the browser
 
-`npm run dev` запускає frontend у браузері. Реальні wallet commands потребують
-Tauri IPC: запустіть `npm run desktop` у `apps/app`. Для перегляду sample screens
-у браузері відкрийте `http://127.0.0.1:1420/?preview=1#welcome`.
+`npm run dev` starts a browser frontend. Real wallet commands require Tauri IPC: use `npm run desktop` in `apps/app`. For sample screens, open `http://127.0.0.1:1420/?preview=1#welcome`.
 
-Preview scanning статичний. Перейдіть до іншого екрана через preview menu або
-hash URL. Він не очікує RPC response й не є завислим реальним scan.
+Preview scanning is static; use the preview menu or hash URL to choose another screen. It does not await RPC and is not a stalled live scan.
 
-## Port 1420 уже зайнятий
+## Port 1420 is occupied
 
-Desktop launcher сам запускає Vite. Зупиніть окремий `npm run dev` у терміналі,
-де його було запущено, і повторіть `npm run desktop`. Browser production preview
-використовує port `1421`.
+Desktop starts its own Vite server. Stop the separate dev server in its launching terminal and retry `npm run desktop`. Production browser preview uses port `1421`.
 
-## Native build не знаходить GTK/WebKit або linker
+## Native build cannot find GTK/WebKit or a linker
 
-Звірте встановлені build dependencies з
-[Tauri prerequisites у desktop README](../apps/app/README.md#системні-передумови).
-На Linux перевірте, що development packages видимі через `pkg-config`:
+Install the [system prerequisites](../apps/app/README.md#system-prerequisites). On Linux, check development packages:
 
 ```bash
 pkg-config --modversion gtk+-3.0 webkit2gtk-4.1
@@ -31,32 +22,24 @@ rustc --version
 node --version
 ```
 
-Для Rust workspace потрібна підтримка edition 2024. Node має відповідати
-`engines` у [package.json](../apps/app/package.json). `npm ci` встановлює
-dependency versions із lockfile.
+Rust needs edition 2024 support. Node must satisfy [package.json](../apps/app/package.json). `npm ci` uses locked dependency versions.
 
-Якщо збірка завершується через нестачу диска або пам’яті, перевірте вільне місце
-й повторіть із меншою кількістю compiler jobs:
+For disk/memory exhaustion, check available resources and reduce compiler jobs:
 
 ```bash
 # apps/app
 CARGO_BUILD_JOBS=2 CARGO_INCREMENTAL=0 npm run desktop:build
 ```
 
-## App відкривається зі старим frontend
+## Desktop contains an old frontend
 
-Збирайте через `npm run desktop:build` у `apps/app`. Launcher додає
-`tauri.frontend.conf.json`, яка вбудовує актуальний `dist`. Базова Rust config
-сама по собі не є командою збірки поточного React desktop.
+Use `npm run desktop:build`. The launcher merges `tauri.frontend.conf.json` to embed the current React `dist`; the base Rust config alone is not the current frontend build command.
 
-На Linux стандартний executable — `target/release/dock-flints-app` від кореня
-репозиторію. Якщо задано `CARGO_TARGET_DIR`, шукайте його у відповідному target
-directory. Installer packages поки вимкнено через `bundle.active=false`.
+The default Linux executable is `target/release/dock-flints-app` relative to the repository root. A custom `CARGO_TARGET_DIR` changes that location. `bundle.active=false` currently disables installer packages.
 
-## Зміна `.env` не змінює network або provider
+## Editing .env does not change network/providers
 
-Rust не завантажує `.env` автоматично. Експортуйте variables перед запуском
-і перезапустіть застосунок:
+Rust does not load `.env` automatically. Export settings before launch and restart:
 
 ```bash
 # apps/app
@@ -65,72 +48,41 @@ export DOCK_FLINTS_RPC_TIMEOUT_SECONDS=30
 npm run desktop
 ```
 
-Для CLI задайте `--rpc-url`: `DOCK_FLINTS_RPC_URL` налаштовує desktop.
-Provider credentials мають залишатися у backend environment; `VITE_*`
-призначені для публічних frontend settings.
+CLI takes `--rpc-url`; `DOCK_FLINTS_RPC_URL` configures desktop. Keep credentials in backend environment variables; `VITE_*` values are public frontend configuration.
 
-## Плитка показує `—`
+## A category shows —
 
-Відкрийте категорію й прочитайте status, reason та coverage. Прочерк означає,
-що scan не має достовірного числа. Він може супроводжувати unsupported network,
-disabled check, missing provider, auth/rate-limit error або порожній partial.
-Complete й підтверджено порожній список відображає `0`.
+Open its dialog for status, reason and coverage. A dash means no reliable count is available: unsupported network, disabled check, missing provider, auth/rate-limit failure or empty partial results. A complete confirmed-empty list shows `0`.
 
-На devnet SCAM, DUST і DEAD TOKEN не використовують mainnet Jupiter evidence.
-Без відповідних devnet observations їхній `—` очікуваний. Не змінюйте RPC на
-mainnet заради ненульових показників тестового devnet-гаманця.
+Devnet does not use Jupiter mainnet pricing/risk/routes. Without matching devnet evidence, SCAM/DUST/DEAD TOKEN dashes are expected. Do not switch the demo wallet’s RPC merely to produce nonzero categories.
 
-NFT discovery незалежний від pricing/risk. Без DAS знайдені classic/Core NFT
-залишаються доступними, але compressed coverage неповний. Нуль classic/Core
-при цьому не підтверджує загальний `NFT = 0`.
+NFT discovery is independent. Without DAS, known classic/Core assets remain visible but compressed coverage is incomplete. Empty classic/Core results alone do not prove total NFT=0.
 
-## RPC, auth або rate limit
+## RPC, authentication or rate limits
 
-Перевірте, що RPC доступний і відповідає потрібній мережі. Analysis має bounded
-retry для тимчасових genesis/provider errors. Якщо перевірка network не
-завершилася, категорії з network scope отримують причину failure; це не
-підтверджена unsupported network або NoRoute.
+Check endpoint availability and network. Analysis has bounded retries for transient genesis/provider errors. Failed network verification is not a verified unsupported network or NoRoute.
 
-Після відновлення provider повторіть scan через **CHANGE WALLET / RESCAN**.
-Якщо весь analysis відхилено, екран **ANALYSIS INTERRUPTED** має **RETRY SCAN**.
-Partial results і вже знайдені незалежними scanners assets перегляньте в
-деталях. [Поточні integration limits](../apps/app/BACKEND_GAPS.md) описують
-діючі provider restrictions.
+After provider recovery, use **CHANGE WALLET / RESCAN**. A rejected whole analysis shows **ANALYSIS INTERRUPTED** with **RETRY SCAN**. Independently discovered assets and partial results appear in details. See [integration limits](../apps/app/BACKEND_GAPS.md).
 
-## DAS configuration не працює
+## DAS configuration fails
 
-`DOCK_FLINTS_DAS_URL` має бути absolute HTTP(S) URL провайдера тієї самої мережі.
-Desktop перевіряє genesis hash. Невідповідна мережа дає Unsupported; недоступний
-endpoint має reason failure. Malformed URL може відхилити startup: виправте
-значення або приберіть optional setting і перезапустіть app.
+`DOCK_FLINTS_DAS_URL` must be an absolute HTTP(S) URL serving the same network. Desktop checks genesis: mismatch is Unsupported; unavailable verification has a failure reason. A malformed URL can reject startup. Correct it or remove the optional variable, then restart.
 
-Standalone CLI `scan --cnfts` наразі не перелічує compressed inventory навіть
-при наявності DAS environment. Для цього використовуйте desktop analysis;
-детальні вимоги — у [cNFT guide](cnfts.md).
+Standalone CLI `scan --cnfts` does not enumerate DAS inventory. Use desktop analysis for that coverage; see [cNFT guidance](cnfts.md).
 
-## RECOVER SOL недоступний для виконання
+## Cleanup execution is disabled
 
-Public-key connection показує **READ ONLY**. Він дозволяє scan і підготовку
-плану, але не підписує транзакції. Для документаційного devnet walkthrough
-використовуйте саме цей режим. Signer connection описаний окремо в
-[desktop README](../apps/app/README.md#cleanup-для-signer-session).
+A public-key session is **READ ONLY**: scanning/planning work, execution does not. Use this mode for the documentation wallet. Signer connection is described in the [desktop README](../apps/app/README.md#cleanup-with-a-signer).
 
-План прив’язаний до wallet session/network і має строк дії. Після зміни
-selection підготуйте новий план. Active cleanup job блокує wallet change;
-recovery читає існуючий job. Signature journal зберігає reconciliation data,
-але restart поки не відновлює всю попередню UI session.
+Saved plans are session/network-bound and expire. Selection changes require a new plan. Active cleanup blocks wallet change; recovery reads the existing job. The signature journal preserves reconciliation data, but restart does not restore the whole UI session.
 
-## Browser E2E не знаходить Chromium
+## E2E cannot find Chromium
 
-У `apps/app` встановіть browser, який використовує Playwright, і повторіть
-перевірку:
+In `apps/app`:
 
 ```bash
 npx playwright install chromium
 npm run test:e2e
 ```
 
-Якщо browser раніше встановлювали з `PLAYWRIGHT_BROWSERS_PATH`, використовуйте
-те саме значення при запуску tests. Browser regressions перевіряють React із
-mocked/recorded IPC; live desktop scan та native screenshots документуються
-окремо в [поточному звіті](current-verification.md).
+If installation used `PLAYWRIGHT_BROWSERS_PATH`, use the same value when running tests. Browser tests use mocked/recorded IPC; [native/live verification](current-verification.md) is documented separately.

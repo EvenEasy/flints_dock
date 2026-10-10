@@ -4,32 +4,15 @@ Historical investigation, reviewed 2026-09-24. **At that time the CLI could not 
 
 The reported approximately 53 items on Solscan are not evidence that `getTokenAccountsByOwner` or a Merkle account exposes those assets. We did not query Solscan or another external asset index, and do not claim to have independently verified that count.
 
-## Поточна реалізація та CLI scope
+## Current implementation and CLI scope
 
-Matching-network DAS забезпечує paginated owner discovery у Tauri
-`analyze_wallet` та CLI/desktop cleanup. Bubblegum v1/v2 burn adapters перевіряють
-fresh proofs проти RPC tree/config. `DOCK_FLINTS_DAS_URL` читає Rust; endpoint має
-підтримувати `getGenesisHash`, `getAssetsByOwner`, `getAsset`, `getAssetProof`.
-Discovery перевіряє owner, unburned/compressed state й дедуплікує IDs. У разі
-пізньої помилки зберігаються вже підтверджені items із Partial coverage.
+Matching-network DAS provides paginated owner discovery for Tauri `analyze_wallet` and CLI/desktop cleanup. Bubblegum v1/v2 burn adapters validate fresh proofs against RPC tree/config data. Rust reads `DOCK_FLINTS_DAS_URL`; the endpoint must support `getGenesisHash`, `getAssetsByOwner`, `getAsset`, `getAssetProof`. Discovery verifies ownership, unburned/compressed state and deduplicates IDs. A late failure preserves confirmed items with partial coverage.
 
-**Standalone CLI `scan --cnfts` досі використовує RPC-only capability adapter**
-`infra/solana/scan/cnft.rs`, не викликає DAS і не використовує цю environment
-змінну. JSON містить `status: "unsupported"`, `code: "historical_index_required"`
-та `items: null`; cNFT-only scan повертає exit `2`. Mixed scan зберігає успішні
-незалежні результати. Не трактуйте цей CLI результат як empty NFT inventory.
+**Standalone CLI `scan --cnfts` still uses the RPC-only capability adapter** in `infra/solana/scan/cnft.rs`. It neither calls DAS nor uses that environment setting. JSON reports `status: "unsupported"`, `code: "historical_index_required"`, `items: null`; cNFT-only scan exits `2`. Mixed scans preserve independent results. This is not a confirmed-empty inventory.
 
-У desktop відсутність DAS дає Unsupported compressed coverage та зберігає
-known classic/Core NFTs. Numeric NFT counter показує число підтверджених
-unique items або `—`; нуль classic/Core за невідомої compressed coverage не є
-complete NFT=0. Invalid DAS URL відхиляє desktop startup; verified network
-mismatch дає Unsupported, а failed network verification — Failed.
+Desktop without DAS retains classic/Core NFTs and marks compressed coverage Unsupported. Known unique NFTs show a number; empty classic/Core with unknown compressed coverage shows `—`, not total NFT=0. Invalid DAS URLs reject startup; verified genesis mismatch is Unsupported and failed verification is Failed.
 
-Дивіться [поточне cleanup coverage](cleanup.md),
-[актуальні перевірки](current-verification.md),
-[історичну unified verification](unified-cleanup-verification.md).
-Дослідження нижче описує RPC-only обмеження станом на **2026-09-24**. Посилання
-на official docs/source в цій частині є джерелами того історичного дослідження.
+See [cleanup coverage](cleanup.md), [current verification](current-verification.md) and [historical unified verification](unified-cleanup-verification.md). Research below describes RPC-only limitations as of **2026-09-24**; its official-source links belong to that dated investigation.
 
 ## Bubblegum V1 and V2
 
@@ -70,7 +53,7 @@ This is technically possible without an external NFT indexing service, but requi
 
 A minimal persistence engine could use SQLite; it does not remove the archive, decoder and coverage requirements. Full-chain replay through a rate-limited public endpoint is not a small, fast per-wallet CLI feature. This repository has no provided archive or trusted complete snapshot, and does not add a half-working local indexer or import unverifiable external inventories.
 
-## Історична RPC-only реалізація (2026-09-24)
+## Historical RPC-only implementation (2026-09-24)
 
 At that time, `scanner::cnft::get_compressed_nfts` returned an explicit unsupported capability status, not an empty asset vector. It made no unrelated RPC calls. Mixed scans retained successful categories and printed one concise cNFT notice. cNFT-only scans exited `2`; JSON retained `status: "unsupported"`, `code: "historical_index_required"` and `items: null`. The current standalone CLI scan preserves this behavior under `infra/solana/scan/cnft.rs`; the desktop/cleanup DAS path is described above.
 

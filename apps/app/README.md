@@ -1,23 +1,12 @@
 # Flint’s Dock desktop
 
-React + TypeScript + Vite відображає UI; Tauri 2 керує wallet session,
-конфігурацією провайдерів, cleanup plans, jobs і signature journal.
-Discovery, classification та swap/burn/close виконуються в `crates/core`.
-CLI використовує те саме ядро. Поточний desktop реалізує analysis і виконання
-погодженого cleanup plan.
+React + TypeScript + Vite render the UI. Tauri 2 manages wallet sessions, provider configuration, cleanup plans/jobs and the signature journal. Shared Rust core implements discovery, classification and swap/burn/close.
 
-Почніть із [загального quick start](../../docs/getting-started.md).
-[Галерея screenshots](../../docs/screenshots/README.md) показує екрани з підписаними
-джерелами даних; [current verification](../../docs/current-verification.md)
-містить фактично виконані перевірки. Developer map:
-[FRONTEND.md](FRONTEND.md), [IPC contract](frontend-contract/README.md),
-[integration limits](BACKEND_GAPS.md).
+Start with [getting started](../../docs/getting-started.md). The [gallery](../../docs/screenshots/README.md) labels screenshot data sources; [current verification](../../docs/current-verification.md) records completed checks and limitations. Developer references: [frontend](FRONTEND.md), [IPC contract](frontend-contract/README.md), [integration limits](BACKEND_GAPS.md).
 
-## Системні передумови
+## System prerequisites
 
-Для native build встановіть Rust/Cargo, Node із діапазону `package.json` та
-бібліотеки своєї ОС. Для Ubuntu/Debian потрібні WebKitGTK 4.1, GTK development
-dependencies і build tools. Приклад підготовки:
+Install Rust/Cargo, Node matching [package.json](package.json), and platform libraries. For Ubuntu/Debian:
 
 ```sh
 sudo apt-get update
@@ -25,54 +14,37 @@ sudo apt-get install build-essential pkg-config libwebkit2gtk-4.1-dev \
   libssl-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev curl wget file
 ```
 
-На macOS потрібні Xcode Command Line Tools; на Windows — Microsoft C++ Build
-Tools із Desktop development with C++, WebView2 і Rust MSVC toolchain.
-Пакети для Arch/Fedora та інструкції для інших ОС наведені в
-[офіційних Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/).
-Solana CLI не потрібний для scan за public address; `solana-keygen` у прикладах
-лише локально виводить public key тестового файлу.
+macOS needs Xcode Command Line Tools; Windows needs Microsoft C++ Build Tools with Desktop development with C++, WebView2 and the Rust MSVC toolchain. See [official Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for other distributions/platforms.
 
-Команди з `export`, inline environment variables і POSIX paths нижче призначені
-для Linux/macOS shell. Windows launch environment налаштуйте у своєму shell.
+Solana CLI is unnecessary for public-address scans; examples use `solana-keygen` only to derive a local public key. Commands using `export`, inline environment variables and POSIX paths assume Linux/macOS shells; adapt environment syntax on Windows.
 
-## Запуск desktop та browser preview
+## Launch and build
 
-Потрібні Node із діапазону [`package.json`](package.json), Rust workspace
-toolchain і системні бібліотеки Tauri. Node ranges: `^22.22.2`, `^24.15.0` або
-`>=26.0.0`. Перед запуском із `apps/app`:
+Node ranges: `^22.22.2`, `^24.15.0` or `>=26.0.0`. In `apps/app`:
 
 ```sh
 npm ci
 
-# Devnet desktop: Vite і Rust стартують разом.
+# Desktop: launcher starts both Vite and Rust
 DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com npm run desktop
 
-# Development browser, без native IPC/signing.
+# Browser development preview without native IPC
 npm run dev
 # http://127.0.0.1:1420/?preview=1#welcome
-```
 
-Desktop launcher сам запускає Vite на port 1420. Зупиніть окремий dev server
-перед desktop запуском. `npm run dev` — браузерний UI preview; local wallet
-connection і analysis доступні лише в Tauri window. Sample values та progress
-у `?preview=1` не є результатами wallet scan.
-
-```sh
-# Production React assets у браузері.
+# Browser production preview
 npm run build
 npm run preview
 # http://127.0.0.1:1421/?preview=1#main
 
-# Desktop executable зі вбудованим React dist.
+# Desktop with embedded React dist
 npm run desktop:build
-
-# Linux, якщо CARGO_TARGET_DIR не перевизначено.
 DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com ../../target/release/dock-flints-app
 ```
 
-Launcher об’єднує `tauri.frontend.conf.json` з базовою Rust configuration. Для
-вбудованого `dist` використовуйте `desktop:build`, а не саму базову config.
-`bundle.active=false`: installer packages наразі не створюються.
+Stop a separate Vite server on port 1420 before running desktop. Real local-wallet connection and analysis work in the Tauri window. `?preview=1` uses sample values and progress.
+
+`desktop:build` merges `tauri.frontend.conf.json` to embed the current frontend. The default Linux binary path above assumes no custom `CARGO_TARGET_DIR`. `bundle.active=false`: installer packages are not currently produced. `--debug` forwarded to `desktop:build` builds an embedded executable under `target/debug` instead.
 
 ## Display options
 
@@ -83,37 +55,28 @@ npm run dev -- --width=480 --backdrop
 npm run desktop:build -- --width=390 --no-backdrop
 ```
 
-Ці параметри працюють для `dev`, `preview`, `desktop` і `desktop:build`.
-Width: **360–480 CSS px**, default **430**. Default backdrop зі зірками увімкнено.
-URL overrides: `?width=390&backdrop=0`; design reference:
-`?layout=reference&preview=1`. Phone layout адаптується до вузького viewport,
-списки assets прокручуються незалежно. Конкретні capture sizes наведено в галереї.
+Supported by `dev`, `preview`, `desktop` and `desktop:build`. Width: **360–480 CSS px**, default **430**. Star backdrop is enabled by default. URL overrides: `?width=390&backdrop=0`; design reference: `?layout=reference&preview=1`. The phone layout fits narrow viewports; asset lists scroll independently.
 
 ## Backend configuration
 
-Rust читає **успадковані environment variables**. `.env` і
-[`backend.env.example`](backend.env.example) автоматично не завантажуються.
-Експортуйте settings у shell, який запускає desktop/executable, та перезапустіть
-app після зміни. Provider credentials залишаються у Rust process environment;
-не додавайте їх у `VITE_*`, frontend source або screenshot URLs.
+Rust reads **inherited environment variables**. `.env` and [backend.env.example](backend.env.example) are not loaded automatically. Export settings before launch and restart after changes. Credentials belong to Rust environment variables, never `VITE_*`, frontend source or screenshot URLs.
 
-| Variable                          | Default / призначення                                                                                       |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `DOCK_FLINTS_RPC_URL`             | `https://api.mainnet.solana.com`; absolute HTTP(S) Solana RPC                                               |
-| `DOCK_FLINTS_RPC_TIMEOUT_SECONDS` | `30`; дозволено 1–300 seconds                                                                               |
-| `JUPITER_API_KEY`                 | Optional Rust-only `x-api-key` для mainnet Price/Tokens/Swap; keyless availability визначає провайдер       |
-| `DOCK_FLINTS_DAS_URL`             | Optional HTTP(S) DAS того самого network; `getGenesisHash`, `getAssetsByOwner`, `getAsset`, `getAssetProof` |
-| `DOCK_FLINTS_DUST_USD`            | `0.01`; finite positive USD dust threshold                                                                  |
-| `DOCK_FLINTS_JOURNAL_PATH`        | `$XDG_DATA_HOME/dock-flints/signatures.json`; fallback `$HOME/.local/share/dock-flints/signatures.json`     |
+| Variable                          | Default / purpose                                                                                          |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `DOCK_FLINTS_RPC_URL`             | `https://api.mainnet.solana.com`; absolute HTTP(S) RPC                                                     |
+| `DOCK_FLINTS_RPC_TIMEOUT_SECONDS` | `30`; allowed 1–300 seconds                                                                                |
+| `JUPITER_API_KEY`                 | Optional Rust-only `x-api-key` for mainnet Price/Tokens/Swap; provider determines keyless availability     |
+| `DOCK_FLINTS_DAS_URL`             | Optional matching-network DAS supporting `getGenesisHash`, `getAssetsByOwner`, `getAsset`, `getAssetProof` |
+| `DOCK_FLINTS_DUST_USD`            | `0.01`; finite positive USD threshold                                                                      |
+| `DOCK_FLINTS_JOURNAL_PATH`        | `$XDG_DATA_HOME/dock-flints/signatures.json`, fallback `$HOME/.local/share/dock-flints/signatures.json`    |
 
 ```sh
-# apps/app; settings успадковує Rust subprocess.
 export DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com
 export DOCK_FLINTS_RPC_TIMEOUT_SECONDS=30
 npm run desktop
 ```
 
-Optional mainnet key без внесення значення у shell history:
+For a mainnet key without placing its value in shell history:
 
 ```sh
 read -rsp 'Jupiter API key: ' JUPITER_API_KEY
@@ -121,131 +84,67 @@ export JUPITER_API_KEY
 npm run desktop
 ```
 
-RPC genesis hash визначає actual network. Jupiter prices/risk/routes доступні
-лише для **verified mainnet**: devnet RPC не перетворює Jupiter на devnet provider.
-Analysis повторює тимчасову помилку `getGenesisHash` до 3 разів з bounded timeout
-і backoff. Exhausted verification дає Failed для scoped checks і зберігає
-незалежно знайдені holdings; unknown network не стає verified Unsupported/NoRoute.
+RPC genesis determines the network. Jupiter prices/risk/routes use **verified mainnet** only. Analysis retries transient genesis failures up to three times with bounded timeout/backoff; failed verification preserves independent inventory and is not treated as verified Unsupported or NoRoute. Scoped coverage can remain partial where some checks succeeded; see the current regression failure in the [report](../../docs/current-verification.md).
 
-Без DAS compressed coverage — Unsupported, а classic/Core assets залишаються.
-DAS перевіряє відповідність genesis hash. Неправильний формат DAS URL відхиляє
-**startup**; виправте змінну або приберіть її. Malformed Jupiter key, навпаки,
-ізолюється від RPC discovery. Auth/rate-limit/network errors мають свої reasons.
+Without DAS, compressed coverage is Unsupported and classic/Core assets remain available. DAS verifies matching genesis. Malformed DAS URLs reject **startup**: correct/remove the setting. Malformed Jupiter credentials are isolated from RPC discovery. Provider errors retain diagnostics.
 
 ## Read-only devnet walkthrough
 
-Для документації використовується public address тестового
-`dev/demo-wallet.json`:
+Public address of the local documentation wallet:
 
 ```text
 9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv
 ```
 
-1. Запустіть desktop із `DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com`.
-2. Натисніть `CONNECT WALLET`. У `WALLET SOURCE` виберіть
-   `Public key (read only)` та вставте адресу вище.
-3. Залиште `Native SOL`, `Tokens`, `All token-account assets`, `NFTs / MPL Core`,
-   `Compressed NFT capability` увімкненими. Prices увімкнені за замовчуванням;
-   на devnet вони матимуть конкретний mainnet-only reason.
-4. Натисніть `SCAN WALLET`. Після analysis відкрийте `SCAM`, `NFT`, `DUST` або
-   `DEAD TOKEN`, щоб побачити items, evidence і coverage.
-5. `HOLDS` відкриває inventory: `TOKENS`, `ALL ACCOUNTS`, `NFT / CORE`, `cNFT`.
-   `PROFILE` показує `PUBLIC ADDRESS · READ ONLY`, balance, prices diagnostics
-   і `CHANGE WALLET / RESCAN` / `DISCONNECT WALLET`.
-6. На головному екрані `RECOVER SOL` відкриває cleanup для перегляду плану.
-   Public-key session не може його виконати: execution button disabled і
-   показано `Read-only wallet`. Для documentation scan цього достатньо.
+1. Launch desktop with devnet RPC.
+2. Click **CONNECT WALLET**, select **Public key (read only)** and enter the address.
+3. Keep **Native SOL**, **Tokens**, **All token-account assets**, **NFTs / MPL Core** and **Compressed NFT capability** enabled. Prices default to enabled; devnet records their mainnet-only reason.
+4. Click **SCAN WALLET**. Open a category for items/evidence/coverage.
+5. **HOLDS** opens **TOKENS**, **ALL ACCOUNTS**, **NFT / CORE**, **cNFT**. **PROFILE** shows **PUBLIC ADDRESS · READ ONLY**, balance, diagnostics, **CHANGE WALLET / RESCAN** and **DISCONNECT WALLET**.
+6. **RECOVER SOL** opens planning. A public-key session cannot execute; the final execution button is disabled with **Read-only wallet**.
 
-Вміст keypair file, seed і secret bytes не потрібні для цього walkthrough.
-Actual holdings можуть змінюватися з часом. Без достовірних devnet valuation,
-risk і route evidence результат відповідної плитки — `—`, а не придуманий zero.
-Відсутність DAS не доводить відсутність compressed NFTs.
+Keypair contents and seeds are unnecessary. Real balances can change. Missing devnet valuation/risk/route evidence produces `—`, not invented zero. Missing DAS does not prove absence of compressed NFTs.
 
-Scan rejection лишає `ANALYSIS INTERRUPTED` з `RETRY SCAN` і `CHANGE WALLET`.
-Partial scanner results доступні в деталях. Rescan очищає старі results;
-запізніла відповідь не замінює новий wallet. Dismiss відкидає UI response,
-але не скасовує backend RPC operation.
+A rejected analysis shows **ANALYSIS INTERRUPTED**, **RETRY SCAN** and **CHANGE WALLET**. Partial scanner results remain in details. Rescan clears old results and late responses cannot replace a new wallet. Dismiss discards the UI response; it does not cancel backend RPC.
 
-## Чотири category counters
+## Category counters
 
-Tiles і CategoryDialog використовують **один normalized category result**.
-Keys: `scam`, `nft`, `dust`, `dead_token`. Count описує активи, а не число
-backing token accounts. Holdings агрегуються за mint/program; NFT IDs
-дедуплікуються; category flags можуть перетинатися.
+Tiles and CategoryDialog consume **one normalized category result**. Keys: `scam`, `nft`, `dust`, `dead_token`. Counts describe unique assets, not backing-account rows; categories can overlap.
 
-| Status / evidence                                                       | Що показує numeric field |
-| ----------------------------------------------------------------------- | ------------------------ |
-| Complete, підтверджені items                                            | Число унікальних items   |
-| Complete, confirmed empty result                                        | `0`                      |
-| Partial, підтверджені items                                             | Число знайдених items    |
-| Partial без items / failed / unsupported / skipped без збережених items | `—`                      |
-| Missing result / початок scan                                           | `—`                      |
+| Evidence                                                                       | Numeric field     |
+| ------------------------------------------------------------------------------ | ----------------- |
+| Complete with confirmed items                                                  | Unique item count |
+| Complete confirmed-empty list                                                  | `0`               |
+| Partial with confirmed items                                                   | Number found      |
+| Empty partial / failed / unsupported / skipped without retained reliable items | `—`               |
+| Missing result / scan start                                                    | `—`               |
 
-В numeric field немає `Partial`, `Not checked`, `Unavailable`, `N/A` або `+`.
-Усі counters мають однаковий numeric style. Причина й coverage містяться в
-CategoryDialog, tooltip та accessible description. Partial number означає
-«стільки знайдено», а не гарантує повний підсумок.
+All counters have the same numeric typography. No `Partial`, `Not checked`, `Unavailable`, `N/A` or `+` appears inside numeric fields. Tooltip, accessible description and details retain status, reason and coverage. A partial number is a lower bound.
 
-- **SCAM:** explicit suspicious signal із source — optional `audit.isSus: true`
-  для exact mint у Jupiter Tokens V2. False — negative observation; відсутнє
-  поле/record — unknown. Name, decimals, authorities або organic score не є доказом.
-- **DUST:** nonzero fungible mint/program holding із достовірною aggregate
-  valuation `0 < value <= DOCK_FLINTS_DUST_USD`. Unpriced holdings не стають dust.
-- **DEAD TOKEN:** nonzero fungible holding з explicit Jupiter Swap V2 `/build`
-  NoRoute для exact mint/raw amount у recorded provider/time scope. Це не
-  твердження про permanent worthlessness. API/liquidity/parsing failures — unknown.
-- **NFT:** verified standard та ownership для classic/programmable/Core і
-  owner-verified, unburned compressed assets із DAS. Без compressed coverage
-  нуль classic/Core не означає гарантований NFT=0.
+- **SCAM:** explicit suspicious signal with source, currently `audit.isSus: true` for an exact mint in Jupiter Tokens V2. False is negative evidence; missing fields/records are unknown. Names, decimals, authorities and organic score are insufficient.
+- **DUST:** nonzero fungible mint/program holding with reliable aggregate valuation `0 < value <= DOCK_FLINTS_DUST_USD`. Unpriced holdings are not dust.
+- **DEAD TOKEN:** explicit Jupiter Swap V2 `/build` NoRoute for an exact mint/raw amount in recorded provider/time scope. It does not imply permanent worthlessness. Provider/parsing errors are unknown.
+- **NFT:** verified standard and ownership for classic/programmable/Core and owner-verified unburned compressed assets via DAS. Unknown compressed coverage prevents an otherwise empty result from proving total zero.
 
-RPC, prices, risk, routing і DAS мають незалежні statuses. Pricing/risk errors
-не блокують NFT; routing failure не приховує достовірний DUST. Price requests
-batch 50 mints, risk — 100; shared Jupiter limiter має bounded retries.
-Prices cache 30 seconds, risks — 60, keyed by mainnet/mint. Routing sequential
-і swap builds fresh. Production analysis не читає synthetic devnet manifest.
+RPC, prices, risk, routing and DAS retain independent statuses. Pricing/risk failures do not block NFT; routing failures do not hide reliable DUST. Price batches: 50 mints; risk: 100. Bounded Jupiter retries share a limiter. Mainnet/mint caches: prices 30 seconds, risk 60. Routing is sequential; swap execution builds fresh routes. Production analysis does not load synthetic observations.
 
-## Cleanup для signer session
+## Cleanup with a signer
 
-Окрім public key, desktop підтримує `File (keypair)` з **absolute local path**
-і `Seed (base64)` від **рівно 32 raw Ed25519 bytes**. Це не mnemonic і не
-64-byte keypair. Rust читає файл та зберігає signer у session; seed input
-очищається після submission. Connection не авторизує транзакції.
+Desktop also accepts **File (keypair)** with an absolute local path or **Seed (base64)** containing exactly 32 raw Ed25519 bytes. Seed is not a mnemonic or 64-byte keypair. Rust stores the signer; React clears seed input after submission. Connection alone does not authorize transactions.
 
-У cleanup checked asset означає include, unchecked — keep. React передає
-canonical `assetIds` / `ignoredAssetIds`; backend також підтримує mint selection.
-Mint ignore захищає всі backing accounts, включно з empty accounts. IPC
-розрізняє `all`, `selected`, `none`; empty selected — none.
+Checked assets are included; unchecked assets are kept. React submits canonical `assetIds`/`ignoredAssetIds`; backend also supports mint selection. Ignoring a mint protects all backing accounts, including empty ones. IPC distinguishes `all`, `selected`, `none`; empty selected means none.
 
-`prepare_cleanup` створює read-only saved plan, прив’язаний до
-wallet/session/network/revision, чинний 120 seconds після planning. UI показує
-Swap/Burn/Close/Skip, причини та estimates **до fees**. Selection change
-інвалідує план. Public key може prepare, але не execute.
+`prepare_cleanup` creates a read-only immutable plan bound to wallet/session/network/revision, valid for 120 seconds after planning. The UI displays Swap/Burn/Close/Skip, reasons and estimates **before fees**. Selection changes invalidate the plan. Public key can prepare, not execute.
 
-На cleanup screen **RECOVER SOL погоджує та виконує саме показаний saved plan**.
-Перед required burn UI повідомляє про irreversible action. Окремого другого
-approval dialog або policy selector немає. Backend приймає plan ID й action
-approval, а не frontend-authored transaction. Default limits: 50 bps slippage,
-100 bps max price impact, 1,000,000 lamports max priority fee.
+The final **RECOVER SOL** approves and executes the displayed saved plan. Required burns carry an irreversible-action notice. There is no separate second approval dialog or policy selector. Rust accepts a plan ID and action approval, not frontend-authored transactions. Defaults: 50 bps slippage, 100 bps max price impact, 1,000,000 lamports maximum priority fee.
 
-Execution послідовне: fresh quotes, on-chain identity/amount/authority checks,
-simulation, preflight, confirmation і zero-balance reread перед close.
-Unsupported plugins/extensions/proofs лишаються skip/review reasons.
-Failed swap не стає burn; temporary provider error не дозволяє burn.
-Детальні supported standards та обмеження: [cleanup coverage](../../docs/cleanup.md).
+Execution is sequential: fresh quotes, identity/amount/authority checks, simulation, preflight, confirmation and zero-balance reread before close. Unsupported plugins/extensions/proofs remain skip/review reasons. Failed swaps and temporary provider failures do not authorize fallback burns. See [cleanup coverage](../../docs/cleanup.md).
 
-Job recovery читає existing job; не повторює execute. Active job блокує wallet
-change/disconnect. Final SOL — exact signed sum wallet delta із transaction
-metadata, включно з fees, а не whole-wallet before/after difference. Missing
-metadata означає incomplete accounting. Partial/failed jobs мають окремий report.
-Inventory оновлюється після виконання.
+Recovery reads an existing job without repeating execution. Active jobs block wallet change/disconnect. Final SOL is the signed sum of per-transaction wallet deltas, including fees; missing metadata marks accounting incomplete. Partial/failed jobs have their own reports. Inventory refreshes after execution.
 
-Перед send Rust durably зберігає nonsensitive signature, owner, network,
-source account, operation і expiry. OS file lock захищає concurrent instances.
-Uncertain submission не відправляється повторно; journal не містить seed,
-keypair або transaction bytes. Plans/full reports поки в пам’яті: restart
-зберігає reconciliation safety, але не відновлює стару React session.
+Before send, Rust durably stores nonsensitive signature/owner/network/source/operation/expiry. An OS file lock coordinates instances. Uncertain sends are not repeated. The journal contains no keypair, seed or transaction bytes. Full plans/reports remain in memory: restart preserves reconciliation safety but does not restore the old React session. This persistent journal is a desktop feature, not CLI-wide behavior.
 
-## Перевірки та матеріали
+## Checks and evidence
 
 ```sh
 # apps/app
@@ -257,22 +156,22 @@ npm run desktop:build
 
 # Repository root
 cargo fmt --all --check
-cargo check --workspace
-cargo test --workspace
-cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo check --workspace --locked
+cargo test --workspace --locked
+cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 ```
 
-Browser tests використовують mocked/recorded IPC для React behavior; registered
-Tauri IPC regressions використовують MockRuntime та capability enforcement.
-[Native fixture](tests/native/README.md) відтворює isolated loopback RPC smoke.
-Це різні evidence sources; browser mock не підтверджує live wallet scan.
+Browser tests use mocked/recorded IPC. Registered Tauri IPC tests use MockRuntime with capability enforcement. The [native fixture](tests/native/README.md) uses isolated loopback RPC. Live devnet capture is documented separately.
 
-- [Поточні виконані перевірки](../../docs/current-verification.md)
-- [Screenshots і capture provenance](../../docs/screenshots/README.md)
-- [Історична desktop verification](docs/desktop-verification.md)
-- [Історична devnet account audit](../../docs/devnet-cleanup-verification.md)
-- [Історична local-validator / unified cleanup verification](../../docs/unified-cleanup-verification.md)
+- [Current verification](../../docs/current-verification.md)
+- [Screenshots and provenance](../../docs/screenshots/README.md)
+- [Historical desktop verification](docs/desktop-verification.md)
+- [Historical devnet audit](../../docs/devnet-cleanup-verification.md)
+- [Historical unified/local-validator verification](../../docs/unified-cleanup-verification.md)
 - [Artwork provenance](assets/art/README.md)
 
-`?diagnostics=art` — dev-only plain-image/component comparison, відсутній у
-production rendering. Linux native reports не замінюють перевірки macOS/Windows.
+`?diagnostics=art` is development-only. Linux native evidence does not establish macOS/Windows behavior. See [troubleshooting](../../docs/troubleshooting.md) for common issues.
+
+## Licensing
+
+Application source code is [Apache-2.0](../../LICENSE), with attribution in [NOTICE](../../NOTICE). [Listed artwork](../../ASSETS_LICENSE.md) has separate terms, and [branding](../../BRANDING.md) must not suggest an official third-party product. Third-party resources retain their own licenses. This mixed package uses [LICENSING.md](LICENSING.md) as its metadata license statement.

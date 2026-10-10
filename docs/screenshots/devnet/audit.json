@@ -1,0 +1,1951 @@
+{
+  "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+  "capturedAt": "2026-10-10T21:06:52.905Z",
+  "sourceRevision": "1cfc3e5a51ac0261abc81b2e7da5f8b261530fb0",
+  "mode": "native-live-devnet-readonly",
+  "transactionsSubmitted": 0,
+  "authenticRegisteredIpc": true,
+  "raw": {
+    "calls": [
+      {
+        "command": "connect_wallet",
+        "payload": {
+          "request": {
+            "source": {
+              "kind": "publicKey",
+              "address": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv"
+            }
+          }
+        }
+      },
+      {
+        "command": "analyze_wallet",
+        "payload": {
+          "request": {
+            "walletAddress": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "selection": {
+              "balance": true,
+              "tokens": true,
+              "allTokens": true,
+              "nfts": true,
+              "cnfts": true
+            },
+            "noPrices": false
+          },
+          "progress": "__CHANNEL__:861072295"
+        }
+      }
+    ],
+    "connection": {
+      "sessionId": "H5ZmWGmu6rWJoi13qdXjuaZaVziHQHFRPFpqEQafYrVp",
+      "walletAddress": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "sourceKind": "publicKey",
+      "canSign": false
+    },
+    "analysis": {
+      "inventory": {
+        "status": {
+          "status": "partial",
+          "reason": "compressed: DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "items": [
+          {
+            "id": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+            "accounts": [
+              "42j2TGZCH96PtZSpxhThLr7FAJ9jjmuspEzhu2UFA8sn"
+            ],
+            "rawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+            "accounts": [
+              "2V1v563nQ6qyetkjzfkn32HWfQfqgqwU5uPU82L3bYqo"
+            ],
+            "rawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+            "accounts": [
+              "FjoHDvqCxWYcFfwekFz2XL3ArB2TvCqFnvq1k9C2ox23"
+            ],
+            "rawAmount": "13000000",
+            "decimals": 6,
+            "balance": "13",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+            "accounts": [
+              "FPmZ9uU6qusWztbZC75tRfPJDKSG624XhBVKLTAVgDsE"
+            ],
+            "rawAmount": "100000000",
+            "decimals": 6,
+            "balance": "100",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+            "accounts": [
+              "HAaYFF63Paz5YjxikfqPLiYmBdFgLBSBmEyvjNcamXU5"
+            ],
+            "rawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+            "accounts": [
+              "BXSLUnLY5Gj9dSezQSXStJdQfVmJfQYmPnBqRqypLR6B"
+            ],
+            "rawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+            "accounts": [
+              "Hy2uykLhecc4Wu3ZzXGRuhoMRPtckFvJp6pGiTDLCmGa"
+            ],
+            "rawAmount": "1337000000",
+            "decimals": 6,
+            "balance": "1337",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+            "accounts": [
+              "2XEGHH9JU6bdo3BsmT1bK3DsmLGcu6fgS8koFXpwFqK1"
+            ],
+            "rawAmount": "10000000000",
+            "decimals": 6,
+            "balance": "10000",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+            "accounts": [
+              "Him61oxwyQKXhFbcw7eEe2dynngXEd8twWgQLiQx3wLx"
+            ],
+            "rawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+            "accounts": [
+              "BNbc92Mw9JNiMzWyZro3TGNMZHCS8JbXiGRNmujDy4S"
+            ],
+            "rawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+            "accounts": [
+              "7KExVxRgAHLL6hmy4gnh9Xq4ayGx5STkTaz7TyxBuvV8"
+            ],
+            "rawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+            "accounts": [
+              "7sn5FpnUqqEzcot84MqoWZN5X8Ugk5zJgMqH6ZpHtLBK"
+            ],
+            "rawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+            "accounts": [
+              "bS1Cm6yG6t6crBaXXwVrvBN19M7nXJTFf65xqJP6wef"
+            ],
+            "rawAmount": "999999000000",
+            "decimals": 6,
+            "balance": "999999",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+            "accounts": [
+              "CoQH2k2b3hULLvoVUADrH2omgC9Svn3kkBe3zqzr9Lpg"
+            ],
+            "rawAmount": "10000000000000",
+            "decimals": 6,
+            "balance": "10000000",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          },
+          {
+            "id": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "kind": "fungible",
+            "name": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+            "accounts": [
+              "3zYnwuCQFFijonrtvkqqX9n7vEngoSPHDRkeVh2GMapX"
+            ],
+            "rawAmount": "420000000",
+            "decimals": 6,
+            "balance": "420",
+            "valueUsd": null,
+            "evidence": "Verified mint and token-program semantics"
+          }
+        ]
+      },
+      "categories": {
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "dustThresholdUsd": 0.01,
+        "categories": {
+          "dead_token": {
+            "items": [],
+            "count": 0,
+            "status": {
+              "status": "unsupported",
+              "reason": "Jupiter routing is mainnet-only"
+            },
+            "checkedAt": "1791666410",
+            "source": "Jupiter Swap V2",
+            "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+            "reason": "Jupiter routing is mainnet-only",
+            "coverage": {
+              "routing": {
+                "status": "unsupported",
+                "reason": "Jupiter routing is mainnet-only"
+              },
+              "rpc": {
+                "status": "complete"
+              }
+            }
+          },
+          "dust": {
+            "items": [],
+            "count": 0,
+            "status": {
+              "status": "unsupported",
+              "reason": "Jupiter valuation is mainnet-only"
+            },
+            "checkedAt": "1791666410",
+            "source": "Jupiter Price V3",
+            "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+            "reason": "Jupiter valuation is mainnet-only",
+            "coverage": {
+              "pricing": {
+                "status": "unsupported",
+                "reason": "Jupiter valuation is mainnet-only"
+              },
+              "rpc": {
+                "status": "complete"
+              }
+            }
+          },
+          "nft": {
+            "items": [],
+            "count": 0,
+            "status": {
+              "status": "partial",
+              "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable"
+            },
+            "checkedAt": "1791666410",
+            "source": "Solana / Metaplex / MPL Core / DAS",
+            "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+            "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+            "coverage": {
+              "das": {
+                "status": "unsupported",
+                "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+              },
+              "nft_classic": {
+                "status": "complete"
+              },
+              "nft_core": {
+                "status": "complete"
+              }
+            }
+          },
+          "scam": {
+            "items": [],
+            "count": 0,
+            "status": {
+              "status": "unsupported",
+              "reason": "Mainnet risk provider unavailable on this network"
+            },
+            "checkedAt": "1791666410",
+            "source": "Jupiter Tokens V2",
+            "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+            "reason": "Mainnet risk provider unavailable on this network",
+            "coverage": {
+              "risk": {
+                "status": "unsupported",
+                "reason": "Mainnet risk provider unavailable on this network"
+              },
+              "rpc": {
+                "status": "complete"
+              }
+            }
+          }
+        },
+        "providers": {
+          "das": {
+            "status": "unsupported",
+            "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+          },
+          "network": {
+            "status": "complete"
+          },
+          "nft_classic": {
+            "status": "complete"
+          },
+          "nft_core": {
+            "status": "complete"
+          },
+          "pricing": {
+            "status": "unsupported",
+            "reason": "Jupiter valuation is mainnet-only"
+          },
+          "risk": {
+            "status": "unsupported",
+            "reason": "Mainnet risk provider unavailable on this network"
+          },
+          "routing": {
+            "status": "unsupported",
+            "reason": "Jupiter routing is mainnet-only"
+          },
+          "rpc": {
+            "status": "complete"
+          }
+        }
+      },
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "commitment": "Confirmed (independent requests)",
+      "selected": {
+        "balance": true,
+        "tokens": true,
+        "allTokens": true,
+        "nfts": true,
+        "cnfts": true
+      },
+      "hasUsableResults": true,
+      "balance": {
+        "status": {
+          "status": "complete"
+        },
+        "value": {
+          "lamports": "18344880600",
+          "sol": "18.3448806",
+          "price": null,
+          "valueUsd": null
+        }
+      },
+      "tokens": {
+        "status": {
+          "status": "complete"
+        },
+        "items": [
+          {
+            "mint": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "42j2TGZCH96PtZSpxhThLr7FAJ9jjmuspEzhu2UFA8sn"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "2V1v563nQ6qyetkjzfkn32HWfQfqgqwU5uPU82L3bYqo"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+            "program": "legacy",
+            "totalRawAmount": "13000000",
+            "decimals": 6,
+            "balance": "13",
+            "accounts": [
+              "FjoHDvqCxWYcFfwekFz2XL3ArB2TvCqFnvq1k9C2ox23"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+            "program": "legacy",
+            "totalRawAmount": "100000000",
+            "decimals": 6,
+            "balance": "100",
+            "accounts": [
+              "FPmZ9uU6qusWztbZC75tRfPJDKSG624XhBVKLTAVgDsE"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "HAaYFF63Paz5YjxikfqPLiYmBdFgLBSBmEyvjNcamXU5"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "BXSLUnLY5Gj9dSezQSXStJdQfVmJfQYmPnBqRqypLR6B"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+            "program": "legacy",
+            "totalRawAmount": "1337000000",
+            "decimals": 6,
+            "balance": "1337",
+            "accounts": [
+              "Hy2uykLhecc4Wu3ZzXGRuhoMRPtckFvJp6pGiTDLCmGa"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+            "program": "legacy",
+            "totalRawAmount": "10000000000",
+            "decimals": 6,
+            "balance": "10000",
+            "accounts": [
+              "2XEGHH9JU6bdo3BsmT1bK3DsmLGcu6fgS8koFXpwFqK1"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "Him61oxwyQKXhFbcw7eEe2dynngXEd8twWgQLiQx3wLx"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "BNbc92Mw9JNiMzWyZro3TGNMZHCS8JbXiGRNmujDy4S"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "7KExVxRgAHLL6hmy4gnh9Xq4ayGx5STkTaz7TyxBuvV8"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "7sn5FpnUqqEzcot84MqoWZN5X8Ugk5zJgMqH6ZpHtLBK"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+            "program": "legacy",
+            "totalRawAmount": "999999000000",
+            "decimals": 6,
+            "balance": "999999",
+            "accounts": [
+              "bS1Cm6yG6t6crBaXXwVrvBN19M7nXJTFf65xqJP6wef"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+            "program": "legacy",
+            "totalRawAmount": "10000000000000",
+            "decimals": 6,
+            "balance": "10000000",
+            "accounts": [
+              "CoQH2k2b3hULLvoVUADrH2omgC9Svn3kkBe3zqzr9Lpg"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+            "program": "legacy",
+            "totalRawAmount": "420000000",
+            "decimals": 6,
+            "balance": "420",
+            "accounts": [
+              "3zYnwuCQFFijonrtvkqqX9n7vEngoSPHDRkeVh2GMapX"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          }
+        ]
+      },
+      "allTokens": {
+        "status": {
+          "status": "complete"
+        },
+        "items": [
+          {
+            "mint": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "42j2TGZCH96PtZSpxhThLr7FAJ9jjmuspEzhu2UFA8sn"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "2V1v563nQ6qyetkjzfkn32HWfQfqgqwU5uPU82L3bYqo"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+            "program": "legacy",
+            "totalRawAmount": "13000000",
+            "decimals": 6,
+            "balance": "13",
+            "accounts": [
+              "FjoHDvqCxWYcFfwekFz2XL3ArB2TvCqFnvq1k9C2ox23"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+            "program": "legacy",
+            "totalRawAmount": "100000000",
+            "decimals": 6,
+            "balance": "100",
+            "accounts": [
+              "FPmZ9uU6qusWztbZC75tRfPJDKSG624XhBVKLTAVgDsE"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "HAaYFF63Paz5YjxikfqPLiYmBdFgLBSBmEyvjNcamXU5"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "BXSLUnLY5Gj9dSezQSXStJdQfVmJfQYmPnBqRqypLR6B"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+            "program": "legacy",
+            "totalRawAmount": "1337000000",
+            "decimals": 6,
+            "balance": "1337",
+            "accounts": [
+              "Hy2uykLhecc4Wu3ZzXGRuhoMRPtckFvJp6pGiTDLCmGa"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+            "program": "legacy",
+            "totalRawAmount": "10000000000",
+            "decimals": 6,
+            "balance": "10000",
+            "accounts": [
+              "2XEGHH9JU6bdo3BsmT1bK3DsmLGcu6fgS8koFXpwFqK1"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "Him61oxwyQKXhFbcw7eEe2dynngXEd8twWgQLiQx3wLx"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "BNbc92Mw9JNiMzWyZro3TGNMZHCS8JbXiGRNmujDy4S"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+            "program": "legacy",
+            "totalRawAmount": "0",
+            "decimals": 6,
+            "balance": "0",
+            "accounts": [
+              "7KExVxRgAHLL6hmy4gnh9Xq4ayGx5STkTaz7TyxBuvV8"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+            "program": "legacy",
+            "totalRawAmount": "5000000000000",
+            "decimals": 6,
+            "balance": "5000000",
+            "accounts": [
+              "7sn5FpnUqqEzcot84MqoWZN5X8Ugk5zJgMqH6ZpHtLBK"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+            "program": "legacy",
+            "totalRawAmount": "999999000000",
+            "decimals": 6,
+            "balance": "999999",
+            "accounts": [
+              "bS1Cm6yG6t6crBaXXwVrvBN19M7nXJTFf65xqJP6wef"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+            "program": "legacy",
+            "totalRawAmount": "10000000000000",
+            "decimals": 6,
+            "balance": "10000000",
+            "accounts": [
+              "CoQH2k2b3hULLvoVUADrH2omgC9Svn3kkBe3zqzr9Lpg"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          },
+          {
+            "mint": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+            "program": "legacy",
+            "totalRawAmount": "420000000",
+            "decimals": 6,
+            "balance": "420",
+            "accounts": [
+              "3zYnwuCQFFijonrtvkqqX9n7vEngoSPHDRkeVh2GMapX"
+            ],
+            "kind": "fungible",
+            "metadata": {
+              "name": null,
+              "symbol": null,
+              "uri": null,
+              "imageUri": null,
+              "tokenStandard": null,
+              "source": null,
+              "collection": null
+            },
+            "price": null,
+            "valueUsd": null
+          }
+        ]
+      },
+      "nfts": {
+        "status": {
+          "status": "complete"
+        },
+        "classic": {
+          "status": {
+            "status": "complete"
+          },
+          "items": []
+        },
+        "core": {
+          "status": {
+            "status": "complete"
+          },
+          "items": []
+        }
+      },
+      "cnfts": {
+        "status": {
+          "status": "unsupported",
+          "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "items": null
+      },
+      "tokenAccounts": [
+        {
+          "address": "2V1v563nQ6qyetkjzfkn32HWfQfqgqwU5uPU82L3bYqo",
+          "mint": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "0",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "potentiallyReclaimable"
+          }
+        },
+        {
+          "address": "2XEGHH9JU6bdo3BsmT1bK3DsmLGcu6fgS8koFXpwFqK1",
+          "mint": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "10000000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "3zYnwuCQFFijonrtvkqqX9n7vEngoSPHDRkeVh2GMapX",
+          "mint": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "420000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "42j2TGZCH96PtZSpxhThLr7FAJ9jjmuspEzhu2UFA8sn",
+          "mint": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "5000000000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "7KExVxRgAHLL6hmy4gnh9Xq4ayGx5STkTaz7TyxBuvV8",
+          "mint": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "0",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "potentiallyReclaimable"
+          }
+        },
+        {
+          "address": "7sn5FpnUqqEzcot84MqoWZN5X8Ugk5zJgMqH6ZpHtLBK",
+          "mint": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "5000000000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "BNbc92Mw9JNiMzWyZro3TGNMZHCS8JbXiGRNmujDy4S",
+          "mint": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "0",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "potentiallyReclaimable"
+          }
+        },
+        {
+          "address": "BXSLUnLY5Gj9dSezQSXStJdQfVmJfQYmPnBqRqypLR6B",
+          "mint": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "0",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "potentiallyReclaimable"
+          }
+        },
+        {
+          "address": "CoQH2k2b3hULLvoVUADrH2omgC9Svn3kkBe3zqzr9Lpg",
+          "mint": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "10000000000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "FPmZ9uU6qusWztbZC75tRfPJDKSG624XhBVKLTAVgDsE",
+          "mint": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "100000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "FjoHDvqCxWYcFfwekFz2XL3ArB2TvCqFnvq1k9C2ox23",
+          "mint": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "13000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "HAaYFF63Paz5YjxikfqPLiYmBdFgLBSBmEyvjNcamXU5",
+          "mint": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "5000000000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "Him61oxwyQKXhFbcw7eEe2dynngXEd8twWgQLiQx3wLx",
+          "mint": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "0",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "potentiallyReclaimable"
+          }
+        },
+        {
+          "address": "Hy2uykLhecc4Wu3ZzXGRuhoMRPtckFvJp6pGiTDLCmGa",
+          "mint": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "1337000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        },
+        {
+          "address": "bS1Cm6yG6t6crBaXXwVrvBN19M7nXJTFf65xqJP6wef",
+          "mint": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+          "program": "legacy",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+          "rawAmount": "999999000000",
+          "decimals": 6,
+          "lamports": "1488440",
+          "dataLen": "165",
+          "state": "Initialized",
+          "delegate": null,
+          "delegatedAmount": "0",
+          "closeAuthority": null,
+          "isNative": false,
+          "nativeReserveLamports": null,
+          "extensionTypes": [],
+          "closure": {
+            "status": "notReclaimable",
+            "reason": "Nonzero token balance"
+          }
+        }
+      ],
+      "mints": [
+        {
+          "mint": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "0",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "10000000000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "420000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "5000000000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "0",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "13000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "100000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "5000000000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "0",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "1337000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "10000000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "0",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "0",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "5000000000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        },
+        {
+          "mint": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+          "program": "legacy",
+          "decimals": 6,
+          "supply": "999999000000",
+          "mintAuthority": null,
+          "freezeAuthority": null,
+          "metadata": {
+            "name": null,
+            "symbol": null,
+            "uri": null,
+            "imageUri": null,
+            "tokenStandard": null,
+            "source": null,
+            "collection": null
+          },
+          "extensionTypes": []
+        }
+      ],
+      "unknownAssets": [
+        {
+          "address": "5WBoCf5EGZLyjVgjukunSns8hMkuToWHFuyN5eoyLTJz",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "9nH8GV3JFYMs77Xq7Dyy9zU3TawnaKWj46kgfFiCSSk8",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "wicEJU4wjyzAiYnt3TfMWNeJtiFJZXb84hnM6mV1Nbp",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "41S5udwjJfbeLEGTRKJCu3raaFgfREM1NSSWVCdFFa8Q",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "FaCu8icNDLKC6DQEmLbQ5npiVzKtAZCjzEJLn8D7k7B",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "FoqEuTNMnQWegVZoRi4nbYrk9H6MNekpxPzCfJRBERCp",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "DEEj1kJ3eks2eLoWweRWsoJ44SYjYWtCuNUomkDaaNyi",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "8xWB2dG9VzDuAYitZjhTkpr6goMCcbGpLCT7x8wSQXmu",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "P6gugdvusaNkxYFNrGxVn42k3QLBJXFniKHCTnt9wqC",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "83AbUZ5aACzMsjxu9apgwqeXwGLQNxc6XNFsZWMNU3E4",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "7CSCgsoUG3455uVtScY4JoeQN7bw2AbQV6xeZaZvdPzq",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "8okxzxx3wsNWYBCDi2CKsPZcGLM8sgSCwzP7zjAYHHtU",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "CknimTR83VvYVQLKQLDZ6UWiru78diDBcXKb87QVYEeF",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "9iBJudB3xmS6gdQNPJZSFUMmF7EvLgurc6GCEC3JhjY7",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        },
+        {
+          "address": "Hp6J3jd8NTFHhcmArPpMcSesS7hYVA83LemR19RJxcHa",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "lamports": null,
+          "reason": "No recognized on-chain metadata"
+        }
+      ],
+      "accountSummary": {
+        "tokenAccounts": 15,
+        "emptyTokenAccounts": 5,
+        "tokenAccountLamports": "22326600",
+        "potentiallyReclaimableLamports": "7442200",
+        "closureReviewAccounts": 0
+      },
+      "scanners": {
+        "all_tokens": {
+          "status": "complete"
+        },
+        "classic_nfts": {
+          "status": "complete"
+        },
+        "compressed_nfts": {
+          "status": "unsupported",
+          "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "core_asset_v1": {
+          "status": "complete"
+        },
+        "legacy_tokens": {
+          "status": "complete"
+        },
+        "metaplex_metadata_and_nfts": {
+          "status": "complete"
+        },
+        "mint_metadata": {
+          "status": "complete"
+        },
+        "native_sol": {
+          "status": "complete"
+        },
+        "network": {
+          "status": "complete"
+        },
+        "nfts": {
+          "status": "complete"
+        },
+        "prices": {
+          "status": "unsupported",
+          "reason": "Jupiter valuation is mainnet-only"
+        },
+        "token_2022": {
+          "status": "complete"
+        },
+        "tokens": {
+          "status": "complete"
+        }
+      }
+    }
+  },
+  "runtime": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15",
+    "dpr": 1.25,
+    "viewport": [
+      430,
+      836
+    ],
+    "origin": "tauri://localhost",
+    "fontReady": "loaded",
+    "mainOverflow": 0,
+    "counters": [
+      {
+        "key": "scam",
+        "text": "—",
+        "ariaLabel": "SCAM: —",
+        "font": "",
+        "lineHeight": "25.200001px",
+        "textAlign": "center",
+        "height": 25.200000762939453,
+        "overflow": 0,
+        "tile": {
+          "width": 98,
+          "height": 90
+        }
+      },
+      {
+        "key": "nft",
+        "text": "—",
+        "ariaLabel": "NFT: —",
+        "font": "",
+        "lineHeight": "25.200001px",
+        "textAlign": "center",
+        "height": 25.200000762939453,
+        "overflow": 0,
+        "tile": {
+          "width": 98,
+          "height": 90
+        }
+      },
+      {
+        "key": "dust",
+        "text": "—",
+        "ariaLabel": "DUST: —",
+        "font": "",
+        "lineHeight": "25.200001px",
+        "textAlign": "center",
+        "height": 25.200000762939453,
+        "overflow": 0,
+        "tile": {
+          "width": 98,
+          "height": 90
+        }
+      },
+      {
+        "key": "dead_token",
+        "text": "—",
+        "ariaLabel": "DEAD TOKEN: —",
+        "font": "",
+        "lineHeight": "25.200001px",
+        "textAlign": "center",
+        "height": 25.200000762939453,
+        "overflow": 0,
+        "tile": {
+          "width": 98,
+          "height": 90
+        }
+      }
+    ]
+  },
+  "details": {
+    "scam": {
+      "text": "SCAM\n×\n\nFlagged as suspicious by Jupiter audit.isSus. A provider signal, not proof of fraud.\n\nUNSUPPORTED\nMainnet risk provider unavailable on this network\n\nJupiter Tokens V2 · EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG\n\nRISK · UNSUPPORTED\nMainnet risk provider unavailable on this network\n\nRPC · COMPLETE",
+      "ids": []
+    },
+    "nft": {
+      "text": "NFT\n×\n\nVerified classic, programmable, Core and compressed NFTs. Supported burns appear in cleanup.\n\nPARTIAL RESULTS\nDAS: DAS endpoint not configured; compressed NFT inventory unavailable\n\nSolana / Metaplex / MPL Core / DAS · EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG\n\nDAS · UNSUPPORTED\nDAS endpoint not configured; compressed NFT inventory unavailable\n\nNFT CLASSIC · COMPLETE\n\nNFT CORE · COMPLETE",
+      "ids": []
+    },
+    "dust": {
+      "text": "DUST\n×\n\nNonzero holdings with a low estimated value. Swapping may still cost more than it returns.\n\nUNSUPPORTED\nJupiter valuation is mainnet-only\n\nJupiter Price V3 · EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG\n\nPRICING · UNSUPPORTED\nJupiter valuation is mainnet-only\n\nRPC · COMPLETE",
+      "ids": []
+    },
+    "dead_token": {
+      "text": "DEAD TOKEN\n×\n\nJupiter found no TOKEN → SOL route when checked. This does not mean the asset is permanently worthless.\n\nUNSUPPORTED\nJupiter routing is mainnet-only\n\nJupiter Swap V2 · EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG\n\nROUTING · UNSUPPORTED\nJupiter routing is mainnet-only\n\nRPC · COMPLETE",
+      "ids": []
+    }
+  }
+}

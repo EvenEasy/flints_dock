@@ -2,10 +2,7 @@
 
 `dock_flints quote` and `dock_flints swap` implement Jupiter's [Swap V2 Router `/build` API](https://github.com/jup-ag/docs/blob/main/swap/build/index.mdx), which returns a quote and raw instructions together. This path uses Jupiter's Metis routing and supports submission through the application's existing Solana RPC client. It does not use the managed `/order` + `/execute` flow or implement its own DEX routing. [Official API schema](https://github.com/jup-ag/docs/blob/main/openapi-spec/swap/v2/swap.yaml).
 
-Запуск і повний перелік CLI commands: [getting started](getting-started.md),
-[CLI guide](cli-guide.md). Поточні виконані перевірки — у
-[current verification](current-verification.md). Приклади нижче стосуються
-**mainnet**; вони не є devnet wallet verification.
+Launch instructions and full CLI examples: [getting started](getting-started.md), [CLI guide](cli-guide.md). Completed checks appear in [current verification](current-verification.md). The examples below target **mainnet** and are not devnet wallet verification.
 
 ## Commands
 

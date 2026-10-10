@@ -1,31 +1,25 @@
-# Межі доступу та дані гаманця
+# Desktop security boundaries
 
-Актуально для коду після `e013ea9`. React відображає результати та надсилає типізовані запити; Rust зберігає signer, перевіряє дані й виконує blockchain-операції.
+The local Tauri webview calls six registered commands: `connect_wallet`, `disconnect_wallet`, `analyze_wallet`, `prepare_cleanup`, `execute_cleanup`, `get_cleanup_job`. Capabilities scope these commands to the `main` window; real RPC/provider access stays in Rust.
 
-## IPC та локальна сесія
+## Identity and authorization
 
-Лише локальний webview `main` має capability для шести зареєстрованих команд: `connect_wallet`, `disconnect_wallet`, `analyze_wallet`, `prepare_cleanup`, `execute_cleanup`, `get_cleanup_job`. Інші вікна та remote origins не отримують цей доступ. Перевірка desktop runtime у React допомагає користувачеві; фактичні обмеження забезпечують Tauri та Rust.
+Public-key connection is read-only. File/seed connection creates a Rust-held signer; React receives public session data, not secret bytes. Seed input is cleared after submission. Connecting does not authorize a transaction.
 
-Підключення підтримує публічну адресу, base64 від рівно 32 байтів Ed25519 seed або абсолютний шлях до локального Solana JSON keypair. Rust читає keypair самостійно; вміст файла не потрапляє у React. Для файла перевіряються тип, абсолютний шлях і розмір до 4096 байтів. Seed надсилається один раз, після чого поле очищується. Очищення поля не гарантує криптографічного стирання пам'яті webview.
+`prepare_cleanup` creates an immutable wallet/session/network/revision-bound plan. `execute_cleanup` accepts that plan’s ID and approval; it does not accept frontend-authored instructions or transaction bytes. Rust checks expiry, selection, ownership, amounts, authorities, restrictions and fresh provider/proof data. The final **RECOVER SOL** approves the displayed actions, including explicitly explained irreversible burns.
 
-Frontend отримує тільки публічну адресу, `sessionId`, `sourceKind` та `canSign`. Signer залишається в Rust і звільняється після disconnect, заміни неактивної сесії або завершення app. Під час активного cleanup зміна сесії та disconnect відхиляються.
+Execution is sequential with simulation, preflight and confirmation. Uncertain submissions are reconciled rather than economically repeated. Failed swaps and temporary provider errors cannot authorize burn fallback. Category labels do not determine execution eligibility.
 
-## Читання та виконання
+## Storage and recovery
 
-`analyze_wallet` приймає публічну адресу, scan selection та `noPrices`. Scan не підписує й не надсилає транзакцій. Public-key session може переглядати read-only cleanup plan, але не може виконувати його. Design preview використовує демонстраційні дані та не виконує blockchain-операцій.
+Before send, the durable journal stores nonsensitive signature, owner, network, source account, operation and expiry. Interprocess locking coordinates instances. The journal does not contain a seed, keypair or serialized transaction. Full plans/reports remain in memory; restarting preserves reconciliation safety but not the old UI session.
 
-`prepare_cleanup` створює незмінний план у Rust, прив'язаний до сесії, гаманця, мережі та revision. `execute_cleanup` приймає ID цього плану й погодження дій; він не приймає транзакцій, інструкцій чи довільного signer від React. Rust перевіряє термін дії, selection, ownership, amounts, authorities, restrictions і актуальні provider/proof дані. Виконання послідовне, із simulation, preflight та confirmation. Підключення гаманця саме по собі не погоджує виконання; кнопка **RECOVER SOL** на екрані плану погоджує показані Swap/Burn/Close дії.
+The persistent journal is a desktop feature; standalone CLI returns signatures for reconciliation without that journal.
 
-Provider failure, відсутня ціна або невідома мережа не перетворюються на `NoRoute`. Категорія SCAM/DUST/DEAD TOKEN/NFT сама по собі не дозволяє burn. Після невизначеного send результату відновлення перевіряє вже збережену signature, а не повторює транзакцію.
+## Webview and providers
 
-## Зберігання та зовнішні дані
+Local assets are allowlisted; wallet metadata cannot select arbitrary media URLs. Backend credentials stay in process environment, never `VITE_*`. The frontend does not choose RPC/provider endpoints. CSP and capability configuration should be reviewed when adding network/media features.
 
-Secrets не записуються у browser storage, аналітику, DTO або signature journal. Налаштування RPC, Jupiter та DAS надходять із backend environment, без `VITE_*`. Provider endpoint не задається через frontend IPC. Devnet не використовує mainnet market/risk/routing records.
+Pricing/risk/routing are network-scoped. Devnet does not receive mainnet observations. Missing evidence is not zero, suspicious status or NoRoute. Synthetic fixture observations are excluded from live analysis.
 
-Journal зберігає публічні signatures, wallet/network, account, operation, expiry та відомі transaction deltas. OS file lock захищає одночасний доступ. Повні плани, jobs і frontend session живуть у пам'яті; restart не відновлює старий UI report. [Cleanup guide](../../docs/cleanup.md) описує reconciliation та обмеження.
-
-Metadata, reasons та errors відображаються як escaped React text. Довільний HTML і remote artwork/metadata не завантажуються. RPC/provider diagnostics обмежені й не повинні містити credentials. Точні on-chain суми передаються рядками; USD valuations — приблизні числа.
-
-CSP обмежує production assets/scripts локальними джерелами та IPC. Vite dev/preview слухають loopback, забороняють framing і додають заголовки безпеки; development дозволяє потрібні локальні HMR/WebSocket connections. Remote inspector використовується лише локально для документованих перевірок.
-
-Залежності закріплені manifests і lockfiles. Результати dependency audit та native перевірок мають дату й не є гарантією для наступних версій. Поточні виконані перевірки й точний scope наведені у [звіті](../../docs/current-verification.md); чинні функції та обмеження — у [BACKEND_GAPS.md](BACKEND_GAPS.md).
+Native inspector settings in screenshot instructions are for local capture on loopback. Omit them from normal launches. See [current verification](../../docs/current-verification.md), [IPC contract](frontend-contract/README.md) and [integration limitations](BACKEND_GAPS.md).

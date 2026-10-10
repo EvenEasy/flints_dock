@@ -3,10 +3,7 @@
 Core is independent of React/Tauri. CLI and desktop use the same scanner, normalized
 inventory, planner, execution adapters and confirmed transaction accounting.
 
-Для запуску та прикладів CLI дивіться [getting started](getting-started.md) і
-[CLI guide](cli-guide.md). Нижче описано спільні cleanup rules; session/plans,
-Channel, durable journal і автоматичний rescan належать Tauri desktop adapter.
-Фактично виконані поточні перевірки: [current verification](current-verification.md).
+See [getting started](getting-started.md) and [CLI examples](cli-guide.md) for launch instructions. The rules below are shared; saved sessions/plans, Channels, durable journal and automatic rescan belong to the Tauri desktop adapter. Actual completed checks are recorded in [current verification](current-verification.md).
 
 ## One scenario
 

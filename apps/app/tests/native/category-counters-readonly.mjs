@@ -93,11 +93,13 @@ async function screenshot(name) {
     20_000,
   );
   await pause(100);
-  const viewport = await evaluate('({width:innerWidth,height:innerHeight})');
+  const viewport = await evaluate('({width:innerWidth,height:innerHeight,dpr:devicePixelRatio})');
   const result = await command('Page.snapshotRect', {
     x: 0,
     y: 0,
-    ...viewport,
+    // WebKitGTK snapshotRect uses physical pixels at fractional desktop scale.
+    width: Math.round(viewport.width * viewport.dpr),
+    height: Math.round(viewport.height * viewport.dpr),
     coordinateSystem: 'Viewport',
   });
   await writeFile(`${output}/${name}.png`, Buffer.from(result.dataURL.split(',')[1], 'base64'));
@@ -107,10 +109,48 @@ try {
     await until(() => evaluate("Boolean(document.querySelector('.page--welcome'))"), 'welcome');
     await evaluate('document.fonts.ready.then(()=>true)');
     await screenshot('welcome');
-    // Wrap the authentic registered IPC function to capture its DTO; never replace its results.
-    await evaluate(
-      `(()=>{const invoke=window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);window.__nativeCategoryAudit={calls:[],connection:null,analysis:null};window.__TAURI_INTERNALS__.invoke=async(command,payload,options)=>{if(!['connect_wallet','analyze_wallet'].includes(command))throw Error('Unexpected command in scan-only audit: '+command);window.__nativeCategoryAudit.calls.push({command,payload});const result=await invoke(command,payload,options);if(command==='connect_wallet')window.__nativeCategoryAudit.connection=result;if(command==='analyze_wallet')window.__nativeCategoryAudit.analysis=result;return result};return true})()`,
-    );
+    // Tauri's invoke property is immutable. Observe its real transport/callbacks
+    // without replacing any IPC response or accessing signing material.
+    await evaluate(`(()=>{
+      const audit={calls:[],connection:null,analysis:null};
+      window.__nativeCategoryAudit=audit;
+      const callbacks=new Map();
+      const originalGet=Map.prototype.get;
+      const originalStringify=JSON.stringify;
+      const originalFetch=window.fetch.bind(window);
+      const allowed=['connect_wallet','analyze_wallet'];
+      function record(command,payload){
+        if(command==='plugin:__TAURI_CHANNEL__|fetch')return false;
+        if(!allowed.includes(command))throw Error('Unexpected command in scan-only audit: '+command);
+        audit.calls.push({command,payload});return true;
+      }
+      function capture(command,result){
+        if(command==='connect_wallet')audit.connection=result;
+        if(command==='analyze_wallet')audit.analysis=result;
+      }
+      JSON.stringify=function(value,...args){
+        if(value&&typeof value.cmd==='string'&&typeof value.callback==='number'){
+          if(record(value.cmd,value.payload))callbacks.set(value.callback,value.cmd);
+        }
+        return originalStringify.call(this,value,...args);
+      };
+      Map.prototype.get=function(key){
+        const callback=originalGet.call(this,key);
+        const command=originalGet.call(callbacks,key);
+        if(command&&typeof callback==='function')return result=>{capture(command,result);return callback(result)};
+        return callback;
+      };
+      window.fetch=async(input,options)=>{
+        const url=new URL(typeof input==='string'?input:input.url,location.href);
+        if(url.protocol!=='ipc:')return originalFetch(input,options);
+        const command=decodeURIComponent(url.pathname.slice(1));
+        const tracked=record(command,JSON.parse(options.body));
+        const response=await originalFetch(input,options);
+        if(tracked&&response.headers.get('Tauri-Response')==='ok')capture(command,await response.clone().json());
+        return response;
+      };
+      return true;
+    })()`);
     await click('CONNECT WALLET');
     await until(
       () => evaluate("Boolean(document.getElementById('wallet-identity'))"),
@@ -172,7 +212,8 @@ try {
     );
     assert.deepEqual(counter.tile, runtime.counters[0].tile);
   }
-  assert.equal(runtime.mainOverflow, 0);
+  // Fractional DPR can round scrollHeight/clientHeight in opposite directions.
+  assert.ok(runtime.mainOverflow <= 1, `Main overflow: ${runtime.mainOverflow}px`);
   await screenshot('main');
   const details = {};
   for (const key of keys) {

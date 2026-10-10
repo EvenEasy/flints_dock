@@ -1,78 +1,52 @@
-# Desktop integration: реалізоване й обмеження
+# Desktop integration and limitations
 
-Цей файл описує поточні можливості й реальні прогалини. Контракт включає
-analysis, immutable planning, approved execution, job recovery, категорії
-та compressed NFT discovery.
+Current desktop implements analysis, immutable planning, approved execution, job recovery, categories and optional compressed-NFT discovery. See [current verification](../../docs/current-verification.md) for actual checks rather than treating implementation as proof of every live provider scenario.
 
-## Що реалізовано
+## Implemented boundaries
 
-| Можливість          | Поточний backend / frontend                                                                                            |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Identity            | `connect_wallet`, `disconnect_wallet`; public session DTO, signer у Rust                                               |
-| Analysis            | `analyze_wallet`; snapshot, token accounts, classic/pNFT/Core, optional DAS, independent scanner statuses              |
-| Pricing             | Jupiter Price V3 із bounded retry/cache/batching; snapshot valuation лише verified mainnet                             |
-| Категорії           | `scam`, `nft`, `dust`, `dead_token`; count/items/evidence/coverage із core, одна frontend normalization                |
-| Planning            | `prepare_cleanup`; session/network/revision-bound план із expiresAt, actions, reasons та estimates                     |
-| Execution           | `execute_cleanup`; approval збереженого плану, fresh validation/quotes, simulation, preflight, sequential confirmation |
-| NFT cleanup         | Стандарт-aware Metaplex/pNFT/Core/compressed adapters; unsupported targets лишаються видимими                          |
-| Progress / recovery | Typed Tauri Channel; `get_cleanup_job` читає job за job ID або plan ID                                                 |
-| Accounting          | Підтверджені operation receipts і exact signed per-transaction wallet deltas; incomplete metadata позначається окремо  |
-| Durable journal     | Nonsensitive signatures і reconcile uncertain sends, міжпроцесний file lock                                            |
+| Capability        | Backend / frontend                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------------- |
+| Identity          | `connect_wallet`, `disconnect_wallet`; public session DTO, Rust-only signer                              |
+| Analysis          | `analyze_wallet`; snapshot, token accounts, classic/pNFT/Core, optional DAS, independent statuses        |
+| Pricing           | Mainnet Jupiter Price V3 with bounded retry/cache/batching                                               |
+| Categories        | `scam`, `nft`, `dust`, `dead_token`; core evidence/coverage and one frontend normalization               |
+| Planning          | `prepare_cleanup`; immutable session/network/revision-bound plan with expiry/actions/reasons/estimates   |
+| Execution         | `execute_cleanup`; stored-plan approval, fresh validation/quotes, simulation and sequential confirmation |
+| NFT cleanup       | Standard-aware Metaplex/pNFT/Core/compressed adapters; unsupported targets remain visible                |
+| Progress/recovery | Typed Channel; `get_cleanup_job` by job ID or plan ID                                                    |
+| Accounting        | Confirmed receipts and exact signed per-transaction wallet deltas; missing metadata is incomplete        |
+| Journal           | Durable nonsensitive signatures, uncertain-send reconciliation and interprocess file lock                |
 
-Усі шість IPC commands зареєстровано в `src-tauri/src/lib.rs` і дозволено лише
-локальному `main` webview. Frontend не передає endpoints, provider keys, arbitrary
-instructions або transaction bytes. Деталі: [IPC contract](frontend-contract/README.md).
+All six IPC commands are registered in `src-tauri/src/lib.rs` and scoped to the local `main` webview. Frontend requests do not supply endpoints, credentials, arbitrary instructions or transaction bytes. See [IPC contract](frontend-contract/README.md).
 
-## Provider та coverage обмеження
+## Provider and coverage limits
 
-| Сценарій                                  | Поточна поведінка / дія користувача                                                                                                                          |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Devnet / інша verified non-mainnet мережа | Jupiter prices, risk та routing — Unsupported; assets зберігаються. Без надійних observations плитки SCAM/DUST/DEAD TOKEN показують `—`.                     |
-| Тимчасова помилка `getGenesisHash`        | Analysis виконує до 3 спроб з timeout/backoff. Якщо network невідомий, scoped checks — Failed, а не достовірно Unsupported; on-chain inventory лишається.    |
-| DAS не налаштовано                        | Compressed coverage — Unsupported; classic/Core inventory й відомі NFT зберігаються. Порожні classic/Core без compressed coverage не означають повний NFT=0. |
-| DAS не працює або network не збігається   | Failed/Partial diagnostics у NFT coverage; genesis mismatch дає Unsupported. DAS має працювати на тій самій мережі, що RPC.                                  |
-| Malformed `DOCK_FLINTS_DAS_URL`           | **Startup відхиляється** з configuration error. Виправте HTTP(S) URL або приберіть змінну; це відрізняється від відсутнього необов’язкового DAS.             |
-| Неправильний формат `JUPITER_API_KEY`     | Jupiter client вимикається з конкретною помилкою; RPC discovery не вимикається.                                                                              |
-| Provider auth/rate limit/outage           | Bounded retries та statuses; відсутні ціна/risk/route не підміняються zero/SCAM/NoRoute. Доступність keyless endpoint визначає провайдер.                    |
-| Risk record без explicit `audit.isSus`    | Unknown observation. Назва, decimals, authorities чи verification самі по собі не доводять SCAM.                                                             |
-| Великі inventories                        | Routing checks послідовні; analysis/planning можуть тривати довше за невеликий wallet.                                                                       |
+| Scenario                        | Behavior / action                                                                                                                                                                                                                  |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Verified non-mainnet RPC        | Jupiter price/risk/routing are Unsupported; inventory remains available. SCAM/DUST/DEAD show `—` without reliable evidence.                                                                                                        |
+| Transient genesis error         | Up to three bounded attempts; exhausted verification is not verified Unsupported or NoRoute. Independent inventory survives. A current regression expects Failed where actual composed category status is Partial; see the report. |
+| Missing DAS                     | Compressed coverage Unsupported; known classic/Core NFTs remain. Empty classic/Core does not prove total NFT=0.                                                                                                                    |
+| Unavailable/mismatched DAS      | Failure/partial diagnostics; verified genesis mismatch is Unsupported. Use the same network as RPC.                                                                                                                                |
+| Malformed DAS URL               | Startup rejects configuration. Correct the absolute HTTP(S) URL or remove the setting.                                                                                                                                             |
+| Malformed Jupiter key           | Jupiter client is disabled with a concrete reason; RPC discovery remains active.                                                                                                                                                   |
+| Auth/rate limit/outage          | Bounded retries and diagnostics; missing observations do not become zero/SCAM/NoRoute. Keyless availability depends on the provider.                                                                                               |
+| Risk record lacks `audit.isSus` | Unknown; names, decimals, authorities or verification alone are insufficient.                                                                                                                                                      |
+| Large inventories               | Sequential routing can make analysis/planning slow.                                                                                                                                                                                |
 
-`noPrices=true` пропускає valuation; це обмежує DUST coverage, але не блокує NFT
-або routing. Missing price не перетворюється на нуль. DEAD TOKEN вимагає explicit
-NoRoute у записаному provider/time/amount scope. Synthetic observations існують
-для fixture tests; production analysis не читає
-`DOCK_FLINTS_DEVNET_TEST_MANIFEST`.
+`noPrices=true` skips valuation and limits DUST coverage, but does not block NFT/routing. DEAD TOKEN requires explicit NoRoute in recorded provider/time/amount scope. Production analysis does not read `DOCK_FLINTS_DEVNET_TEST_MANIFEST`; synthetic observations are fixture-only.
 
-## Product і runtime межі
+## Product/runtime limits
 
-- Локальний signer — keypair file або raw 32-byte base64 seed. Browser wallets,
-  hardware wallets та Wallet Adapter поки не інтегровані.
-- Keypair file вводиться через absolute path; native file chooser не реалізовано.
-- Arbitrary NFT `imageUri`/`uri` не завантажуються у webview. Для реального artwork
-  потрібен окремий backend image policy/cache/proxy.
-- Dismiss scan ігнорує пізню UI відповідь, але не скасовує backend RPC. Окремої
-  cancellation-команди немає.
-- Plans і повні jobs/reports живуть у пам’яті. Signature journal переживає restart
-  та захищає від повторного uncertain send, але не відновлює старий React session.
-- `HANGAR` не має окремого live swap screen; TOKEN → SOL доступний через cleanup.
-  `MISSIONS` не має backend даних.
-- Збірка desktop executable не створює installer: `bundle.active=false`. Linux
-  native evidence не замінює перевірки macOS/Windows.
+- Local signer only: keypair file or raw 32-byte base64 seed. Browser/hardware wallets and Wallet Adapter are not integrated.
+- File input accepts an absolute path; no native file chooser yet.
+- Arbitrary NFT metadata media are not loaded into the webview. Remote artwork needs a separate backend policy/cache/proxy.
+- Dismiss ignores late UI responses but does not cancel RPC; no cancellation IPC exists.
+- Full plans/jobs/reports remain in memory. Journal survives restart but does not restore React sessions.
+- **HANGAR** has no separate live swap screen; token-to-SOL is available through cleanup. **MISSIONS** has no backend data.
+- Installer bundles are disabled. Linux native evidence does not establish macOS/Windows behavior.
 
-Category membership сама по собі не дозволяє burn. План й execution повторно
-перевіряють identity, ownership, amount, program та придатність операції.
-Provider failure не дозволяє fallback burn; failed swap не перетворюється на burn.
-Окремі unsupported NFT plugins/extensions/proofs описано в
-[cleanup coverage](../../docs/cleanup.md).
+Category membership alone does not authorize destruction. Planning/execution recheck identity, ownership, amount, program and eligibility. Provider errors and failed swaps do not authorize fallback burns. See [NFT/plugin/proof limits](../../docs/cleanup.md).
 
 ## Evidence
 
-Актуальні команди, screenshots і фактично виконані перевірки:
-[current verification](../../docs/current-verification.md),
-[галерея](../../docs/screenshots/README.md).
-Попередні native/devnet/local-validator результати зберігаються як історичні
-матеріали в [desktop verification](docs/desktop-verification.md),
-[devnet verification](../../docs/devnet-cleanup-verification.md) та
-[unified verification](../../docs/unified-cleanup-verification.md).
-Mocked browser E2E, local validator й live devnet scan мають різні джерела даних
-і не підтверджують доступність mainnet Jupiter routes.
+[Current report](../../docs/current-verification.md) and [gallery](../../docs/screenshots/README.md) distinguish real scans from mocks. Earlier [desktop](docs/desktop-verification.md), [devnet](../../docs/devnet-cleanup-verification.md) and [unified](../../docs/unified-cleanup-verification.md) reports are historical. Local validators, mocked browsers and live devnet do not establish mainnet Jupiter route availability.

@@ -17,6 +17,9 @@ xlib.XDefaultRootWindow.restype = ctypes.c_ulong
 xlib.XQueryTree.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.POINTER(ctypes.c_ulong)), ctypes.POINTER(ctypes.c_uint)]
 xlib.XFetchName.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.POINTER(ctypes.c_char_p)]
 xlib.XFree.argtypes = [ctypes.c_void_p]
+xlib.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+xlib.XInternAtom.restype = ctypes.c_ulong
+xlib.XGetWindowProperty.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_long, ctypes.c_long, ctypes.c_int, ctypes.c_ulong, ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.c_void_p)]
 xlib.XResizeWindow.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_uint, ctypes.c_uint]
 xlib.XFlush.argtypes = [ctypes.c_void_p]
 xlib.XCloseDisplay.argtypes = [ctypes.c_void_p]
@@ -29,7 +32,18 @@ def windows(parent, depth=0):
     title = name.value.decode('utf-8', 'replace') if name.value else ''
     if name:
         xlib.XFree(ctypes.cast(name, ctypes.c_void_p))
-    if 'Dock' in title and ('Flint' in title or 'flint' in title):
+    # GTK may expose the application title only in the UTF-8 EWMH property.
+    atom = xlib.XInternAtom(display, b'_NET_WM_NAME', 0)
+    actual_type = ctypes.c_ulong()
+    actual_format = ctypes.c_int()
+    count_bytes = ctypes.c_ulong()
+    remaining = ctypes.c_ulong()
+    value = ctypes.c_void_p()
+    if xlib.XGetWindowProperty(display, parent, atom, 0, 1024, 0, 0, ctypes.byref(actual_type), ctypes.byref(actual_format), ctypes.byref(count_bytes), ctypes.byref(remaining), ctypes.byref(value)) == 0 and value:
+        if actual_format.value == 8:
+            title = ctypes.string_at(value, count_bytes.value).decode('utf-8', 'replace')
+        xlib.XFree(value)
+    if title != 'dock-flints-app' and 'dock' in title.lower() and 'flint' in title.lower():
         yield parent, title
     if depth >= 5:
         return

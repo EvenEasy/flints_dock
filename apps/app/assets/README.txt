@@ -1,24 +1,29 @@
-FLINT’S DOCK — УСЯ МЕДІА З ВІДТВОРЕНОГО МАКЕТА
+FLINT’S DOCK — MEDIA FROM THE RECONSTRUCTED DESIGN
 
-illustrations/ — 3 основні ілюстрації (раптор, орбітальна станція, фінальна сцена).
-brand/ — піратська емблема.
-nfts/ — 9 видимих плиток NFT.
-tokens/ — 7 використаних значків токенів.
-frames/ — 10 декоративних рамок PNG з прозорою серединою + SVG-контейнери.
-icons/base/ — 27 редагованих SVG-іконок, базовий блакитний колір + PNG 96×96.
-icons/used-colors/ — 33 кольорові варіанти, які реально використовуються в XML, SVG + PNG 96×96.
-fonts/ — 2 шрифти Nimbus Sans Narrow (Regular/Bold), використані в HTML, і ліцензія.
-styles/ — точні CSS-стилі зоряного фону, градієнтів кнопок, світіння, кольорів та фасок.
-reference/ — вихідна PNG-дошка, відтворена дошка та XML-специфікація.
-manifest.json — розміри, координати джерела, типи ресурсів і прив’язки до XML.
+illustrations/ — three principal illustrations: raptor, orbital station and success scene.
+brand/ — pirate emblem.
+nfts/ — nine sample NFT thumbnails.
+tokens/ — seven sample token icons.
+frames/ — ten transparent-center PNG frames and raster-containing SVG wrappers.
+icons/base/ — editable functional SVG icons and 96×96 PNG derivatives.
+icons/used-colors/ — color variants used by the XML, in SVG and PNG.
+fonts/ — Nimbus Sans Narrow Regular/Bold and its original license notice;
+          Roboto Condensed has its own SIL OFL notice.
+styles/ — reference CSS effects: stars, gradients, glow and bevels.
+reference/ — original/reconstructed boards and XML specification.
+manifest.json — dimensions, source coordinates, resource types and XML mappings.
+art/ — active generated reconstructions and resized PNGs; see art/README.md.
 
-Зображення витягнуто з тієї ж дошки, яка була вбудована у HTML. Це цифрові
-ілюстрації, не фотографії. Роздільність відповідає вихідному зображенню;
-окремих більших оригіналів ілюстрацій у цьому макеті не було.
-Растрова емблема й NFT мають оригінальне тло; це не нові прозорі вирізи.
-Рамки мають прозору середину, як у SVG-масці HTML. SVG рамки містить растр;
-SVG іконки — редаговані векторні контури.
-Повний космічний фон, градієнти, рамкові фаски й світіння створюються кодом,
-тому CSS додано як ресурс. Кнопки й таблиці не є растровими зображеннями.
-Arial для статус-бара є системним шрифтом і окремо не додається.
-Шрифти Nimbus — фактична заміна в створеному HTML, не оригінальні шрифти арту.
+Legacy raster images were extracted from the board embedded in the reference
+HTML. They are digital illustrations; higher-resolution separate source layers
+were not supplied. The raster emblem and NFT thumbnails retain their source
+background. Frames have transparent centers; SVG frames contain raster media,
+while functional SVG icons contain editable paths. Buttons/tables are code-based.
+Nimbus fonts were substitutes in the reconstructed HTML, not the original art’s
+confirmed fonts. Arial is a system font and is not bundled.
+
+Project source-code licensing does not establish ownership or reuse permission
+for every supplied reference or crop. See ../../../ASSETS_LICENSE.md and
+../../../docs/licensing-audit.md for the exact branded-art inventory, preserved
+third-party font terms and unresolved provenance. Do not infer an Apache-2.0
+license for third-party logos or unverified reference resources.

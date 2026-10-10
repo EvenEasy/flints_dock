@@ -1,18 +1,18 @@
 # Flint’s Dock
 
-Flint’s Dock аналізує Solana-гаманець і готує план повернення SOL із token accounts. Проєкт містить desktop-застосунок на React + Tauri 2 та Rust CLI. Обидва використовують спільне ядро для discovery, класифікації, swap, burn, close і перевірки результатів.
+Flint’s Dock analyzes Solana wallets and prepares plans to recover SOL from token accounts. The React/Tauri 2 desktop application and Rust CLI share a core for discovery, classification, swap, burn, close and result verification.
 
-Scan і підготовка плану працюють у режимі читання. Виконання потребує локального signer та явного погодження показаних дій. Native SOL залишається в гаманці для комісій; підтримувані NFT обробляють окремі Metaplex/Core/Bubblegum adapters.
+Scanning and planning are read-only. Execution requires a local signer and explicit approval of the displayed actions. Native SOL remains available for fees; supported NFTs use separate Metaplex/Core/Bubblegum adapters.
 
-![Головний екран Flint’s Dock у design preview](docs/screenshots/preview/main.png)
+![Flint’s Dock main screen in design preview](docs/screenshots/preview/main.png)
 
-*Design preview із демонстраційними значеннями. [Галерея](docs/screenshots/README.md) окремо позначає preview та реальний read-only devnet scan.*
+_Design preview with sample values. The [gallery](docs/screenshots/README.md) distinguishes preview images from live read-only devnet captures._
 
-## Швидкий старт
+## Quick start
 
-Потрібні Rust/Cargo та Node.js у діапазоні з [package.json](apps/app/package.json): `^22.22.2 || ^24.15.0 || >=26.0.0`. Для native desktop також потрібні системні залежності Tauri; подробиці — у [desktop README](apps/app/README.md).
+Install Rust/Cargo and Node.js matching [package.json](apps/app/package.json): `^22.22.2 || ^24.15.0 || >=26.0.0`. Native desktop also requires Tauri system dependencies; see the [desktop README](apps/app/README.md).
 
-Із кореня репозиторію запустіть desktop на devnet:
+From the repository root, launch desktop on devnet:
 
 ```bash
 cd apps/app
@@ -21,15 +21,15 @@ export DOCK_FLINTS_RPC_URL=https://api.devnet.solana.com
 npm run desktop
 ```
 
-У вікні **DOCK A WALLET** оберіть **Public key (read only)** та вставте тестову адресу:
+In **DOCK A WALLET**, select **Public key (read only)** and enter:
 
 ```text
 9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv
 ```
 
-Це public address локального `dev/demo-wallet.json`. Для документації достатньо public key; файл ключів не входить до матеріалів.
+This is the public address of the local `dev/demo-wallet.json`. The documentation workflow needs only the public key; signing material is not included in the documentation.
 
-Read-only CLI scan із кореня репозиторію:
+Read-only CLI scan from the repository root:
 
 ```bash
 cargo run --locked -- scan \
@@ -38,31 +38,32 @@ cargo run --locked -- scan \
   --all --all-tokens --no-prices --details --include-empty --format json
 ```
 
-Для перегляду дизайну в браузері запустіть `npm run dev` у `apps/app` та відкрийте `http://127.0.0.1:1420/?preview=1`. Browser preview показує приклади екранів; реальне підключення гаманця й analysis працюють через Tauri IPC у desktop-вікні.
+For browser design preview, run `npm run dev` in `apps/app` and open `http://127.0.0.1:1420/?preview=1`. Real wallet connection and analysis require Tauri IPC in the desktop window.
 
-## Що показує аналіз
+## Analysis results
 
-- SOL, legacy SPL/Token-2022 accounts, fungible holdings, Unknown assets і підтверджені classic/programmable/MPL Core NFT.
-- Desktop-плитки **SCAM**, **NFT**, **DUST**, **DEAD TOKEN** використовують один category result для числа й списку деталей. Лічильник містить лише число або `—`; complete-zero дає `0`, partial із відомими items показує кількість знайденого, partial без items дає `—`. Причини й coverage відкриваються в деталях.
-- Holdings агрегуються за mint + token program із збереженням усіх backing accounts. Повторені accounts/NFT IDs не додають активів до лічильників. Категорії можуть перетинатися.
-- Невідома ціна залишається невідомою. SCAM потребує явного suspicious signal із джерелом; DUST — достовірної оцінки ненульового holding; DEAD TOKEN — підтвердженого, scoped NoRoute. Ці категорії самі не дозволяють burn.
-- Jupiter pricing/risk/routing працюють лише для підтвердженої mainnet. На devnet можливі `—` із конкретною причиною. Помилка provider не прибирає вже знайдені on-chain assets.
-- Desktop і cleanup можуть використовувати network-matched `DOCK_FLINTS_DAS_URL` для compressed NFT. Без DAS відомі classic/Core NFT залишаються видимими, але загальний NFT total може бути неповним. Standalone CLI `scan --cnfts` наразі не перелічує compressed inventory.
+- SOL, legacy SPL/Token-2022 accounts, fungible holdings, Unknown assets and verified classic/programmable/MPL Core NFTs.
+- **SCAM**, **NFT**, **DUST** and **DEAD TOKEN** use one category result for both the counter and details. Counters contain only a number or `—`. Complete-empty results show `0`; partial results with known items show the number found; empty partial results show `—`. Reasons and coverage appear in details.
+- Holdings aggregate by mint + token program and retain backing accounts. Repeated accounts/NFT IDs do not increase category counts. Categories can overlap.
+- Unknown prices remain unknown. SCAM requires an explicit suspicious signal with a source; DUST requires reliable valuation of a nonzero holding; DEAD TOKEN requires a confirmed, scoped NoRoute. Category membership does not authorize a burn.
+- Jupiter pricing/risk/routing are used only on verified mainnet. Devnet may show `—` with specific reasons. Provider failures preserve independently discovered on-chain assets.
+- Desktop analysis and cleanup can use matching-network `DOCK_FLINTS_DAS_URL` for compressed NFTs. Without DAS, classic/Core NFTs remain visible, but total NFT coverage may be incomplete. Standalone CLI `scan --cnfts` does not yet enumerate compressed inventory.
 
-Rust читає успадковані environment variables; `.env` автоматично не завантажується. CLI передає RPC через `--rpc-url`; desktop — через `DOCK_FLINTS_RPC_URL`. [Backend configuration](apps/app/backend.env.example) описує Jupiter, DAS, dust threshold і signature journal. Credentials залишаються в backend, не у `VITE_*`.
+Rust reads inherited environment variables; `.env` is not loaded automatically. CLI selects RPC with `--rpc-url`; desktop uses `DOCK_FLINTS_RPC_URL`. [Backend configuration](apps/app/backend.env.example) lists Jupiter, DAS, dust threshold and journal settings. Credentials stay in the backend, outside `VITE_*`.
 
-## Документація
+## Documentation
 
-| Матеріал | Для чого |
-| --- | --- |
-| [Початок роботи](docs/getting-started.md) | Вибрати режим, запустити, просканувати devnet і прочитати результат |
-| [CLI: команди та приклади](docs/cli-guide.md) | Scan selection, JSON, read-only cleanup preview, quote і execution |
-| [Desktop: запуск і користування](apps/app/README.md) | Системні залежності, UI flow, налаштування й Tauri build |
-| [Скріншоти](docs/screenshots/README.md) | Екрани з описами та походженням даних |
-| [Поточна перевірка](docs/current-verification.md) | Команди, результати, реальний devnet evidence та обмеження |
-| [Повний індекс](docs/README.md) | Архітектура, контракти, cleanup/NFT coverage та історичні звіти |
+| Guide                                                | Purpose                                                              |
+| ---------------------------------------------------- | -------------------------------------------------------------------- |
+| [Getting started](docs/getting-started.md)           | Launch desktop/browser/CLI, scan devnet and interpret results        |
+| [CLI commands and examples](docs/cli-guide.md)       | Scan selection, JSON, read-only planning, quote and execution        |
+| [Desktop usage](apps/app/README.md)                  | System dependencies, UI workflow, configuration and Tauri build      |
+| [Screenshots](docs/screenshots/README.md)            | Screens, captions and capture provenance                             |
+| [Current verification](docs/current-verification.md) | Actual checks, live devnet evidence and limitations                  |
+| [Troubleshooting](docs/troubleshooting.md)           | Build, network, provider and coverage issues                         |
+| [Documentation index](docs/README.md)                | Architecture, contracts, cleanup/NFT coverage and historical reports |
 
-## Структура та перевірки
+## Repository and checks
 
 ```text
 crates/core/                Rust core, use cases, Solana/Jupiter adapters
@@ -73,7 +74,7 @@ apps/app/frontend-contract/ typed TypeScript IPC boundary
 docs/                      guides, reports, fixtures, screenshot materials
 ```
 
-Із кореня:
+From the repository root:
 
 ```bash
 cargo fmt --all --check
@@ -82,7 +83,7 @@ cargo test --workspace --locked
 cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 ```
 
-У `apps/app`:
+In `apps/app`:
 
 ```bash
 npm run check
@@ -90,4 +91,10 @@ npm run test:e2e
 npm run desktop:build
 ```
 
-E2E/fixtures, native IPC і live RPC перевіряються окремо; актуальні результати наведені у [звіті](docs/current-verification.md).
+Browser fixtures, registered native IPC and live RPC are separate evidence sources. See the [current report](docs/current-verification.md) for completed checks and failures.
+
+## Licensing
+
+Project source code is licensed under [Apache License 2.0](LICENSE), allowing use, modification and redistribution, including commercial use, with the required notices. Attribution appears in [NOTICE](NOTICE).
+
+The [listed branded graphical assets](ASSETS_LICENSE.md) have separate terms and are excluded from the code license. [BRANDING.md](BRANDING.md) explains using an independent name and branding for forks without implying official status or endorsement. Third-party resources retain their own licenses and notices. See the [licensing audit](docs/licensing-audit.md) for provenance that remains unverified.

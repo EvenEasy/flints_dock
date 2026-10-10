@@ -1,6 +1,6 @@
-# CLI: команди та приклади
+# CLI commands and examples
 
-Команди виконуються з кореня репозиторію. Cargo за замовчуванням запускає пакет `dock_flints`; готовий release binary має шлях `target/release/dock_flints`.
+Commands run from the repository root. Cargo defaults to package `dock_flints`; the release binary is `target/release/dock_flints`.
 
 ```bash
 cargo run --locked -- --help
@@ -10,91 +10,76 @@ cargo run --locked -- quote --help
 cargo run --locked -- swap --help
 ```
 
-## Wallet identity і RPC
+## Wallet identity and RPC
 
-Кожна команда приймає рівно один із `--pubkey`/`-p`, `--keypair`, `--seed`.
+Each command accepts exactly one of `--pubkey`/`-p`, `--keypair` or `--seed`.
 
-| Input                                  | Призначення                                                                                             |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `--pubkey ADDRESS`                     | Read-only identity; scan, quote і cleanup preview                                                       |
-| `--keypair /absolute/path/wallet.json` | Локальний Solana JSON keypair; address виводиться локально; signing доступний лише в execution commands |
-| `--seed BASE64`                        | Рівно 32 raw Ed25519 bytes у base64; це не mnemonic і не 64-byte keypair                                |
+| Input                                  | Purpose                                                                          |
+| -------------------------------------- | -------------------------------------------------------------------------------- |
+| `--pubkey ADDRESS`                     | Read-only identity for scan, quote and cleanup preview                           |
+| `--keypair /absolute/path/wallet.json` | Local Solana JSON keypair; signing is used only by execution commands            |
+| `--seed BASE64`                        | Exactly 32 raw Ed25519 bytes in base64; neither a mnemonic nor a 64-byte keypair |
 
-Для read-only прикладів використовуйте public address. Keypair також працює зі `scan`, який нічого не підписує. Secret CLI arguments можуть потрапити у shell history/process list, тому для signer workflow зручніше використовувати файл.
+Prefer public addresses for read-only examples. Scan can also derive identity from a keypair without signing. Secret command arguments can appear in shell history/process listings; a file is preferable for signer workflows.
 
-CLI RPC передається через `--rpc-url`/`-r`; default — `https://api.mainnet.solana.com`. `DOCK_FLINTS_RPC_URL` налаштовує desktop, а не CLI. `--timeout-seconds` обмежує один RPC request, default `30`, allowed `1…300`; retries можуть подовжити загальну тривалість.
-
-Налаштуємо змінні з публічними даними для наступних прикладів:
+CLI uses `--rpc-url`/`-r`, default `https://api.mainnet.solana.com`. `DOCK_FLINTS_RPC_URL` configures desktop, not CLI. `--timeout-seconds` defaults to `30`, accepts `1…300`, and limits an individual RPC request; retries can extend total duration.
 
 ```bash
 DEMO_WALLET=9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv
 DEVNET_RPC=https://api.devnet.solana.com
 ```
 
-## Read-only scan
-
-SOL balance:
+## Read-only scanning
 
 ```bash
+# Native SOL
 cargo run --locked -- scan --pubkey "$DEMO_WALLET" \
   --rpc-url "$DEVNET_RPC" --balance --no-prices
-```
 
-Fungible та Unknown tokens, із backing accounts і точними raw amounts:
-
-```bash
+# Fungible/Unknown assets with backing accounts and exact raw amounts
 cargo run --locked -- scan --pubkey "$DEMO_WALLET" \
   --rpc-url "$DEVNET_RPC" --tokens --no-prices --details --show-mint
-```
 
-Повний raw token-account view, включно з empty accounts і NFT backing accounts:
-
-```bash
+# Raw token accounts, including empty and NFT backing accounts
 cargo run --locked -- scan --pubkey "$DEMO_WALLET" \
   --rpc-url "$DEVNET_RPC" --all-tokens --no-prices --details --include-empty
-```
 
-Classic/programmable/MPL Core NFT:
-
-```bash
+# Classic, programmable and uncompressed MPL Core NFTs
 cargo run --locked -- scan --pubkey "$DEMO_WALLET" \
   --rpc-url "$DEVNET_RPC" --nfts --no-prices --details --show-mint
-```
 
-Зберегти read-only результат у локальний JSON:
-
-```bash
+# Save a complete selected inventory view as JSON
 cargo run --locked -- scan --pubkey "$DEMO_WALLET" \
   --rpc-url "$DEVNET_RPC" --all --all-tokens --no-prices \
   --details --include-empty --format json > /tmp/flints-devnet-scan.json
 ```
 
-JSON stdout не змішується з `--verbose` diagnostics на stderr. Наведений файл — місце для нового локального scan; він не замінює збережений evidence зі [звіту](current-verification.md).
+JSON stdout is separate from `--verbose` diagnostics on stderr. This local output is a new scan, separate from saved [verification evidence](current-verification.md).
 
-| Flag                           | Що вибирає/змінює                                                                |
+| Flag                           | Selection / effect                                                               |
 | ------------------------------ | -------------------------------------------------------------------------------- |
 | `--balance`                    | Native SOL                                                                       |
-| `--tokens`                     | Fungible SPL/Token-2022 й Unknown; verified NFT виключені                        |
-| `--all-tokens`                 | Один рядок на raw token account; перетинається із semantic views                 |
-| `--nfts`                       | Classic, programmable й uncompressed Core NFT                                    |
-| `--cnfts`                      | RPC-only compressed capability result; enumeration у standalone scan ще відсутня |
-| `--all`                        | SOL + tokens + nfts + cnfts; raw `--all-tokens` треба додати явно                |
-| `--no-prices`                  | Не викликає pricing provider                                                     |
-| `--include-empty`              | Показує zero-balance token asset rows                                            |
-| `--details`                    | Raw amounts, decimals, accounts, mint/metadata й account summary                 |
-| `--show-mint` / `--show-price` | Full IDs / unit prices у таблиці                                                 |
-| `--format table\|json`         | Table default або structured JSON                                                |
-| `--verbose` / `-v`             | Scanner diagnostics на stderr                                                    |
+| `--tokens`                     | Fungible SPL/Token-2022 and Unknown; verified NFTs excluded                      |
+| `--all-tokens`                 | One row per raw token account; overlaps semantic views                           |
+| `--nfts`                       | Classic, programmable and uncompressed Core NFTs                                 |
+| `--cnfts`                      | RPC-only compressed capability result; standalone enumeration is not implemented |
+| `--all`                        | SOL + tokens + nfts + cnfts; add `--all-tokens` explicitly for raw accounts      |
+| `--no-prices`                  | Disable pricing requests                                                         |
+| `--include-empty`              | Include zero-balance asset rows                                                  |
+| `--details`                    | Raw amounts, decimals, accounts, metadata and account summary                    |
+| `--show-mint` / `--show-price` | Full IDs / unit prices in tables                                                 |
+| `--format table\|json`         | Table default or structured JSON                                                 |
+| `--verbose` / `-v`             | Scanner diagnostics on stderr                                                    |
 
-Без selection flags scan використовує `--all`. Flags комбінуються; `--all` задає всі semantic categories, але не додає raw view автоматично. Сумісний shorthand `cargo run -- -p ADDRESS --tokens` також збережено.
+With no selection flags, scan uses `--all`. Flags combine. The compatible shorthand `cargo run -- -p ADDRESS --tokens` is retained.
 
-Confirmed fungibles агрегуються за mint/program; Unknown залишаються видимими, NFT не потрапляють у fungible pricing. Назва токена, decimals `0` чи balance `1` самі не підтверджують NFT. Default output приховує zero-balance asset rows. Навіть без `--include-empty`, `--details` JSON зберігає повний `discovered_accounts` inventory.
+Confirmed fungibles aggregate by mint/program; Unknown assets remain visible. Name, decimals `0` or balance `1` alone do not prove NFT status. NFT/Unknown assets do not receive fungible valuations. Default output hides zero-balance rows, but `--details` JSON retains full `discovered_accounts` even without `--include-empty`.
 
-## JSON і status
+## JSON and status
 
-CLI `scan` повертає `wallet` і тільки вибрані category objects: `sol`, `tokens`, `all_tokens`, `nfts`, `cnfts`. Кожен містить `status` і можливий `reason`. Цей terminal JSON відрізняється від Tauri `WalletAnalysis` DTO із frontend-категоріями `scam`, `nft`, `dust`, `dead_token`.
+CLI scan returns `wallet` and selected objects `sol`, `tokens`, `all_tokens`, `nfts`, `cnfts`, each with `status` and optional `reason`. This differs from Tauri `WalletAnalysis`, which includes the UI categories `scam`, `nft`, `dust`, `dead_token`.
 
-Приклад форми SOL-only JSON, із умовними значеннями:
+Example SOL-only shape, with illustrative values:
 
 ```json
 {
@@ -110,29 +95,27 @@ CLI `scan` повертає `wallet` і тільки вибрані category obj
 }
 ```
 
-Raw token amounts і агреговані суми — decimal strings. Інші CLI `u64` JSON fields потребують integer-aware parser. Prices/USD — approximate numbers або `null`; missing quote ніколи не стає `0`.
+Raw token amounts and aggregates are decimal strings. Other CLI `u64` fields need an integer-aware JSON parser. Prices/USD are approximate numbers or `null`; missing quotes do not become zero.
 
-Scan exit code `0` означає, що хоча б одна вибрана SOL/token/NFT category дала complete або partial usable result. Це не гарантує повне coverage всіх categories. Code `2` означає, що usable result немає; JSON status/reason все одно доступні. Invalid input чи інші errors обробляє CLI error path.
+Scan exit `0` means at least one selected SOL/token/NFT category produced a complete or partial usable result. It does not guarantee complete coverage. Exit `2` means no usable result; JSON reasons remain available. Invalid input uses the CLI error path.
 
-Standalone `scan --cnfts` зараз повертає `historical_index_required`, `items: null` та exit `2`. `[]` означав би неправдиве підтвердження порожнього compressed inventory. `DOCK_FLINTS_DAS_URL` використовується desktop analysis і complete cleanup planner; він наразі не додає enumeration до standalone CLI scan.
+Standalone `scan --cnfts` currently returns `historical_index_required`, `items: null` and exit `2`. It does not call DAS or read `DOCK_FLINTS_DAS_URL`. Desktop analysis and cleanup planning support DAS; an empty standalone cNFT result must not be inferred.
 
-## Pricing і provider scope
+## Pricing scope
 
-CLI scan викликає Jupiter pricing тільки коли потрібна оцінка, pricing не вимкнено, RPC genesis підтверджує mainnet і задано `JUPITER_API_KEY`. Наявна `.env` автоматично не завантажується. На devnet використовуйте `--no-prices`; mainnet ціни не підставляються до devnet holdings.
-
-Для mainnet налаштуйте API key у environment запуску та вкажіть public mainnet wallet:
+CLI scan calls Jupiter pricing only when valuation is needed, pricing is enabled, RPC genesis verifies mainnet and `JUPITER_API_KEY` is nonempty. `.env` is not loaded automatically. Devnet holdings do not receive mainnet prices.
 
 ```bash
-# MAINNET_WALLET має містити public address; JUPITER_API_KEY уже задано в environment
+# MAINNET_WALLET is a public mainnet address; API key is already in the environment
 cargo run --locked -- scan --pubkey "$MAINNET_WALLET" \
   --rpc-url https://api.mainnet.solana.com --tokens --show-price --format json
 ```
 
-SOL-only pricing запитує SOL. NFT-only scan не конструює price provider. Pricing failures не скасовують blockchain inventory. NFT/Unknown assets не отримують fungible valuations. Детальні provider boundaries — у [desktop configuration](../apps/app/README.md) та [swaps](swaps.md).
+SOL-only valuation requests SOL; NFT-only scan does not construct a price provider. Pricing failure preserves blockchain inventory. See [desktop configuration](../apps/app/README.md) and [swaps](swaps.md) for provider differences.
 
 ## Read-only cleanup preview
 
-На документаційному devnet-гаманці використовуйте тільки preview:
+Use only preview on the documentation devnet wallet:
 
 ```bash
 cargo run --locked -- cleanup --pubkey "$DEMO_WALLET" \
@@ -140,33 +123,29 @@ cargo run --locked -- cleanup --pubkey "$DEMO_WALLET" \
   > /tmp/flints-devnet-cleanup-plan.json
 ```
 
-`cleanup` без `--execute` також preview. JSON містить `mode: "dry_run"`, `transactions_submitted: 0` і план. RPC/provider запити можуть знадобитися для побудови плану, але signing/send не відбуваються.
+Without `--execute`, cleanup is also preview. JSON includes `mode: "dry_run"`, `transactions_submitted: 0` and the plan. Planning can read RPC/providers but does not sign or submit.
 
-| Selection option     | Scope                                                     |
-| -------------------- | --------------------------------------------------------- |
-| `--account ADDRESS`  | Вибрані token accounts; repeatable                        |
-| `--ignore-mint MINT` | Зберегти всі backing accounts цього mint, включно з empty |
-| `--asset ID`         | Standalone NFT IDs; classic NFT ID — mint                 |
-| `--ignore-asset ID`  | Захист Core/compressed ID                                 |
+| Selection            | Scope                                                            |
+| -------------------- | ---------------------------------------------------------------- |
+| `--account ADDRESS`  | Selected token accounts; repeatable                              |
+| `--ignore-mint MINT` | Keep every backing account of the mint, including empty accounts |
+| `--asset ID`         | Standalone NFT IDs; classic NFT ID is the mint                   |
+| `--ignore-asset ID`  | Protect Core/compressed IDs                                      |
 
-Swap/burn/close eligibility визначає backend із fresh evidence. Unsupported network не перетворюється на NoRoute. Structural routing unavailability може дати окремо пояснений burn/close plan; виконання такого плану потребує approval. [Cleanup guide](cleanup.md) пояснює точні правила й NFT limitations.
+Fresh backend evidence determines eligibility. Unsupported network is not NoRoute. Structural routing unavailability may produce a separately explained burn/close plan; execution still requires approval. See [cleanup](cleanup.md).
 
-## Quote, swap і cleanup execution
+## Quote, swap and execution
 
-Ці приклади описують окремий signer workflow; вони не використовуються для документаційного demo-wallet. Jupiter quote/swap орієнтовані на mainnet.
-
-Read-only quote для exact mint/raw amount:
+These are separate signer-workflow examples, not commands executed on the documentation wallet. Jupiter quote/swap are mainnet-oriented.
 
 ```bash
-# MAINNET_WALLET — public mainnet address; це не token symbol
+# Read-only quote: exact mint and raw units, no holding or Price V3 required
 cargo run --locked -- quote --pubkey "$MAINNET_WALLET" \
   --mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v \
   --raw-amount 1000000 --format json
 ```
 
-Для mainnet USDC `1000000` raw units = 1 USDC. Quote отримує маршрут без signing/send, не потребує Price V3 чи фактичного holding. `quote` не має `--rpc-url`; маршрут будує Jupiter.
-
-Execution приклади для власного signer:
+For mainnet USDC, `1000000` raw units equals 1 USDC. `quote` has no `--rpc-url`; Jupiter builds the route. Standalone `swap` does not validate RPC genesis before its provider request; choose matching mainnet RPC yourself.
 
 ```bash
 cargo run --locked -- swap --keypair /absolute/path/to/wallet.json \
@@ -179,11 +158,11 @@ cargo run --locked -- cleanup --keypair /absolute/path/to/wallet.json \
   --ignore-mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v --execute
 ```
 
-Swap показує preview, просить `y`/`yes` і отримує fresh route. Cleanup показує план і просить ввести `cleanup`; погодження включає irreversible burns. `--yes` — явне noninteractive approval, cleanup вимагає також `--execute`. Native SOL потрібний для fees. Default slippage — 50 bps, max price impact — 100 bps, priority fee cap — 1,000,000 lamports, confirmation timeout — 90 s.
+Swap shows a preview, requests `y`/`yes`, then obtains a fresh route. Cleanup requests `cleanup`; approval includes irreversible burns. `--yes` is explicit noninteractive approval; cleanup also requires `--execute`. SOL is needed for fees. Defaults: 50 bps slippage, 100 bps max price impact, 1,000,000 lamports priority cap, 90 s confirmation timeout.
 
-Після uncertain send CLI повертає signature: перевірте її стан перед новим запуском. Durable cleanup journal і restart reconciliation реалізовані в Tauri desktop; CLI не має persistent desktop journal. Спільні execution rules і ці межі описані в [cleanup](cleanup.md), single-token execution guarantees — у [swaps](swaps.md).
+Reconcile uncertain sends using the returned signature before repeating. The persistent signature journal is a desktop feature; CLI does not use that journal. See [cleanup](cleanup.md) and [single-token swap guarantees](swaps.md).
 
-## Перевірки
+## Checks
 
 ```bash
 cargo fmt --all --check
@@ -192,4 +171,4 @@ cargo test --workspace --locked
 cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 ```
 
-Наявність mock fixtures чи успішного offline test не означає live provider coverage. [Поточний звіт](current-verification.md) відокремлює фактичний devnet scan, UI/IPC checks і решту тестів.
+Offline fixtures do not establish live provider coverage. The [current report](current-verification.md) separates live devnet, UI/IPC checks and test failures.

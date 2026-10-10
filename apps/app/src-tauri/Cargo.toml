@@ -2,6 +2,8 @@
 name = "dock-flints-app"
 version.workspace = true
 edition.workspace = true
+# The desktop package also embeds artwork with separate terms.
+license-file = "../LICENSING.md"
 
 [lib]
 name = "dock_flints_app"

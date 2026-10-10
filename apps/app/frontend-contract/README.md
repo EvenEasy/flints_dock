@@ -1,25 +1,19 @@
 # Local desktop IPC contract
 
-Імпортуйте typed wrappers із `index.ts`. React передає user intent; Rust
-валідує запит, читає chain, зберігає signer/plans і створює транзакції.
-Контракт не є terminal JSON CLI. Exact balances, raw amounts, rent, fees і signed
-deltas передаються decimal strings. USD valuations — approximate numbers.
+Import typed wrappers from `index.ts`. React sends user intent; Rust validates requests, reads chain data, stores signers/plans and creates transactions. This contract differs from CLI terminal JSON. Exact balances, raw amounts, rent, fees and signed deltas are decimal strings; USD valuations are approximate numbers.
 
 ## Registered commands
 
-| Command             | Request                                                                                      | Response / призначення                                               |
-| ------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `connect_wallet`    | `{ request: { source } }`, один `publicKey` / `seed` / `keypairFile`                         | Session ID, public address, sourceKind, canSign                      |
-| `disconnect_wallet` | Без request                                                                                  | Скидає inactive session; active job блокує disconnect                |
-| `analyze_wallet`    | `{ request: { walletAddress, selection?, noPrices? }, progress? }`                           | `WalletAnalysis`: snapshot, categories, independent scanner statuses |
-| `prepare_cleanup`   | `{ request: { sessionId, revision, selection, ignoredMints, ignoredAssetIds? }, progress? }` | Immutable Rust plan: ID, actions, expiry, limits, estimates          |
-| `execute_cleanup`   | `{ request: { sessionId, planId, approval }, progress }`                                     | Existing або newly claimed job з progress/report                     |
-| `get_cleanup_job`   | `{ request: { sessionId, jobId } }` або `{ request: { sessionId, planId } }`                 | Read-only recovery, без повторного send                              |
+| Command             | Request                                                                                      | Response / purpose                                   |
+| ------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `connect_wallet`    | `{ request: { source } }`; one `publicKey` / `seed` / `keypairFile`                          | Session ID, address, sourceKind, canSign             |
+| `disconnect_wallet` | No request                                                                                   | Clear inactive session; active jobs block disconnect |
+| `analyze_wallet`    | `{ request: { walletAddress, selection?, noPrices? }, progress? }`                           | Snapshot, categories, independent scanner statuses   |
+| `prepare_cleanup`   | `{ request: { sessionId, revision, selection, ignoredMints, ignoredAssetIds? }, progress? }` | Immutable plan ID/actions/expiry/limits/estimates    |
+| `execute_cleanup`   | `{ request: { sessionId, planId, approval }, progress }`                                     | Existing or newly claimed job with progress/report   |
+| `get_cleanup_job`   | `{ request: { sessionId, jobId } }` or `{ request: { sessionId, planId } }`                  | Read-only recovery without another send              |
 
-Транспорт використовує camelCase поля DTO; вкладений `CleanupReport` зберігає
-core snake_case keys. Command rejections мають `AppError` envelope:
-`{ code, message, details }`; scanner/provider failure може бути успішно
-отриманим partial `WalletAnalysis`.
+DTO fields use camelCase; nested core `CleanupReport` retains snake_case. Rejections use `{ code, message, details }` AppError envelopes. Provider failures can be represented within a successfully returned partial `WalletAnalysis`.
 
 ## Analysis selection
 
@@ -39,82 +33,40 @@ const result = await analyzeWallet({
 });
 ```
 
-Це приклад read-only виклику в Tauri, а не записаний результат. RPC network
-конфігурується у Rust process environment, не в request. Omitted/empty selection
-вмикає semantic defaults; `allTokens` окремо opt-in. Wallet dialog явно вмикає
-всі п’ять параметрів і prices за замовчуванням.
+This is a read-only Tauri call example, not a recorded result. RPC is configured in Rust environment, not the request. Omitted/empty selection uses semantic defaults; `allTokens` is separately opt-in. The wallet dialog explicitly enables all five fields and prices by default.
 
-`ScanStatus` — tagged union `complete`, `partial`, `unsupported`, `failed`,
-`skipped`; усі стани, крім `complete`, мають `reason`. `AssetList.items=null`
-означає unavailable inventory; `[]` відрізняється від null і читається разом із
-status. `hasUsableResults` говорить про наявні корисні scan data, а не про повну
-успішність усіх провайдерів.
+`ScanStatus` is a tagged union: complete, partial, unsupported, failed, skipped. Every non-complete state carries `reason`. `AssetList.items=null` means unavailable inventory; `[]` differs and must be interpreted with status. `hasUsableResults` is not proof that every provider succeeded.
 
-## Category result і numeric display
+## Categories and numeric display
 
-`WalletAnalysis.categories` містить `network` (genesis hash або `unknown`),
-`dustThresholdUsd`, `providers` та `categories` з ключами **`scam`, `nft`, `dust`,
-`dead_token`**. Кожен `AssetCategory` містить `items`, `count`, `status`,
-`checkedAt`, а також `source`, `network`, `reason`, `coverage`. Items мають
-стабільний `id`, backing `accounts`, evidence/risk і provider scope.
+`WalletAnalysis.categories` contains `network` (genesis hash or `unknown`), `dustThresholdUsd`, `providers`, and `categories` keyed by **scam, nft, dust, dead_token**. Each category contains `items`, `count`, `status`, `checkedAt`, source/network/reason/coverage. Items retain stable IDs, backing accounts, evidence and provider scope.
 
-Дані після IPC проходять `normalizeWalletCategories` у
-`src/features/assets/categoryPresentation.ts`. Воно дедуплікує IDs, об’єднує
-accounts і узгоджує `count` із підтвердженим списком. Compatibility NFT fallback
-працює лише за відсутності `categories.nft` і в одному місці збирає classic,
-Core та compressed items. MainScreen і CategoryDialog читають той самий
-нормалізований category result через `presentCategory`.
+`normalizeWalletCategories` in `src/features/assets/categoryPresentation.ts` deduplicates IDs, merges accounts and aligns count with confirmed items. If the authoritative NFT category is absent, compatibility fallback normalizes classic/Core/compressed discovery in the same place. MainScreen and CategoryDialog consume that result through `presentCategory`.
 
-| Нормалізований category result                                             | Numeric field                                |
-| -------------------------------------------------------------------------- | -------------------------------------------- |
-| Complete + підтверджені items                                              | Число унікальних items                       |
-| Complete + confirmed `count=0`, `items=[]`                                 | `0`                                          |
-| Partial + підтверджені items                                               | Число знайдених items, без `+` або `Partial` |
-| Partial без items                                                          | `—`                                          |
-| Failed / Unsupported / Skipped без збережених items                        | `—`                                          |
-| Missing result, початок scan, undefined/null count без підтверджених items | `—`                                          |
-| Incomplete/failed result зі збереженими підтвердженими items               | Число знайдених items, coverage у деталях    |
+| Normalized evidence                                                 | Numeric field                             |
+| ------------------------------------------------------------------- | ----------------------------------------- |
+| Complete with items                                                 | Unique item count                         |
+| Complete confirmed `count=0`, `items=[]`                            | `0`                                       |
+| Partial with items                                                  | Number found, without words or `+`        |
+| Empty partial                                                       | `—`                                       |
+| Failed / Unsupported / Skipped without retained reliable items      | `—`                                       |
+| Missing result / scan start / missing count without confirmed items | `—`                                       |
+| Incomplete result with retained confirmed items                     | Number found; coverage remains in details |
 
-Status, reason та coverage не є текстом лічильника. Partial number — lower bound.
-Tooltip/accessible description і CategoryDialog пояснюють повноту. Known NFTs
-не губляться через unavailable DAS, pricing або risk. Devnet не використовує
-mainnet ціни, risk records або routes. Реальні DTO та результати плиток дивіться
-в [актуальному звіті](../../../docs/current-verification.md).
+Status/reason/coverage are separate from numeric text. Partial counts are lower bounds. Tooltip/accessible description and details explain coverage. Missing DAS/pricing/risk does not discard known NFTs. Devnet does not use mainnet prices/risk/routes. See [real DTO/tile mappings](../../../docs/current-verification.md).
 
-## Cleanup selection та approval
+## Cleanup selection and approval
 
-Selection: `{mode:'all'}`, `{mode:'none'}` або
-`{mode:'selected', mints?: string[], assetIds?: string[]}`. Порожній `selected`
-означає **none**. React надсилає `assetIds` із canonical inventory; `mints`
-залишаються підтриманими для сумісності. Mint selection розгортається в усі
-backing accounts. Core/cNFT selection використовує asset IDs.
+Selection is `{mode:'all'}`, `{mode:'none'}` or `{mode:'selected', mints?: string[], assetIds?: string[]}`. Empty selected means **none**. React uses canonical asset IDs; mint selection remains supported and expands to all backing accounts. Core/cNFT targets use asset IDs.
 
-`ignoredMints` захищає всі accounts mint; `ignoredAssetIds` — відповідні targets.
-Ignore сильніший за selection. Revision має строго зростати; його зміна
-інвалідує старі plans. План прив’язано до session/wallet/network/revision і має
-120-second lifetime після planning. Expired, stale або signer/network-mismatched
-plans, read-only sessions, empty execution та відсутній action approval
-відхиляються backend незалежно від UI.
+`ignoredMints` protects all accounts of a mint; `ignoredAssetIds` protects corresponding targets. Ignore takes precedence. Revision must increase; selection changes invalidate old plans. Plans are bound to session/wallet/network/revision and expire 120 seconds after planning. Backend rejects stale/expired/mismatched plans, read-only execution, empty execution and missing approvals independently of UI.
 
-`RECOVER SOL` на live cleanup screen погоджує показаний план і викликає
-`executeCleanup`; wrapper передає approval для swap/burn/close. При required burn
-UI показує irreversible notice. Category flags не є action approval.
+Final **RECOVER SOL** approves the displayed plan and calls `executeCleanup` with action approval. Required burns have an irreversible notice. Category flags are not action approvals.
 
-## Progress, recovery, accounting
+## Progress, recovery and accounting
 
-`progressChannel` створює Channel лише за native IPC runtime. Events містять
-sessionId/jobId/sequence, stage, completed/total, operation/account/status.
-Відкидайте foreign session/job та старі sequence. Lost execute reply
-відновлюється через `getCleanupPlanJob`, потім read-only polling job; це не
-причина повторно викликати execute.
+`progressChannel` creates a Channel only in native IPC. Events contain session/job/sequence, stage, completion counts, operation/account/status. Reject foreign IDs and older sequences. Recover lost execution replies with `getCleanupPlanJob` and read-only job polling, not another execute call.
 
-Estimate — gross swap output + recoverable rent перед fees.
-`report.known_net_wallet_lamports` — exact signed wallet delta за transaction
-metadata, включно з fees та confirmed failed transactions.
-`known_swap_net_lamports + known_reclaimed_lamports` не є final net total.
-Перевіряйте `accounting_complete`, job status, operation receipts та unresolved
-signatures перед твердженням про completed result.
+Estimates are gross swap output plus recoverable rent before fees. `report.known_net_wallet_lamports` is the exact signed wallet delta from transaction metadata, including fees and confirmed failures. `known_swap_net_lamports + known_reclaimed_lamports` is not final net recovery. Check `accounting_complete`, job status, receipts and unresolved signatures.
 
-Capabilities — local/main-window only. IPC не дозволяє вибирати provider URL/key,
-інший signer або arbitrary transaction bytes. Backend config та operation limits:
-[desktop README](../README.md), [integration limits](../BACKEND_GAPS.md).
+Capabilities are local/main-window only. IPC does not accept provider URLs/keys, arbitrary signers or transaction bytes. See [desktop configuration](../README.md) and [integration limits](../BACKEND_GAPS.md).
