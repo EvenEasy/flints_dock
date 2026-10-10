@@ -1,4 +1,8 @@
-import type { CleanupPlan, CleanupProgress } from '../../../frontend-contract/cleanup';
+import type {
+  CleanupPlan,
+  CleanupProgress,
+  CleanupPolicy,
+} from '../../../frontend-contract/cleanup';
 import { lamportsToSol } from '../../shared/format';
 import type { WalletAnalysis } from '../../../frontend-contract/types';
 import { Brand, MascotHero, MechanicalPanel } from '../../shared/ui/Design';
@@ -7,6 +11,26 @@ import { AssetRow } from '../assets/AssetRow';
 import { selectableAssets } from '../assets/presentation';
 import { previewAssets } from '../preview/designData';
 import { CategoryNotice, Notice } from '../../shared/ui/Notice';
+
+const skipLabels: Record<string, string> = {
+  ignored_mint: 'Protected mint',
+  not_selected: 'Not selected',
+  unknown_classification: 'Unknown asset kind',
+  nft_unsupported: 'NFT cleanup unsupported',
+  frozen: 'Frozen account',
+  routing_unavailable: 'Routing unavailable on this network',
+  provider_failure: 'Provider unavailable',
+  unsupported_account_extension: 'Unsupported account extension',
+  unsupported_mint_extension: 'Unsupported mint extension',
+  close_authority_mismatch: 'Missing close authority',
+  owner_mismatch: 'Owner changed',
+  mint_unavailable: 'Mint evidence unavailable',
+  invalid_state: 'Invalid account state',
+  native_balance: 'WSOL requires unwrap',
+  insufficient_liquidity: 'Insufficient liquidity',
+  price_impact: 'Price impact exceeds limit',
+  quote_expired: 'Quote expired',
+};
 
 /** Mint intent is expanded into account-scoped actions by the backend; estimates are never receipts. */
 export function CleanupScreen({
@@ -22,6 +46,8 @@ export function CleanupScreen({
   canSign = false,
   onExecute,
   onRetry,
+  policy = 'auto',
+  onPolicyChange,
 }: {
   preview: boolean;
   analysis: WalletAnalysis | null;
@@ -35,6 +61,8 @@ export function CleanupScreen({
   canSign?: boolean;
   onExecute?: () => void;
   onRetry?: () => void;
+  policy?: CleanupPolicy;
+  onPolicyChange?: (policy: CleanupPolicy) => void;
 }) {
   const assets = selectableAssets(analysis);
   const rows = preview ? previewAssets : assets;
@@ -52,14 +80,47 @@ export function CleanupScreen({
           CLEANUP
         </h1>
         <p>Uncheck the assets you want to keep.</p>
+        {!preview && (
+          <label className="type-caption">
+            Cleanup policy{' '}
+            <select
+              aria-label="Cleanup policy"
+              value={policy}
+              onChange={(event) => onPolicyChange?.(event.target.value as CleanupPolicy)}
+              disabled={preparing}
+            >
+              <option value="auto">Auto: swap / no-route burn</option>
+              <option
+                value="explicitDiscard"
+                disabled={
+                  analysis?.categories?.network !==
+                    'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG' &&
+                  plan?.network !== 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG'
+                }
+              >
+                Devnet: discard selected
+              </option>
+            </select>
+          </label>
+        )}
       </header>
       <MechanicalPanel className="asset-manifest">
         <h2 className="manifest-columns">
           <span>ASSET</span>
-          <span>VALUE IN SOL</span>
+          <span>{preview ? 'VALUE IN SOL' : 'SOL ESTIMATE / ACTION'}</span>
         </h2>
         {!preview && (
           <CategoryNotice status={analysis?.tokens?.status ?? analysis?.allTokens?.status} />
+        )}
+        {plan && plan.undecodableAccounts.length > 0 && (
+          <details className="type-caption">
+            <summary>Unreadable accounts: {plan.undecodableAccounts.length}</summary>
+            {plan.undecodableAccounts.map((account) => (
+              <p key={account.address}>
+                {account.address} · {account.reason}
+              </p>
+            ))}
+          </details>
         )}
         <ul className="asset-list" aria-label="Assets to clean up">
           {preview
@@ -82,26 +143,37 @@ export function CleanupScreen({
                   identity={asset.mint}
                   name={asset.name}
                   quantity={asset.quantity}
-                  value={
+                  value={(() => {
+                    const total = (plan?.entries ?? [])
+                      .filter((entry) => entry.mint === asset.mint)
+                      .reduce((sum, entry) => sum + BigInt(entry.expectedOutLamports ?? '0'), 0n);
+                    return total > 0n ? `${lamportsToSol(total.toString())} SOL` : 'NOT ESTIMATED';
+                  })()}
+                  action={
                     plan
-                      ? (() => {
-                          const entries = plan.entries.filter((entry) => entry.mint === asset.mint);
-                          const estimate = entries.reduce(
-                            (total, entry) => total + BigInt(entry.expectedOutLamports ?? '0'),
-                            0n,
-                          );
-                          return estimate > 0n
-                            ? `${lamportsToSol(estimate.toString())} SOL`
-                            : entries.some((entry) => entry.action === 'burn')
-                              ? 'BURN'
-                              : entries.some((entry) => entry.action === 'close')
-                                ? 'CLOSE'
-                                : 'SKIP';
-                        })()
+                      ? [
+                          ...new Set(
+                            plan.entries
+                              .filter((entry) => entry.mint === asset.mint)
+                              .map((entry) => entry.action.toUpperCase()),
+                          ),
+                        ].join(' / ')
                       : preparing
                         ? 'PLANNING'
-                        : 'NOT ESTIMATED'
+                        : undefined
                   }
+                  reason={plan?.entries
+                    .filter((entry) => entry.mint === asset.mint && entry.action === 'skip')
+                    .map((entry) => skipLabels[entry.reasonCode] ?? 'Review required')
+                    .filter((reason, index, all) => all.indexOf(reason) === index)
+                    .join(' · ')}
+                  details={plan?.entries
+                    .filter((entry) => entry.mint === asset.mint)
+                    .map(
+                      (entry) =>
+                        `${entry.account} · ${entry.program} · raw ${entry.rawAmount} · ${entry.reasonCode}: ${entry.reason} · close authority ${entry.closeAuthority ?? 'owner'} · extensions ${[...entry.accountExtensions, ...entry.mintExtensions].join(', ') || 'none'}`,
+                    )
+                    .join(' | ')}
                   selected={!ignoredMints.has(asset.mint)}
                   onToggle={() => onToggleMint(asset.mint)}
                 />
@@ -117,10 +189,17 @@ export function CleanupScreen({
       </MechanicalPanel>
       <MechanicalPanel className="selection-summary">
         <p className="selection-count">
-          SELECTED:{' '}
+          {preview ? 'SELECTED:' : 'Selected assets:'}{' '}
           <strong>
             {selectedCount} {selectedCount === 1 ? 'ASSET' : 'ASSETS'}
           </strong>
+          {!preview && (
+            <span className="account-counts type-caption">
+              Executable accounts: {plan?.executableAccounts ?? '—'}
+              <br />
+              Skipped accounts: {plan?.skippedAccounts ?? '—'}
+            </span>
+          )}
         </p>
         <div className="selection-estimate">
           <p>ESTIMATED RETURN</p>

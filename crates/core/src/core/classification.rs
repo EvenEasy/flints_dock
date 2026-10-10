@@ -39,6 +39,14 @@ pub fn classify(
                 }
             } else if mint.decimals > 0 {
                 AssetKind::Fungible
+            } else if mint.supply > 1
+                && account.raw_amount <= mint.supply
+                && record.and_then(|record| record.nft.as_ref()).is_none()
+            {
+                // SPL zero decimals means indivisible units, not NFT. Multi-unit supply rules out
+                // unique NFT semantics without contradictory TokenStandard/edition evidence.
+                // https://www.metaplex.com/docs/smart-contracts/token-metadata
+                AssetKind::FungibleAsset
             } else {
                 AssetKind::Unknown
             }

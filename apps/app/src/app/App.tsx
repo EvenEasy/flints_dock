@@ -47,6 +47,8 @@ export function App() {
   const lastScreen = useRef({ screen, preview });
   const [address, setAddress] = useState('');
   const [connection, setConnection] = useState<WalletConnection | null>(null);
+  const [cleanupPolicy, setCleanupPolicy] =
+    useState<import('../../frontend-contract/cleanup').CleanupPolicy>('auto');
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [ignoredMints, setIgnoredMints] = useState<ReadonlySet<string>>(
     () => new Set(preview ? previewExcluded : []),
@@ -60,6 +62,7 @@ export function App() {
     !preview && screen === 'cleanup',
     selected,
     ignoredMints,
+    cleanupPolicy,
   );
   const resultAvailable = useRef(false);
 
@@ -125,6 +128,7 @@ export function App() {
         return;
       }
       setConnection(null);
+      setCleanupPolicy('auto');
     }
     resultAvailable.current = false;
     activeRequest.current += 1;
@@ -198,6 +202,7 @@ export function App() {
     lastRequest.current = null;
     reset();
     setConnection(null);
+    setCleanupPolicy('auto');
     resultAvailable.current = false;
     setSessionError(null);
     setAddress('');
@@ -289,6 +294,11 @@ export function App() {
         canSign={connection?.canSign}
         onExecute={() => setDialog('approval')}
         onRetry={cleanup.refresh}
+        policy={cleanupPolicy}
+        onPolicyChange={(policy) => {
+          cleanup.invalidate();
+          setCleanupPolicy(policy);
+        }}
         onPreviewComplete={() => {
           if (preview) navigate('success');
         }}
@@ -349,6 +359,8 @@ export function App() {
           initialAddress={address}
           onConnected={(wallet) => {
             resultAvailable.current = false;
+            cleanup.invalidate();
+            setCleanupPolicy('auto');
             setConnection(wallet);
             setAddress(wallet.walletAddress);
             setSessionError(null);
@@ -396,6 +408,11 @@ export function App() {
       )}
       {dialog === 'approval' && cleanup.plan && (
         <Dialog title="APPROVE CLEANUP" onClose={() => setDialog(null)}>
+          {cleanup.plan.policy === 'explicitDiscard' && (
+            <p className="type-caption">
+              DEVNET DISCARD · No swaps. Only account rent can be recovered.
+            </p>
+          )}
           <p>
             Swap: {cleanup.plan.swapCount} · Close accounts: {cleanup.plan.closeCount}
           </p>

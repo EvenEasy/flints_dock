@@ -1,0 +1,1442 @@
+{
+  "wallet": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+  "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "capturedAt": "2026-10-09T21:33:52+00:00",
+  "transactionsSubmitted": 0,
+  "discovery": {
+    "legacyAccounts": 26,
+    "token2022Accounts": 0,
+    "decodedAccounts": 26,
+    "undecodableAccounts": 0,
+    "mintProgramHoldings": 26,
+    "rpcStatuses": {
+      "classic_nfts": {
+        "status": "complete"
+      },
+      "core_asset_v1": {
+        "status": "complete"
+      },
+      "legacy_tokens": {
+        "status": "complete"
+      },
+      "metaplex_metadata_and_nfts": {
+        "status": "complete"
+      },
+      "mint_metadata": {
+        "status": "complete"
+      },
+      "token_2022": {
+        "status": "complete"
+      }
+    }
+  },
+  "layers": {
+    "rpcDiscoveryAccounts": 26,
+    "coreSnapshotAccounts": 26,
+    "analysisDtoAccounts": 26,
+    "reactSelectableMints": 26,
+    "selectedPlanAssets": 26,
+    "autoPlanEntries": 26,
+    "discardPlanEntries": 26,
+    "accountSetsMatch": true,
+    "rawAmountsMatch": true
+  },
+  "plans": {
+    "auto": {
+      "policy": "auto",
+      "selectedAssets": 26,
+      "executableAccounts": 6,
+      "skippedAccounts": 20,
+      "swapCount": 0,
+      "burnCount": 0,
+      "closeCount": 6,
+      "estimatedSwapLamports": "0",
+      "estimatedReclaimedLamports": "8930640",
+      "canExecute": false
+    },
+    "explicitDiscardPreview": {
+      "policy": "explicitDiscard",
+      "selectedAssets": 26,
+      "executableAccounts": 26,
+      "skippedAccounts": 0,
+      "swapCount": 0,
+      "burnCount": 20,
+      "closeCount": 26,
+      "estimatedSwapLamports": "0",
+      "estimatedReclaimedLamports": "38699440",
+      "canExecute": false
+    }
+  },
+  "categories": {
+    "categories": {
+      "dead_token": {
+        "checkedAt": "1791581632",
+        "count": 0,
+        "coverage": {},
+        "items": [],
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Jupiter routing is mainnet-only",
+        "source": "Jupiter Swap V2",
+        "status": {
+          "reason": "Jupiter routing is mainnet-only",
+          "status": "unsupported"
+        }
+      },
+      "dust": {
+        "checkedAt": "1791581632",
+        "count": 0,
+        "coverage": {},
+        "items": [],
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+        "source": "Jupiter Price V3",
+        "status": {
+          "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+          "status": "unsupported"
+        }
+      },
+      "nft": {
+        "checkedAt": "1791581632",
+        "count": 0,
+        "coverage": {
+          "das": {
+            "reason": "DAS endpoint not configured; compressed NFT inventory unavailable",
+            "status": "unsupported"
+          },
+          "nft_classic": {
+            "status": "complete"
+          },
+          "nft_core": {
+            "status": "complete"
+          }
+        },
+        "items": [],
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+        "source": "Solana / Metaplex / MPL Core / DAS",
+        "status": {
+          "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+          "status": "partial"
+        }
+      },
+      "scam": {
+        "checkedAt": "1791581632",
+        "count": 0,
+        "coverage": {},
+        "items": [],
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Mainnet risk provider unavailable on this network",
+        "source": "Jupiter Tokens V2",
+        "status": {
+          "reason": "Mainnet risk provider unavailable on this network",
+          "status": "unsupported"
+        }
+      }
+    },
+    "dustThresholdUsd": 0.01,
+    "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "providers": {
+      "das": {
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable",
+        "status": "unsupported"
+      },
+      "nft_classic": {
+        "status": "complete"
+      },
+      "nft_core": {
+        "status": "complete"
+      },
+      "pricing": {
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified",
+        "status": "unsupported"
+      },
+      "risk": {
+        "reason": "Mainnet risk provider unavailable on this network",
+        "status": "unsupported"
+      },
+      "routing": {
+        "reason": "Jupiter routing is mainnet-only",
+        "status": "unsupported"
+      },
+      "rpc": {
+        "status": "complete"
+      }
+    }
+  },
+  "accounts": [
+    {
+      "account": "48zXLcu4BPaXow2pTwPiG5MjEfSdQgBSFwwsp17gvWDy",
+      "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "100000000000",
+      "decimals": 6,
+      "supply": "100000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "4YfYZZFedUuQdNrU3GiANC1WQa3xzPvWuNX5L5s7YrRr",
+      "mint": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "10000000000000",
+      "decimals": 6,
+      "supply": "10000000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "5e1KwQRu3hWNDaSYWiWWPv11FagCJy9mQ9857NWXT8BG",
+      "mint": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "10000000000",
+      "decimals": 6,
+      "supply": "10000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "5mHMn28uhLLpr3Kg8MZ4WjRJQwMJvGMHeDZYML1VTCeh",
+      "mint": "3pVH7hgxnSGVD34BH6RbWPnVvigbJRbx8En87NBixMUq",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "79QSGTfbHb8KedRKDarbWD1L6qd9P7byu9Swj31tfYP",
+      "mint": "31jvXrawXfyiQrSzZ1MM93BrD3nkfAV5g4pAFaK8cen7",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "1337000000",
+      "decimals": 6,
+      "supply": "1337000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "8hWkzjzGqyyiMB9r4RP4HoLswqNwSnv8VLzKfMckPGXz",
+      "mint": "144pKjVYj45TRX9nucSgDYRzSDrDzVHqLW93FX8cNEV8",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "91NBGyzjXGpAMJVTPbjv5vYPSrDh2JGyit9NBMfmTA7B",
+      "mint": "BUmvFqdrKUSDztQmVaWYHmAhhUTKN5CtaiQ3VvHVXwQn",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "100000000",
+      "decimals": 6,
+      "supply": "100000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "9j9kdKrRXu3Vsj9S1PixfRb1qvyaLxoidz7gZVWoxjGM",
+      "mint": "8EJyoSfx4TKRrKvULNQy5eLzpnD1h2gwD3yRU1jhqQso",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "10000000000000",
+      "decimals": 6,
+      "supply": "10000000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "A2KWYdLS2j2oSfTJASf5NPP5wFDfrJnHWztuzNYteyEX",
+      "mint": "CAA21Htmj1GLP9XFboMsWXs4HNT9EwpyzyfaDjskLVJZ",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "10000000000",
+      "decimals": 6,
+      "supply": "10000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "AKziFnTWhAG2R9jhEJnir1Ro6ue5bRXRQTyNpmFQPXQf",
+      "mint": "1325cQDpA5cT1qChQrm3Gad8EiPHwGqp7WFW8j3HFrFi",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "BWLjCQ7EwFV29EbLzifjY5oqgmJHwB4sGR3d55zJLHe4",
+      "mint": "8i1GvDWWREw6CdnDHsbXnqE2W3qogMKnutQiJdsLRDHp",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "42069000000",
+      "decimals": 6,
+      "supply": "42069000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "CCdfdTxvtaHuKPfAGzmcKJ1HetmhDuahmS64QDt8DHou",
+      "mint": "6V4RhTQJapM4vk4sL5B3wukXuQQLN4UTijCn5UhJzRiL",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "CQtuwz94BXd6tyiPVUoMQsh2diYbPtEsDnztVYQL14wS",
+      "mint": "4VPfX1iyzRQknTYX15yMg7P3jHBnB2gmAFcxCQU81ha4",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "5000000000000",
+      "decimals": 6,
+      "supply": "5000000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "CgUsynH624kV3Gg2BhKUAkR5kqB5hKjjsxnehZhXEghW",
+      "mint": "CQi8qv2xBpnqRz33FszWHQzEC7g5AsL9yL2LQmqb6YpV",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "100000000000",
+      "decimals": 6,
+      "supply": "100000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "D19PNVXsEFdiM4WJVkmRZEeudVig6hqH3a2K8twAJSjF",
+      "mint": "E861r4hYMLcdCb7CXQ2n2QKSAdXNNMc8DU6JD1BYgBjg",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "DZA37doCKHPv67HynLzVnsyM36phTX8tvmfj9oogFQSA",
+      "mint": "52WWAL2urufggwtmFKoD7upaZvFsh5mAtJg6CVREbvL1",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "42069000000",
+      "decimals": 6,
+      "supply": "42069000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "E2QtBtHGYz3KkgsXPFY1HsAZu3JLBoVibkEU9wvSfD5P",
+      "mint": "CL83rkA4MoXu9TaN3kst7BMHEspAshW7Z5LenaUzsyVo",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "0",
+      "decimals": 6,
+      "supply": "0",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "valid empty close",
+      "auto": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      },
+      "explicitDiscard": {
+        "action": "close",
+        "reasonCode": "empty_account",
+        "reason": "Close empty account"
+      }
+    },
+    {
+      "account": "FsDf5rZBpAqanRuxmy2JEM6zrsET1mAS4WwpcF7aqGt4",
+      "mint": "3KTxE2kjiPCsncgpLoMHoyo4gfd8BgZoQLcsaASAbLmh",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "100000000",
+      "decimals": 6,
+      "supply": "100000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "GWZ4yMRmekQfFKYdRdQVUzVtCoBo3KXMLR2fpcbU5WN2",
+      "mint": "AqqzTM1FqVHnnVpTRrf75RPHwWSeMZB8j7Mgp3YqzPkT",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "420000000",
+      "decimals": 6,
+      "supply": "420000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "GffqW5ww4dQ64rk2xFR1UYQfrFvCxc1gyhAtG14h1rGB",
+      "mint": "7rD7xxsQjQbkjDEUUUTR6BYyJ19r5LeWwe4CBnGVvoyb",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "420000000",
+      "decimals": 6,
+      "supply": "420000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "HFx8JHB62ECiCTYKvFeKc8CCKUHtREYVChr81qcNn7Po",
+      "mint": "C4PrtESQaZMf9CFYJmJCnFYRZgUnpaqQd6e2y1cPj3n6",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "5000000000000",
+      "decimals": 6,
+      "supply": "5000000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "HG7in5oYrY6uEboZg8AsYeMbAZWAhxCqe5GFbeQw3Xq5",
+      "mint": "5Asyp5VyyEGJxopnzS1NkAfk7DeaHX9T7bCJAkUL64pM",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "13000000",
+      "decimals": 6,
+      "supply": "13000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "HWRSqMCURWrtJXxhDmf6LwARAxXEA7C9TuCAi8nCzn9F",
+      "mint": "Hk1d7uMYam1BU8qHgZHmc1PV3oGXsPog5TLkxAecgvL5",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "999999000000",
+      "decimals": 6,
+      "supply": "999999000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "JBpTyV2A9RvVZL2UQmb4xQocYsJc4pbUKi9tKPZthmMG",
+      "mint": "Btnyi3NZ9kV1qXsH2F864mr9aWfFehrz7tTw83V8Lfj6",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "42069000000",
+      "decimals": 6,
+      "supply": "42069000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "S3nHHnjcw9QJ2xyCiFoyweYoe4Wj1ndQxWyd3eMET4D",
+      "mint": "wesnpmyaxpqm7dRbHUrXoKpUrfVUULNYbPM8xEFC3Y1",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "13000000",
+      "decimals": 6,
+      "supply": "13000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    },
+    {
+      "account": "zAYUKMMcPykxzKBroNxrkRrCNaUY8eQA8DjknUSuHLg",
+      "mint": "94e6pYCFcfA793rgYzQ2hYNHgDNHbPq7uuJymqrf54Ka",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+      "rawAmount": "5000000000",
+      "decimals": 6,
+      "supply": "5000000000",
+      "kind": "fungible",
+      "state": "Initialized",
+      "isNative": false,
+      "lamports": "1488440",
+      "authorities": {
+        "mint": null,
+        "freeze": null,
+        "close": null,
+        "effectiveClose": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+        "delegate": null,
+        "delegatedAmount": "0"
+      },
+      "extensions": {
+        "account": [],
+        "mint": []
+      },
+      "classificationEvidence": {
+        "matchingRpcMint": true,
+        "matchingDecimals": true,
+        "rule": "positive decimals imply fungible with no contradictory TokenStandard",
+        "tokenStandard": null,
+        "metaplexMetadata": "not present at queried PDA",
+        "metadataRpcStatus": {
+          "status": "complete"
+        },
+        "editionEvidence": "not applicable: decimals=6, not a zero-decimal NFT candidate",
+        "coreEvidence": "not an MPL Core account",
+        "compressedEvidence": "not provided: devnet DAS is not configured"
+      },
+      "cleanupEligibility": "eligible fungible discard; Auto requires real routing",
+      "auto": {
+        "action": "skip",
+        "reasonCode": "routing_unavailable",
+        "reason": "quote not safely actionable; no burn fallback: Routing unavailable on this network: Jupiter supports mainnet only; routing unavailable on this network"
+      },
+      "explicitDiscard": {
+        "action": "burn",
+        "reasonCode": "explicit_discard",
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible"
+      }
+    }
+  ]
+}

@@ -2,8 +2,45 @@ use crate::{
     core::swap::{SwapLimits, SwapQuote},
     core::*,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
+
+/// Destruction intent is separate from account selection and is saved in the server plan.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum CleanupPolicy {
+    #[default]
+    Auto,
+    ExplicitDiscard,
+}
+
+/// Stable explanations for planner decisions; UI never parses provider error prose.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CleanupReasonCode {
+    EmptyAccount,
+    SwapRoute,
+    NoRoute,
+    ExplicitDiscard,
+    IgnoredMint,
+    NotSelected,
+    OwnerMismatch,
+    CloseAuthorityMismatch,
+    UnsupportedAccountExtension,
+    UnsupportedMintExtension,
+    InvalidState,
+    Frozen,
+    NativeBalance,
+    UnknownClassification,
+    NftUnsupported,
+    MintUnavailable,
+    RoutingUnavailable,
+    ProviderFailure,
+    InsufficientLiquidity,
+    PriceImpact,
+    QuoteExpired,
+    Undecodable,
+}
 
 /// Classify an account into a close, swap, burn or skip path.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -28,6 +65,7 @@ pub struct CleanupEntry {
     pub asset: CleanupAsset,
     pub category: CleanupCategory,
     pub reason: String,
+    pub reason_code: CleanupReasonCode,
     pub quote: Option<SwapQuote>,
 }
 
@@ -40,6 +78,7 @@ pub struct CleanupPlan {
     pub unparsed_accounts: Vec<UnknownAsset>,
     pub summary: CleanupSummary,
     pub selection: CleanupSelection,
+    pub policy: CleanupPolicy,
 }
 
 /// Count planned actions and total estimated swap output and recoverable lamports.
@@ -60,6 +99,7 @@ pub struct CleanupSummary {
 /// Configure account selection, quote retries and transaction execution limits.
 #[derive(Debug, Clone)]
 pub struct CleanupOptions {
+    pub policy: CleanupPolicy,
     pub selection: CleanupSelection,
     pub swap_limits: SwapLimits,
     pub slippage_bps: u16,
@@ -69,6 +109,7 @@ pub struct CleanupOptions {
 impl Default for CleanupOptions {
     fn default() -> Self {
         Self {
+            policy: CleanupPolicy::Auto,
             selection: CleanupSelection::default(),
             swap_limits: SwapLimits::default(),
             slippage_bps: 50,
@@ -136,39 +177,86 @@ pub struct CleanupReport {
 }
 
 /// Return the first reason an account cannot safely follow the supported cleanup flow.
-/// Requires verified fungible semantics, matching decimals and supported extensions.
+/// Nonempty liquidation requires verified fungible semantics, decimals and supported extensions.
+/// Empty closure only requires valid account state, ownership, authority and supported extensions.
 /// Frozen nonempty balances and native-backed balances are excluded.
-pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> {
+pub fn eligibility_issue(
+    asset: &CleanupAsset,
+    wallet: &str,
+) -> Option<(CleanupReasonCode, String)> {
+    use CleanupReasonCode::*;
     let account = &asset.account;
+    let issue = |code, reason: &str| Some((code, reason.to_owned()));
     if account.owner != wallet {
-        return Some("wallet is not token owner".into());
+        return issue(OwnerMismatch, "Wallet is not the token owner");
+    }
+    if account.program_id != account.program.id().to_string() {
+        return issue(InvalidState, "Token program identity is inconsistent");
+    }
+    if account.close_authority.as_deref().unwrap_or(&account.owner) != wallet {
+        return issue(CloseAuthorityMismatch, "Wallet is not the close authority");
+    }
+    if !matches!(account.state.as_str(), "Initialized" | "Frozen") {
+        return issue(InvalidState, "Account is not initialized");
+    }
+    if account
+        .extension_types
+        .iter()
+        .any(|ext| ext != "ImmutableOwner")
+    {
+        return issue(
+            UnsupportedAccountExtension,
+            "Account extensions require an unsupported cleanup flow",
+        );
     }
 
-    // Assess eventual closure authority independently of the current nonzero token balance.
-    let mut empty = account.clone();
-    empty.raw_amount = 0;
-    match crate::core::asset::assess_closure(&empty, wallet) {
-        ClosureAssessment::PotentiallyReclaimable => {}
-        ClosureAssessment::NotReclaimable(reason) | ClosureAssessment::NeedsReview(reason) => {
-            return Some(reason);
-        }
+    // Closing a decoded empty account does not depend on mint supply, metadata or tradability.
+    // In particular, burning the last unit must not make its now-empty source uncloseable.
+    if account.raw_amount == 0 {
+        return None;
     }
-
-    // Exclude NFTs and uncertain classifications from automatic liquidation.
+    if account.state == "Frozen" {
+        return issue(Frozen, "Frozen balance cannot be swapped or burned");
+    }
+    if account.is_native || account.mint == crate::core::asset::WRAPPED_SOL {
+        return issue(
+            NativeBalance,
+            "WSOL requires explicit unwrap; native SOL cannot be burned",
+        );
+    }
+    if asset.kind.is_nft() {
+        return issue(
+            NftUnsupported,
+            "NFT liquidation is unsupported; generic token burn is excluded",
+        );
+    }
     if !asset.kind.is_fungible() {
-        return Some("NFT or unverified classification; cleanup excluded".into());
+        return issue(
+            UnknownClassification,
+            if asset
+                .mint
+                .as_ref()
+                .is_some_and(|mint| mint.decimals == 0 && mint.supply <= 1)
+            {
+                "Zero-decimal single-unit mint needs TokenStandard or verified legacy edition evidence; labels are insufficient"
+            } else {
+                "Classification is unknown; verified fungible evidence is required"
+            },
+        );
     }
     if account.decimals.is_none()
         || asset.mint.as_ref().is_none_or(|mint| {
             mint.mint != account.mint
                 || mint.program != account.program
                 || Some(mint.decimals) != account.decimals
+                || account.raw_amount > mint.supply
         })
     {
-        return Some("mint/decimals unavailable or inconsistent".into());
+        return issue(
+            MintUnavailable,
+            "Mint, supply or decimals are unavailable or inconsistent",
+        );
     }
-
-    // Allow only extensions whose cleanup semantics are explicitly supported.
     if asset.mint.as_ref().is_some_and(|mint| {
         mint.extension_types.iter().any(|ext| {
             !matches!(
@@ -183,26 +271,25 @@ pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> 
             )
         })
     }) {
-        return Some("unsupported mint extension".into());
-    }
-    if !matches!(account.state.as_str(), "Initialized" | "Frozen") {
-        return Some("uninitialized account".into());
-    }
-    if account.raw_amount > 0 && account.state == "Frozen" {
-        return Some("frozen balance cannot be swapped or burned".into());
-    }
-    if account.raw_amount > 0
-        && (account.is_native || account.mint == crate::core::asset::WRAPPED_SOL)
-    {
-        return Some("nonempty WSOL requires explicit unwrap; never burn native SOL".into());
+        return issue(
+            UnsupportedMintExtension,
+            "Mint extensions require an unsupported cleanup flow",
+        );
     }
     None
+}
+
+/// CLI-compatible prose wrapper around structured, operation-aware eligibility.
+pub fn unsupported_reason(asset: &CleanupAsset, wallet: &str) -> Option<String> {
+    eligibility_issue(asset, wallet).map(|(_, reason)| reason)
 }
 
 /// Selection is saved in the approved plan and checked again at execution.
 /// Mint protection wins over account selection, including empty accounts.
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct CleanupSelection {
+    /// IPC NONE is explicit; the CLI empty account allowlist still means ALL.
+    pub none: bool,
     pub accounts: std::collections::BTreeSet<String>,
     pub ignored_mints: std::collections::BTreeSet<String>,
 }
@@ -213,7 +300,9 @@ impl CleanupSelection {
     pub fn skip_reason(&self, account: &TokenAccount) -> Option<&'static str> {
         if self.ignored_mints.contains(&account.mint) {
             Some("mint protected by cleanup exclusion")
-        } else if !self.accounts.is_empty() && !self.accounts.contains(&account.address) {
+        } else if self.none
+            || (!self.accounts.is_empty() && !self.accounts.contains(&account.address))
+        {
             Some("account outside cleanup selection")
         } else {
             None

@@ -49,6 +49,7 @@ credentials in `VITE_*`, frontend files, URLs rendered in the UI, or git.
 | `DOCK_FLINTS_RPC_TIMEOUT_SECONDS` | 30; allowed 1–300 |
 | `JUPITER_API_KEY` | Optional; Rust-only `x-api-key`; keyless access has lower limits |
 | `DOCK_FLINTS_DAS_URL` | Optional HTTP(S) DAS endpoint supporting `getAssetsByOwner` and `getGenesisHash`; credentials stay in Rust |
+| `DOCK_FLINTS_DEVNET_TEST_MANIFEST` | Optional absolute JSON path; explicitly synthetic devnet category observations only |
 | `DOCK_FLINTS_DUST_USD` | `0.01`; finite positive USD dust threshold |
 | `DOCK_FLINTS_JOURNAL_PATH` | `$XDG_DATA_HOME/dock-flints/signatures.json`, falling back to `$HOME/.local/share/dock-flints/signatures.json` |
 
@@ -62,8 +63,13 @@ npm run desktop
 
 The RPC genesis hash determines the actual network. Jupiter prices, risk and
 routes are enabled only for verified mainnet. A devnet RPC does not make Jupiter
-a devnet provider. Devnet can analyze accounts and close eligible empty accounts;
-nonempty accounts cannot be burned merely because mainnet routing is unavailable.
+a devnet provider. Auto cleanup can analyze accounts and close eligible empty
+accounts; nonempty accounts cannot be burned merely because routing is unavailable.
+To discard selected devnet test tokens, choose **Devnet: discard selected** in
+Cleanup, review the burn count and approve the irreversible burn/close dialog.
+ExplicitDiscard is restricted to verified devnet in the desktop and CLI adapters.
+It does not claim those tokens are dead or call Jupiter. A public key remains
+read-only; connect the disposable wallet's seed/keypair to execute.
 DAS must report the same genesis hash as the RPC, or its inventory is unavailable.
 RPC errors redact endpoint URLs; avoid exposing credentials in diagnostics.
 
@@ -85,7 +91,7 @@ mints into actual token accounts. IPC distinguishes `all`, `selected` and `none`
 empty `selected` means none even though the preserved CLI core allowlist semantics
 use an empty list for all. The backend also rejects empty execution.
 
-Selection changes invalidate old plans. `prepare_cleanup` stores a read-only plan
+Selection and action-policy changes invalidate old plans. `prepare_cleanup` stores a read-only plan
 in Rust, bound to wallet/session/network/revision, for 120 seconds after planning.
 The UI shows swap, burn, close and skip actions and estimates before fees. A public
 key can prepare but cannot execute. The existing confirmation dialog explicitly
@@ -96,8 +102,9 @@ maximum priority fee. Each swap re-quotes and preserves the approved minimum.
 
 Execution is sequential. It simulates and uses preflight, verifies token identity,
 amount, program, authorities and supported extensions, confirms operations, checks
-zero balance before close, and returns rent to the owner. A planned burn rechecks
-no-route evidence; failed swaps are never converted to burns. Individual failures
+zero balance before close, and returns rent to the owner. An Auto burn rechecks no-route evidence; ExplicitDiscard rechecks the approved
+on-chain token identity, amount and eligibility without a Jupiter dependency.
+Failed swaps are never converted to burns. Individual failures
 remain in the report. Duplicate execute returns the same job. Wallet changes and
 disconnect are blocked while a job is active.
 
@@ -138,6 +145,15 @@ need their native validation.
   compressed inventory. DAS paginates with bounded retries/timeouts, checks owner
   and burned state, deduplicates IDs and excludes noncompressed records already
   discoverable on chain. A missing/partial DAS scan is not zero NFTs.
+
+For reproducible category demos, explicitly export
+`DOCK_FLINTS_DEVNET_TEST_MANIFEST=/absolute/path/to/docs/fixtures/devnet-observations.example.json`
+before launching desktop. The example contains verified devnet mint IDs with
+**invented, labelled test observations**, not findings about their real risk,
+valuation or liquidity. It changes category observations only: no balances, NFT
+evidence, cleanup plan or swap authorization. Results remain partial and marked
+TEST DATA. Remove the variable for ordinary analysis. Mainnet cannot use this
+provider. NFT coverage separately reports classic, Core and compressed checks.
 
 Counts describe assets, not token accounts. Mint/program holdings aggregate all
 backing accounts; category flags can overlap. Complete checks may display zero;
@@ -186,3 +202,6 @@ transactions to a user’s mainnet wallet.
 Artwork provenance and missing original layers are documented in
 [art inventory](assets/art/README.md). `?diagnostics=art` provides a **dev-only**
 plain-image/component comparison; it is absent from production rendering.
+
+Devnet verification and the complete public-wallet account audit are recorded in
+[devnet cleanup verification](../../docs/devnet-cleanup-verification.md).

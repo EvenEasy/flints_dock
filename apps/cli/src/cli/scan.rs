@@ -108,7 +108,17 @@ impl ScanArgs {
 pub async fn run(args: ScanArgs) -> anyhow::Result<ExitCode> {
     let wallet = args.wallet.resolve()?;
     let options = args.scan_options();
-    let provider = if options.selection.needs_prices() && !options.no_prices {
+    let rpc = args.rpc.client();
+    let prices_requested = options.selection.needs_prices() && !options.no_prices;
+
+    // An endpoint URL is not proof of cluster. Never send another network's mints to Jupiter.
+    // Failed genesis discovery disables valuation, while usable inventory may still be returned.
+    let mainnet =
+        prices_requested
+            && rpc.get_genesis_hash().await.ok().is_some_and(|hash| {
+                hash.to_string() == "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+            });
+    let provider = if prices_requested && mainnet {
         std::env::var("JUPITER_API_KEY")
             .ok()
             .filter(|key| !key.trim().is_empty())
@@ -118,7 +128,7 @@ pub async fn run(args: ScanArgs) -> anyhow::Result<ExitCode> {
         Ok(None)
     };
     let mut portfolio = scan_wallet(
-        &args.rpc.client(),
+        &rpc,
         &wallet.address,
         &options,
         provider.as_ref().ok().and_then(Option::as_ref),
@@ -128,6 +138,14 @@ pub async fn run(args: ScanArgs) -> anyhow::Result<ExitCode> {
         portfolio.scanners.insert(
             "prices".into(),
             crate::core::ScanStatus::Failed(error.to_string()),
+        );
+    }
+    if prices_requested && !mainnet {
+        portfolio.scanners.insert(
+            "prices".into(),
+            crate::core::ScanStatus::Unsupported(
+                "Jupiter valuation is mainnet-only; RPC network is not verified mainnet".into(),
+            ),
         );
     }
     if args.verbose {

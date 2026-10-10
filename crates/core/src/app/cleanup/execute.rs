@@ -10,7 +10,7 @@ fn same_account(expected: &CleanupAsset, actual: &CleanupAsset) -> bool {
         && expected.account.mint == actual.account.mint
         && expected.account.program == actual.account.program
         && expected.account.owner == actual.account.owner
-        && expected.account.decimals == actual.account.decimals
+        && (actual.account.raw_amount == 0 || expected.account.decimals == actual.account.decimals)
 }
 async fn run_entry(
     entry: &CleanupEntry,
@@ -98,15 +98,17 @@ async fn run_entry(
         }
         CleanupCategory::Burnable => {
             // A route may have appeared during a long plan/approval interval.
-            // Only a second explicit NoRoute permits the already-previewed burn.
-            match fresh_route(provider, &request(&current, owner, options)?, options).await {
-                Err(SwapError::NoRoute(_)) => {}
-                Ok(_) => {
-                    return Err(changed(
-                        "a swap route now exists; burn skipped, rebuild plan",
-                    ));
+            // Auto needs a second NoRoute; ExplicitDiscard has independently approved destruction.
+            if options.policy == CleanupPolicy::Auto {
+                match fresh_route(provider, &request(&current, owner, options)?, options).await {
+                    Err(SwapError::NoRoute(_)) => {}
+                    Ok(_) => {
+                        return Err(changed(
+                            "a swap route now exists; burn skipped, rebuild plan",
+                        ));
+                    }
+                    Err(error) => return Err(error),
                 }
-                Err(error) => return Err(error),
             }
             result.operations.push(
                 executor
@@ -185,6 +187,11 @@ pub async fn execute_plan_observed(
     observer: &dyn crate::core::progress::CleanupObserver,
 ) -> Result<CleanupReport> {
     let owner = signer.pubkey();
+    if plan.policy != options.policy {
+        return Err(changed(
+            "action policy changed since preview; rebuild the plan",
+        ));
+    }
     if owner.to_string() != plan.wallet {
         return Err(changed("keypair does not match cleanup wallet"));
     }

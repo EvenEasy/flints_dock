@@ -651,6 +651,13 @@ fn cleanup_commands_enforce_actual_ipc_input_and_window_permissions() {
 /// Real Tauri IPC with a deterministic local JSON-RPC chain, never an external wallet or cluster.
 #[test]
 fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
+    run_cleanup_ipc(false);
+}
+#[test]
+fn explicit_discard_ipc_burns_confirmed_sources_then_closes_without_jupiter() {
+    run_cleanup_ipc(true);
+}
+fn run_cleanup_ipc(explicit: bool) {
     use base64::{Engine, engine::general_purpose::STANDARD};
     use solana_transaction::versioned::VersionedTransaction;
     use std::{
@@ -675,7 +682,11 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     token[..32].copy_from_slice(&solana_pubkey::Pubkey::new_from_array([3; 32]).to_bytes());
     token[32..64].copy_from_slice(&fixture.address.to_bytes());
     token[108] = 1;
+    token[64..72].copy_from_slice(&(if explicit { 20u64 } else { 0u64 }).to_le_bytes());
+    let mut empty_bytes = token.clone();
+    empty_bytes[64..72].copy_from_slice(&0u64.to_le_bytes());
     let token = json!({"lamports":2039280,"owner":TokenProgram::Legacy.id().to_string(),"data":[STANDARD.encode(token),"base64"],"executable":false,"rentEpoch":0});
+    let empty_token = json!({"lamports":2039280,"owner":TokenProgram::Legacy.id().to_string(),"data":[STANDARD.encode(empty_bytes),"base64"],"executable":false,"rentEpoch":0});
     let mut mint_bytes = vec![0u8; 82];
     mint_bytes[36..44].copy_from_slice(&100000000u64.to_le_bytes());
     mint_bytes[44] = 6;
@@ -692,6 +703,7 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     let account_list = accounts.clone();
     let mint_address = mint.clone();
     let server = std::thread::spawn(move || {
+        let mut burned = std::collections::BTreeSet::new();
         let mut closed = std::collections::BTreeSet::new();
         let mut signatures = BTreeMap::new();
         while !stopped.load(Ordering::Relaxed) {
@@ -730,13 +742,13 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
             let result = match request["method"].as_str().unwrap() {
                 "getGenesisHash" => json!("EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"),
                 "getTokenAccountsByOwner" => {
-                    json!({"context":{"slot":1},"value":if request["params"][1]["programId"]==TokenProgram::Legacy.id().to_string(){account_list.iter().filter(|a| !closed.contains(*a)).map(|a|json!({"pubkey":a,"account":token})).collect::<Vec<_>>()}else{vec![]}})
+                    json!({"context":{"slot":1},"value":if request["params"][1]["programId"]==TokenProgram::Legacy.id().to_string(){account_list.iter().filter(|a| !closed.contains(*a)).map(|a|json!({"pubkey":a,"account":if burned.contains(a) { &empty_token } else { &token }})).collect::<Vec<_>>()}else{vec![]}})
                 }
                 "getMultipleAccounts" => {
                     json!({"context":{"slot":1},"value":request["params"][0].as_array().unwrap().iter().map(|key|if key==&mint_address {mint_value.clone()}else{Value::Null}).collect::<Vec<_>>()})
                 }
                 "getAccountInfo" => {
-                    json!({"context":{"slot":1},"value":if account_list.iter().any(|a|request["params"][0]==*a && !closed.contains(a)){token.clone()}else{Value::Null}})
+                    json!({"context":{"slot":1},"value":if account_list.iter().any(|a|request["params"][0]==*a && !closed.contains(a)){if burned.contains(request["params"][0].as_str().unwrap()) { empty_token.clone() } else { token.clone() }}else{Value::Null}})
                 }
                 "getLatestBlockhash" => {
                     json!({"context":{"slot":1},"value":{"blockhash":"11111111111111111111111111111111","lastValidBlockHeight":1000}})
@@ -759,25 +771,47 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
                     let instructions = transaction.message.instructions();
                     assert_eq!(instructions.len(), 2);
                     let close = &instructions[1];
-                    assert_eq!(close.data, vec![9]);
+                    let is_burn = close.data.first() == Some(&15);
+                    if is_burn {
+                        assert!(explicit);
+                        assert_eq!(u64::from_le_bytes(close.data[1..9].try_into().unwrap()), 20);
+                        assert_eq!(close.data[9], 6);
+                    } else {
+                        assert_eq!(close.data, vec![9]);
+                    }
                     assert_eq!(
                         keys[usize::from(close.program_id_index)].to_string(),
                         TokenProgram::Legacy.id().to_string()
                     );
-                    assert_eq!(keys[usize::from(close.accounts[1])].to_string(), wallet);
+                    assert_eq!(
+                        keys[usize::from(close.accounts[1])].to_string(),
+                        if is_burn {
+                            mint_address.clone()
+                        } else {
+                            wallet.clone()
+                        }
+                    );
                     assert_eq!(keys[usize::from(close.accounts[2])].to_string(), wallet);
                     let source = keys[usize::from(close.accounts[0])].to_string();
-                    assert!(closed.insert(source.clone()));
+                    if is_burn {
+                        assert!(burned.insert(source.clone()));
+                    } else {
+                        if explicit {
+                            assert!(burned.contains(&source));
+                        }
+                        assert!(closed.insert(source.clone()));
+                    }
                     let signature = transaction.signatures[0].to_string();
                     sent.lock().unwrap().push(signature.clone());
-                    signatures.insert(signature.clone(), source);
+                    signatures.insert(signature.clone(), (source, is_burn));
                     json!(signature)
                 }
                 "getSignatureStatuses" => {
                     json!({"context":{"slot":1},"value":request["params"][0].as_array().unwrap().iter().map(|_|json!({"slot":1,"confirmations":null,"err":null,"status":{"Ok":null},"confirmationStatus":"confirmed"})).collect::<Vec<_>>()})
                 }
                 "getTransaction" => {
-                    json!({"transaction":{"message":{"accountKeys":[wallet,signatures[request["params"][0].as_str().unwrap()]]}},"meta":{"err":null,"preBalances":[9007199254740993123u64,2039280],"postBalances":[9007199254743027403u64,0]}})
+                    let (source, is_burn) = &signatures[request["params"][0].as_str().unwrap()];
+                    json!({"transaction":{"message":{"accountKeys":[wallet,source]}},"meta":{"err":null,"preBalances":[9007199254740993123u64,2039280],"postBalances":[if *is_burn {9007199254740988123u64} else {9007199254743027403u64},if *is_burn {2039280} else {0}]}})
                 }
                 method => panic!("Unexpected RPC {method}"),
             };
@@ -804,7 +838,7 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     )
     .unwrap();
     let readonly=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"all"},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
-    assert_eq!(readonly["closeCount"], 2);
+    assert_eq!(readonly["closeCount"], if explicit { 0 } else { 2 });
     assert_eq!(readonly["canExecute"], false);
     assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":readonly["planId"],"approval":{"swap":true,"burn":true,"close":true}}),LOCAL_ORIGIN).is_err());
     let connection = invoke(
@@ -826,13 +860,46 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     }
     assert!(sends.lock().unwrap().is_empty());
     let plan=invoke(&main,"prepare_cleanup",json!({"sessionId":connection["sessionId"],"revision":4,"selection":{"mode":"selected","mints":[mint]},"ignoredMints":[]}),LOCAL_ORIGIN).unwrap();
+    let plan = if explicit {
+        assert_eq!(plan["burnCount"], 0);
+        assert_eq!(plan["closeCount"], 0);
+        assert!(
+            plan["entries"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|e| e["reasonCode"] == "routing_unavailable")
+        );
+        let old_plan = plan["planId"].clone();
+        let discard = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":5,"selection":{"mode":"selected","mints":[mint]},"ignoredMints":[],"policy":"explicitDiscard"}), LOCAL_ORIGIN).unwrap();
+        assert_eq!(discard["policy"], "explicitDiscard");
+        assert_eq!(discard["burnCount"], 2);
+        assert_eq!(discard["executableAccounts"], 2);
+        assert_eq!(discard["selectedAssets"], 1);
+        assert!(
+            discard["entries"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|e| e["rawAmount"] == "20" && e["reasonCode"] == "explicit_discard")
+        );
+        assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":old_plan,"approval":{"swap":true,"burn":true,"close":true}}),LOCAL_ORIGIN).is_err());
+        assert!(invoke(&main,"execute_cleanup",json!({"sessionId":connection["sessionId"],"planId":discard["planId"],"approval":{"swap":true,"burn":false,"close":true}}),LOCAL_ORIGIN).is_err());
+        assert!(sends.lock().unwrap().is_empty());
+        discard
+    } else {
+        plan
+    };
     assert_eq!(plan["entries"].as_array().unwrap().len(), 2);
     assert_eq!(plan["closeCount"], 2);
     let execution = json!({"sessionId":connection["sessionId"],"planId":plan["planId"],"approval":{"swap":true,"burn":true,"close":true}});
     let job = invoke(&main, "execute_cleanup", execution.clone(), LOCAL_ORIGIN).unwrap();
     assert_eq!(job["status"], "completed");
     assert_eq!(job["report"]["closed"], 2);
-    assert_eq!(job["report"]["known_net_wallet_lamports"], "4068560");
+    assert_eq!(
+        job["report"]["known_net_wallet_lamports"],
+        if explicit { "4058560" } else { "4068560" }
+    );
     assert_eq!(job["report"]["known_reclaimed_lamports"], "4078560");
     assert_eq!(job["report"]["accounting_complete"], true);
     assert!(
@@ -844,7 +911,7 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     );
     let duplicate = invoke(&main, "execute_cleanup", execution, LOCAL_ORIGIN).unwrap();
     assert_eq!(duplicate["jobId"], job["jobId"]);
-    assert_eq!(sends.lock().unwrap().len(), 2);
+    assert_eq!(sends.lock().unwrap().len(), if explicit { 4 } else { 2 });
     assert_eq!(
         invoke(
             &main,
@@ -861,4 +928,59 @@ fn cleanup_ipc_preserves_mint_accounts_none_readonly_and_exact_confirmed_net() {
     assert!(!journal.contains("base64"));
     assert!(!journal.contains("seed"));
     std::fs::remove_dir_all(directory).unwrap();
+}
+
+/// Opt-in public RPC audit through registered Tauri commands; never obtains a signer.
+#[test]
+#[ignore = "Requires live devnet RPC; public scan/plan only"]
+fn live_devnet_readonly_report() {
+    let path = std::env::var("DOCK_FLINTS_LIVE_READONLY_REPORT")
+        .expect("Set an output path for the public diagnostic report");
+    let app = desktop(AppState::new("https://api.devnet.solana.com".into(), 30, None).unwrap());
+    let main = tauri::WebviewWindowBuilder::new(&app, "main", Default::default())
+        .build()
+        .unwrap();
+    let owner = "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv";
+    let connection = invoke(
+        &main,
+        "connect_wallet",
+        json!({"source":{"kind":"publicKey","address":owner}}),
+        LOCAL_ORIGIN,
+    )
+    .unwrap();
+    let analysis = invoke(
+        &main,
+        "analyze_wallet",
+        json!({"walletAddress":owner,"selection":{"all":true,"allTokens":true},"noPrices":false}),
+        LOCAL_ORIGIN,
+    )
+    .unwrap();
+    let auto = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":1,"selection":{"mode":"all"},"ignoredMints":[],"policy":"auto"}), LOCAL_ORIGIN).unwrap();
+    let discard = invoke(&main, "prepare_cleanup", json!({"sessionId":connection["sessionId"],"revision":2,"selection":{"mode":"all"},"ignoredMints":[],"policy":"explicitDiscard"}), LOCAL_ORIGIN).unwrap();
+    assert_eq!(connection["canSign"], false);
+    assert_eq!(discard["canExecute"], false);
+    assert_eq!(auto["burnCount"], 0);
+    assert_eq!(
+        auto["network"],
+        "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+    );
+    let accounts: std::collections::BTreeSet<_> = analysis["tokenAccounts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|a| a["address"].as_str().unwrap())
+        .collect();
+    for plan in [&auto, &discard] {
+        let entries: std::collections::BTreeSet<_> = plan["entries"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|a| a["account"].as_str().unwrap())
+            .collect();
+        assert_eq!(
+            entries, accounts,
+            "Every discovered decoded account must have a plan entry"
+        );
+    }
+    std::fs::write(path, serde_json::to_string_pretty(&json!({"wallet":owner,"analysis":analysis,"auto":auto,"explicitDiscardPreview":discard,"transactionsSubmitted":0})).unwrap()).unwrap();
 }

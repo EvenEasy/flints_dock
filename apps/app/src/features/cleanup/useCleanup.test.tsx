@@ -186,3 +186,25 @@ it('ManualRecoveryKeepsPollingAnExistingJobWithoutResubmission', async () => {
   expect(result.current.job?.status).toBe('completed');
   expect(ipc.mock.calls.filter(([command]) => command === 'execute_cleanup')).toHaveLength(1);
 });
+
+it('PolicyChangesInvalidateOlderPlansAndIgnoreLateAutoResponses', async () => {
+  const responses: ((plan: CleanupPlan) => void)[] = [];
+  const requests: PrepareCleanupRequest[] = [];
+  mockIPC((command: string, payload: unknown) => {
+    expect(command).toBe('prepare_cleanup');
+    requests.push((payload as { request: PrepareCleanupRequest }).request);
+    return new Promise<CleanupPlan>((resolve) => responses.push(resolve));
+  });
+  const { result, rerender } = renderHook(
+    ({ policy }: { policy: 'auto' | 'explicitDiscard' }) =>
+      useCleanup('session', true, [address], new Set(), policy),
+    { initialProps: { policy: 'auto' as 'auto' | 'explicitDiscard' } },
+  );
+  await waitFor(() => expect(responses).toHaveLength(1));
+  rerender({ policy: 'explicitDiscard' });
+  await waitFor(() => expect(responses).toHaveLength(2));
+  await act(async () => responses[1]!({ ...cleanupPlan(2, [address]), policy: 'explicitDiscard' }));
+  await act(async () => responses[0]!(cleanupPlan(1, [address])));
+  expect(result.current.plan?.policy).toBe('explicitDiscard');
+  expect(requests.map((request) => request.policy)).toEqual(['auto', 'explicitDiscard']);
+});

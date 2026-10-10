@@ -60,6 +60,13 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         sequence: Default::default(),
     };
     let (network, mainnet) = network(&state.rpc).await?;
+    if request.policy == CleanupPolicy::ExplicitDiscard
+        && network != "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+    {
+        return Err(AppError::cleanup(
+            "Explicit discard is available only on verified devnet",
+        ));
+    }
     let snapshot = dock_flints_core::app::scan_wallet::scan_wallet_observed::<()>(
         &state.rpc,
         &identity.address,
@@ -77,7 +84,7 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
     let assets = assets_from_portfolio(&snapshot);
     // Expand each selected mint to ALL its accounts, including zero-balance accounts.
     let selected: Vec<_> = assets
-        .into_iter()
+        .iter()
         .filter(|a| match &request.selection {
             SelectionDto::All => true,
             SelectionDto::None => false,
@@ -85,7 +92,9 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
         })
         .collect();
     let options = CleanupOptions {
+        policy: request.policy,
         selection: CleanupSelection {
+            none: selected.is_empty(),
             accounts: selected.iter().map(|a| a.account.address.clone()).collect(),
             ignored_mints: request.ignored_mints.clone(),
         },
@@ -98,13 +107,13 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
     };
     let plan = build_plan_observed(
         &identity.address,
-        selected,
+        assets,
         snapshot
             .scanners
             .get("all_tokens")
             .cloned()
             .unwrap_or(ScanStatus::Failed("Discovery unavailable".into())),
-        if matches!(request.selection, SelectionDto::All) {
+        {
             snapshot
                 .unknown_assets
                 .iter()
@@ -121,8 +130,6 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
                 })
                 .cloned()
                 .collect()
-        } else {
-            vec![]
         },
         &provider,
         &options,
@@ -153,11 +160,63 @@ pub async fn prepare_cleanup<R: tauri::Runtime>(
                 }
                 .into(),
                 reason: entry.reason.clone(),
+                reason_code: entry.reason_code,
+                decimals: entry.asset.account.decimals,
+                supply: entry
+                    .asset
+                    .mint
+                    .as_ref()
+                    .map(|mint| mint.supply.to_string()),
+                kind: format!("{:?}", entry.asset.kind),
+                mint_authority: entry
+                    .asset
+                    .mint
+                    .as_ref()
+                    .and_then(|mint| mint.mint_authority.clone()),
+                freeze_authority: entry
+                    .asset
+                    .mint
+                    .as_ref()
+                    .and_then(|mint| mint.freeze_authority.clone()),
+                close_authority: entry.asset.account.close_authority.clone(),
+                account_extensions: entry.asset.account.extension_types.clone(),
+                mint_extensions: entry
+                    .asset
+                    .mint
+                    .as_ref()
+                    .map(|mint| mint.extension_types.clone())
+                    .unwrap_or_default(),
                 expected_out_lamports: entry
                     .quote
                     .as_ref()
                     .map(|q| q.expected_out_lamports.to_string()),
                 min_out_lamports: entry.quote.as_ref().map(|q| q.min_out_lamports.to_string()),
+            })
+            .collect(),
+        policy: plan.policy,
+        selected_assets: plan
+            .entries
+            .iter()
+            .filter(|entry| {
+                options
+                    .selection
+                    .skip_reason(&entry.asset.account)
+                    .is_none()
+            })
+            .map(|entry| &entry.asset.account.mint)
+            .collect::<std::collections::BTreeSet<_>>()
+            .len(),
+        executable_accounts: plan.summary.accounts_to_close,
+        skipped_accounts: plan.summary.unsupported,
+        undecodable_accounts: plan
+            .unparsed_accounts
+            .iter()
+            .map(|account| UndecodableAccountDto {
+                address: account.address.clone(),
+                program: account.program_id.clone(),
+                lamports: account.lamports.map(|value| value.to_string()),
+                reason_code: CleanupReasonCode::Undecodable,
+                reason: account.reason.clone(),
             })
             .collect(),
         can_execute: identity.signer().is_ok() && plan.summary.accounts_to_close > 0,

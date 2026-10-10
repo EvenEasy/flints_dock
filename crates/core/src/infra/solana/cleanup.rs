@@ -238,6 +238,15 @@ impl CleanupExecutor for RpcClient {
         };
         let mut accounts =
             vec![scanner::tokens::parse_account(&keyed, program, owner).map_err(rpc_error)?];
+        // Empty account closure needs only its decoded token-program state and authority.
+        // Avoid making closure depend on unrelated mint/metadata RPC availability.
+        if accounts[0].raw_amount == 0 {
+            return Ok(Some(CleanupAsset {
+                account: accounts.remove(0),
+                mint: None,
+                kind: crate::core::AssetKind::Unknown,
+            }));
+        }
         let mints = scanner::metadata::get_mints(self, &mut accounts).await;
         let metadata = scanner::nft::get_metadata(self, &accounts, &mints.items).await;
         if !mints.status.is_complete() || !metadata.status.is_complete() {

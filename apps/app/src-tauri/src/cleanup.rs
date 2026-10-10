@@ -276,6 +276,11 @@ mod tests {
             network: "network".into(),
             expires_at: (now() + 100).to_string(),
             entries: vec![],
+            policy: CleanupPolicy::Auto,
+            selected_assets: 1,
+            executable_accounts: 1,
+            skipped_accounts: 0,
+            undecodable_accounts: vec![],
             can_execute: true,
             requires_burn: false,
             swap_count: 0,
@@ -297,6 +302,7 @@ mod tests {
                 ..Default::default()
             },
             selection: Default::default(),
+            policy: CleanupPolicy::Auto,
         };
         DesktopStore {
             session: Some(Session {

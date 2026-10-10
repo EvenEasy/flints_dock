@@ -107,6 +107,7 @@ pub async fn build_plan_observed(
         unparsed_accounts,
         summary: CleanupSummary::default(),
         selection: options.selection.clone(),
+        policy: options.policy,
     };
     let total = assets.len();
     for (index, asset) in assets.into_iter().enumerate() {
@@ -122,17 +123,34 @@ pub async fn build_plan_observed(
             asset,
             category: CleanupCategory::Unsupported,
             reason: String::new(),
+            reason_code: CleanupReasonCode::ProviderFailure,
             quote: None,
         };
 
         // Apply user protection before balance checks or provider requests.
         if let Some(reason) = options.selection.skip_reason(&entry.asset.account) {
             entry.reason = reason.into();
-        } else if let Some(reason) = unsupported_reason(&entry.asset, &plan.wallet) {
+            entry.reason_code = if options
+                .selection
+                .ignored_mints
+                .contains(&entry.asset.account.mint)
+            {
+                CleanupReasonCode::IgnoredMint
+            } else {
+                CleanupReasonCode::NotSelected
+            };
+        } else if let Some((code, reason)) = eligibility_issue(&entry.asset, &plan.wallet) {
             entry.reason = reason;
+            entry.reason_code = code;
         } else if entry.asset.account.raw_amount == 0 {
             entry.category = CleanupCategory::Empty;
-            entry.reason = "close empty account".into();
+            entry.reason = "Close empty account".into();
+            entry.reason_code = CleanupReasonCode::EmptyAccount;
+        } else if options.policy == CleanupPolicy::ExplicitDiscard {
+            entry.category = CleanupCategory::Burnable;
+            entry.reason_code = CleanupReasonCode::ExplicitDiscard;
+            entry.reason =
+                "Explicit discard: burn the approved full balance, then close; irreversible".into();
         } else {
             let result = match request(&entry.asset, wallet, options) {
                 Ok(request) => fresh_route(provider, &request, options).await,
@@ -142,18 +160,30 @@ pub async fn build_plan_observed(
             // Choose swap or burn only from an explicit semantic route result.
             match result {
                 Ok(_) if options.selection.protects_output() => {
+                    entry.reason_code = CleanupReasonCode::IgnoredMint;
                     entry.reason = "protected WSOL may be unwrapped by a SOL swap; skipped".into();
                 }
                 Ok(fresh) => {
                     entry.category = CleanupCategory::Swappable;
+                    entry.reason_code = CleanupReasonCode::SwapRoute;
                     entry.quote = Some(fresh.quote);
                     entry.reason = "swap full balance to native SOL, verify zero, close".into();
                 }
                 Err(SwapError::NoRoute(reason)) => {
                     entry.category = CleanupCategory::Burnable;
+                    entry.reason_code = CleanupReasonCode::NoRoute;
                     entry.reason = format!("burn full balance then close; no route: {reason}");
                 }
                 Err(error) => {
+                    entry.reason_code = match &error {
+                        SwapError::UnsupportedNetwork(_) => CleanupReasonCode::RoutingUnavailable,
+                        SwapError::InsufficientLiquidity(_) => {
+                            CleanupReasonCode::InsufficientLiquidity
+                        }
+                        SwapError::PriceImpact { .. } => CleanupReasonCode::PriceImpact,
+                        SwapError::Expired => CleanupReasonCode::QuoteExpired,
+                        _ => CleanupReasonCode::ProviderFailure,
+                    };
                     entry.reason =
                         format!("quote not safely actionable; no burn fallback: {error}");
                 }

@@ -3,6 +3,7 @@ import { progressChannel } from './channel';
 /** NONE is explicit; an empty selected array is also NONE, never ALL. */
 export type CleanupSelection =
   { mode: 'all' } | { mode: 'selected'; mints: string[] } | { mode: 'none' };
+export type CleanupPolicy = 'auto' | 'explicitDiscard';
 export type CleanupOperation = 'Swap' | 'Burn' | 'Close';
 export interface CleanupProgress {
   jobId: string;
@@ -22,6 +23,15 @@ export interface CleanupEntry {
   rawAmount: string;
   action: 'swap' | 'burn' | 'close' | 'skip';
   reason: string;
+  reasonCode: string;
+  decimals: number | null;
+  supply: string | null;
+  kind: string;
+  mintAuthority: string | null;
+  freezeAuthority: string | null;
+  closeAuthority: string | null;
+  accountExtensions: string[];
+  mintExtensions: string[];
   expectedOutLamports: string | null;
   minOutLamports: string | null;
 }
@@ -32,6 +42,17 @@ export interface CleanupPlan {
   network: string;
   expiresAt: string;
   entries: CleanupEntry[];
+  policy: CleanupPolicy;
+  selectedAssets: number;
+  executableAccounts: number;
+  skippedAccounts: number;
+  undecodableAccounts: {
+    address: string;
+    program: string | null;
+    lamports: string | null;
+    reasonCode: 'undecodable';
+    reason: string;
+  }[];
   canExecute: boolean;
   requiresBurn: boolean;
   swapCount: number;
@@ -84,6 +105,7 @@ export interface PrepareCleanupRequest {
   revision: number;
   selection: CleanupSelection;
   ignoredMints: string[];
+  policy?: CleanupPolicy;
 }
 export function prepareCleanup(
   request: PrepareCleanupRequest,

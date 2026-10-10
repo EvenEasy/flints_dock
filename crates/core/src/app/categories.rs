@@ -26,7 +26,7 @@ impl<P: SwapProvider + Sync> SwapProvider for ScopedSwap<'_, P> {
         request: &SwapRequest,
     ) -> crate::app::swap::Result<crate::app::swap::PreparedSwap> {
         if !self.mainnet {
-            return Err(SwapError::Api(
+            return Err(SwapError::UnsupportedNetwork(
                 "Jupiter supports mainnet only; routing unavailable on this network".into(),
             ));
         }
@@ -223,12 +223,20 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
         (
             "scam",
             scam,
-            combine_statuses(&[("inventory", &inventory_status), ("risk", &risk_status)]),
+            if matches!(risk_status, ScanStatus::Unsupported(_)) {
+                risk_status.clone()
+            } else {
+                combine_statuses(&[("inventory", &inventory_status), ("risk", &risk_status)])
+            },
         ),
         (
             "dust",
             dust,
-            combine_statuses(&[("inventory", &inventory_status), ("pricing", &prices)]),
+            if matches!(prices, ScanStatus::Unsupported(_)) {
+                prices.clone()
+            } else {
+                combine_statuses(&[("inventory", &inventory_status), ("pricing", &prices)])
+            },
         ),
         ("dead_token", dead, routing.clone()),
         ("nft", nfts.into_values().collect(), nft_status),
@@ -252,6 +260,26 @@ pub async fn classify<P: SwapProvider + RiskProvider + Sync>(
             ("risk".into(), risk_status),
             ("routing".into(), routing),
             ("das".into(), compressed.status),
+            (
+                "nft_classic".into(),
+                snapshot
+                    .scanners
+                    .get("classic_nfts")
+                    .cloned()
+                    .unwrap_or(ScanStatus::Unsupported(
+                        "Classic NFT check not requested".into(),
+                    )),
+            ),
+            (
+                "nft_core".into(),
+                snapshot
+                    .scanners
+                    .get("core_asset_v1")
+                    .cloned()
+                    .unwrap_or(ScanStatus::Unsupported(
+                        "Core NFT check not requested".into(),
+                    )),
+            ),
         ]),
     }
 }
@@ -425,6 +453,78 @@ mod tests {
         ));
         assert_eq!(provider.requests.lock().unwrap().len(), 1);
     }
+    #[tokio::test]
+    async fn devnet_test_observations_are_scoped_readonly_and_do_not_manufacture_nfts_or_swap_quotes()
+     {
+        use crate::app::test_observations::{DEVNET_GENESIS, TestManifest};
+        let mut wallet = snapshot();
+        let fungible = token(1, AssetKind::Fungible, None);
+        let nft = token(2, AssetKind::NonFungible, None);
+        wallet.all_tokens = vec![fungible.clone(), nft.clone()];
+        let manifest = TestManifest::parse(&serde_json::json!({"network":DEVNET_GENESIS,"label":"read-only regression",
+            "observations":[{"mint":fungible.mint,"program":fungible.program.id().to_string(),"suspicious":true,"unitUsd":0.001,"routing":"no_route"},
+            {"mint":nft.mint,"program":nft.program.id().to_string(),"suspicious":true,"unitUsd":0.001,"routing":"no_route"}]}).to_string()).unwrap();
+        let provider = Provider {
+            requests: Default::default(),
+            no_route: true,
+        };
+        let mut report = classify(
+            &wallet,
+            &Pubkey::default(),
+            Some(&provider),
+            DEVNET_GENESIS.into(),
+            false,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Unsupported("No DAS".into()),
+            },
+        )
+        .await;
+        manifest.apply(&mut report, &wallet);
+        for key in ["scam", "dust", "dead_token"] {
+            assert_eq!(report.categories[key].items.len(), 1);
+            assert!(!report.categories[key].status.is_complete());
+            assert!(
+                report.categories[key].items[0]
+                    .provider_scope
+                    .as_ref()
+                    .unwrap()
+                    .starts_with("TEST DATA:")
+            );
+        }
+        assert_eq!(
+            report.categories["dead_token"].items[0].tradability,
+            "test_no_route"
+        );
+        assert!(provider.requests.lock().unwrap().is_empty());
+
+        // Semantic-token-only scans still expose configured observations without NFT inference.
+        wallet.tokens = vec![fungible];
+        wallet.all_tokens.clear();
+        wallet.selected.all_tokens = false;
+        manifest.apply(&mut report, &wallet);
+        for key in ["scam", "dust", "dead_token"] {
+            assert_eq!(report.categories[key].items.len(), 1);
+        }
+        let mut mainnet = classify(
+            &wallet,
+            &Pubkey::default(),
+            None::<&Provider>,
+            "mainnet".into(),
+            true,
+            0.01,
+            CompressedReport {
+                items: vec![],
+                status: ScanStatus::Complete,
+            },
+        )
+        .await;
+        manifest.apply(&mut mainnet, &wallet);
+        assert!(mainnet.categories["scam"].items.is_empty());
+        assert!(!mainnet.providers.contains_key("test_data"));
+    }
+
     #[tokio::test]
     async fn dust_uses_nonzero_aggregate_not_individual_accounts_or_unknown_prices() {
         let mut wallet = snapshot();

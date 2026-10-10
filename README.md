@@ -65,7 +65,11 @@ cargo run -- cleanup --keypair /path/to/wallet.json --execute \
   --ignore-mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 ```
 
-Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; repeatable `--ignore-mint <MINT>` protects every account of a mint from swap, burn and close (the example preserves USDC); `--format json` provides per-account results. See [cleanup behavior, options and limitations](docs/cleanup.md).
+Cleanup defaults to preview: Empty / Swappable / Burnable / Unsupported, with exact account addresses and planned swap, burn, close and skip actions. Execution processes accounts sequentially, gets fresh Jupiter routes, uses BurnChecked only for explicitly approved no-route fungibles, verifies zero balances, and returns closed-account lamports to the wallet. All transactions are simulated and confirmed. `--account <ADDRESS>` restricts scope; repeatable `--ignore-mint <MINT>` protects every account of a mint from swap, burn and close (the example preserves USDC); `--format json` provides per-account results. Devnet has a separate opt-in `--explicit-discard --account <ACCOUNT>` policy for
+irreversibly discarding selected eligible test tokens without Jupiter. The desktop
+exposes the same policy with a burn confirmation. See
+[cleanup behavior, options and limitations](docs/cleanup.md) and
+[verified devnet diagnostics](docs/devnet-cleanup-verification.md).
 
 ## Classification
 
@@ -140,7 +144,7 @@ apps/app/frontend-contract/ # typed TypeScript invoke boundary; no frontend proj
 tests/fixtures/             # shared existing fixture data
 ```
 
-Both adapters depend on `dock-flints-core`; core has no CLI or Tauri dependency. Existing CLI library paths remain available through compatibility re-exports. All CLI commands and `cargo run -- ...` examples above keep their existing behavior. See [architecture and maintenance](docs/architecture.md) and [desktop configuration / future React integration](apps/app/README.md).
+Both adapters depend on `dock-flints-core`; core has no CLI or Tauri dependency. Existing CLI library paths remain available through compatibility re-exports. All CLI commands and `cargo run -- ...` examples above keep their existing behavior. See [architecture and maintenance](docs/architecture.md) and [desktop configuration and React integration](apps/app/README.md).
 
 ```bash
 cargo fmt --all --check

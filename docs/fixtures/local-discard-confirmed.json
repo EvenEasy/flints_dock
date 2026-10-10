@@ -1,0 +1,115 @@
+{
+  "network": "GsjtqJoTyVy5QEnaMgNuDRG54juSv6egXKMZyuRQF1qn",
+  "plan": {
+    "discovery_status": {
+      "status": "complete"
+    },
+    "entries": [
+      {
+        "asset": {
+          "account": {
+            "address": "GcvyWyiazhVxsiS9srv5pAAZDmf9icKEzc4JfEEdTu15",
+            "close_authority": null,
+            "closure": {
+              "reason": "Nonzero token balance",
+              "status": "not_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 0,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": null,
+            "is_native": false,
+            "lamports": 2039280,
+            "mint": "6J6gD4SWaTbF4kRZUviZemEZHMcaTJFdV7xAmMMC9fn5",
+            "native_reserve_lamports": null,
+            "owner": "9SfoZ6tAsv2g78mYstoLHgnAgkBQk95YsPX9LsfRntwT",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "42",
+            "state": "Initialized"
+          },
+          "kind": "fungible_asset",
+          "mint": {
+            "decimals": 0,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "6J6gD4SWaTbF4kRZUviZemEZHMcaTJFdV7xAmMMC9fn5",
+            "mint_authority": "9SfoZ6tAsv2g78mYstoLHgnAgkBQk95YsPX9LsfRntwT",
+            "program": "legacy",
+            "supply": "42"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible",
+        "reason_code": "explicit_discard"
+      }
+    ],
+    "policy": "explicitDiscard",
+    "selection": {
+      "accounts": [
+        "GcvyWyiazhVxsiS9srv5pAAZDmf9icKEzc4JfEEdTu15"
+      ],
+      "ignored_mints": [],
+      "none": false
+    },
+    "summary": {
+      "accounts_to_close": 1,
+      "burnable": 1,
+      "empty": 0,
+      "estimated_reclaimed_lamports": "2039280",
+      "estimated_swap_lamports": "0",
+      "swappable": 0,
+      "token_accounts": 1,
+      "unsupported": 0
+    },
+    "unparsed_accounts": [],
+    "wallet": "9SfoZ6tAsv2g78mYstoLHgnAgkBQk95YsPX9LsfRntwT"
+  },
+  "report": {
+    "accounting_complete": true,
+    "closed": 1,
+    "failed": 0,
+    "known_net_wallet_lamports": "2029280",
+    "known_reclaimed_lamports": "2039280",
+    "known_swap_net_lamports": "0",
+    "results": [
+      {
+        "category": "Burnable",
+        "mint": "6J6gD4SWaTbF4kRZUviZemEZHMcaTJFdV7xAmMMC9fn5",
+        "operations": [
+          {
+            "operation": "Burn",
+            "reclaimed_lamports": null,
+            "signature": "319hbRbriLsMA985sy7bm33WRPLuRpRf4pB6mridmfVjdytXH3EophRy3Lg7SEWHdBb1QHkWKmkNearPZ3ThKCws",
+            "wallet_delta_lamports": "-5000"
+          },
+          {
+            "operation": "Close",
+            "reclaimed_lamports": "2039280",
+            "signature": "4e4ktjVQ29q9cwfnautWqHh7fGUo2mwJptNdyrmzRQ4fCttQZD6EkWUWaWQepP1qPZr4QtiuL2LCRgeLoj2xGeqB",
+            "wallet_delta_lamports": "2034280"
+          }
+        ],
+        "reason": "confirmed and account absence verified",
+        "status": "closed",
+        "token_account": "GcvyWyiazhVxsiS9srv5pAAZDmf9icKEzc4JfEEdTu15",
+        "uncertain_signature": null
+      }
+    ],
+    "skipped": 0
+  },
+  "wallet": "9SfoZ6tAsv2g78mYstoLHgnAgkBQk95YsPX9LsfRntwT"
+}

@@ -19,8 +19,30 @@ export function CategoryDialog({
 }) {
   return (
     <Dialog title={name === 'dead_token' ? 'DEAD TOKEN' : name.toUpperCase()} onClose={onClose}>
-      <p className="type-caption">{descriptions[name]}</p>
+      <p className="type-caption">
+        {category?.source?.startsWith('TEST DATA')
+          ? 'TEST DATA: devnet observations, not market quotes. Balances and NFT evidence come from on-chain discovery.'
+          : descriptions[name]}
+      </p>
       <CategoryNotice status={category?.status} />
+      {category?.source && (
+        <p className="type-caption">
+          {category.source} · {category.network}
+        </p>
+      )}
+      {Object.entries(category?.coverage ?? {}).map(([key, status]) =>
+        status.status === 'complete' ? (
+          <p key={key} className="type-caption">
+            {key.replaceAll('_', ' ').toUpperCase()} · COMPLETE
+          </p>
+        ) : (
+          <CategoryNotice
+            key={key}
+            status={status}
+            label={key.replaceAll('_', ' ').toUpperCase()}
+          />
+        ),
+      )}
       <ul className="category-results">
         {category?.items.map((item) => (
           <li key={item.id}>

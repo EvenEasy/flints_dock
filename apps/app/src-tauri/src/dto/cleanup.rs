@@ -17,6 +17,8 @@ pub struct PrepareRequest {
     pub revision: u64,
     pub selection: SelectionDto,
     pub ignored_mints: BTreeSet<String>,
+    #[serde(default)]
+    pub policy: CleanupPolicy,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -48,8 +50,27 @@ pub struct PlanEntryDto {
     pub raw_amount: String,
     pub action: String,
     pub reason: String,
+    pub reason_code: CleanupReasonCode,
+    pub decimals: Option<u8>,
+    pub supply: Option<String>,
+    pub kind: String,
+    pub mint_authority: Option<String>,
+    pub freeze_authority: Option<String>,
+    pub close_authority: Option<String>,
+    pub account_extensions: Vec<String>,
+    pub mint_extensions: Vec<String>,
     pub expected_out_lamports: Option<String>,
     pub min_out_lamports: Option<String>,
+}
+/// Undecodable discovery stays visible but can never authorize a transaction.
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UndecodableAccountDto {
+    pub address: String,
+    pub program: Option<String>,
+    pub lamports: Option<String>,
+    pub reason_code: CleanupReasonCode,
+    pub reason: String,
 }
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -60,6 +81,11 @@ pub struct CleanupPlanDto {
     pub network: String,
     pub expires_at: String,
     pub entries: Vec<PlanEntryDto>,
+    pub policy: CleanupPolicy,
+    pub selected_assets: usize,
+    pub executable_accounts: usize,
+    pub skipped_accounts: usize,
+    pub undecodable_accounts: Vec<UndecodableAccountDto>,
     pub can_execute: bool,
     pub requires_burn: bool,
     pub swap_count: usize,

@@ -957,3 +957,25 @@
   font-size: clamp(24px, 8cqw, 44px);
   font-weight: 800;
 }
+
+/* Policy intent is explicit while the existing compact header and summary retain their slots. */
+.cleanup-header select {
+  width: 100%;
+  min-width: 0;
+  margin-top: 4px;
+  padding: 5px;
+  background: #070a12;
+  color: #d8c4ed;
+  border: 1px solid #756095;
+  font: var(--font-caption);
+}
+.account-counts {
+  display: block;
+  margin-top: 4px;
+}
+.asset-identity details {
+  overflow-wrap: anywhere;
+}
+.asset-identity details > p {
+  margin-top: 4px;
+}

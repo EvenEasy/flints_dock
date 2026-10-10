@@ -52,7 +52,7 @@ fn asset(owner: Pubkey, n: u8, amount: u64) -> CleanupAsset {
             mint: key(200).to_string(),
             program: TokenProgram::Legacy,
             decimals: 6,
-            supply: 1_000_000,
+            supply: amount.max(1_000_000),
             mint_authority: None,
             freeze_authority: None,
             metadata: Default::default(),
@@ -178,6 +178,11 @@ impl CleanupExecutor for Executor {
             }
             CleanupOperation::Burn => {
                 assert!(fresh.is_none());
+                if asset.account.decimals == Some(0) {
+                    let stored = assets.get_mut(&asset.account.address).unwrap();
+                    stored.kind = AssetKind::Unknown;
+                    stored.mint.as_mut().unwrap().supply = 0;
+                }
                 assets
                     .get_mut(&asset.account.address)
                     .unwrap()
@@ -477,6 +482,7 @@ fn burn_checked_close_and_auxiliary_source_instructions_preserve_program_amount_
     for program in [TokenProgram::Legacy, TokenProgram::Token2022] {
         let mut asset = asset(owner, 1, u64::MAX);
         asset.account.program = program;
+        asset.account.program_id = program.id().to_string();
         asset.mint.as_mut().unwrap().program = program;
         let burn = burn_instruction(&asset, &owner).unwrap();
         assert_eq!(burn.program_id, program.id());
@@ -829,4 +835,233 @@ async fn execution_can_add_protection_and_ignored_wsol_blocks_implicit_unwrap() 
     .await;
     assert_eq!(plan.entries[0].category, CleanupCategory::Unsupported);
     assert!(plan.entries[0].reason.contains("WSOL"));
+}
+
+#[tokio::test]
+async fn explicit_discard_never_calls_provider_and_burns_exactly_approved_accounts() {
+    let signer = Keypair::new();
+    let mut full = asset(signer.pubkey(), 1, 9007199254740993);
+    full.account.decimals = Some(0);
+    full.mint.as_mut().unwrap().decimals = 0;
+    full.kind = AssetKind::FungibleAsset;
+    let mut empty = asset(signer.pubkey(), 2, 0);
+    empty.kind = AssetKind::Unknown;
+    empty.mint = None;
+    let provider = Provider::new(vec![]);
+    let executor = Executor::new(&[full.clone(), empty.clone()]);
+    let options = CleanupOptions {
+        policy: CleanupPolicy::ExplicitDiscard,
+        ..options()
+    };
+    let plan = build_plan(
+        &signer.pubkey(),
+        vec![full.clone(), empty],
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(plan.summary.burnable, 1);
+    assert_eq!(plan.summary.accounts_to_close, 2);
+    assert_eq!(
+        plan.entries[0].reason_code,
+        CleanupReasonCode::ExplicitDiscard
+    );
+    assert_eq!(plan.summary.estimated_swap_lamports, 0);
+    let instruction = burn_instruction(&full, &signer.pubkey()).unwrap();
+    assert_eq!(instruction.data[0], 15);
+    assert_eq!(
+        u64::from_le_bytes(instruction.data[1..9].try_into().unwrap()),
+        9007199254740993
+    );
+    assert_eq!(instruction.data[9], 0);
+    let report = execute_plan(&plan, &provider, &executor, &signer, &options)
+        .await
+        .unwrap();
+    assert_eq!(report.closed, 2);
+    assert_eq!(report.failed, 0);
+    assert_eq!(
+        executor
+            .events
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|(_, o)| *o)
+            .collect::<Vec<_>>(),
+        vec![
+            CleanupOperation::Burn,
+            CleanupOperation::Close,
+            CleanupOperation::Close
+        ]
+    );
+    assert!(provider.requests.lock().unwrap().is_empty());
+    assert!(
+        execute_plan(&plan, &provider, &executor, &signer, &self::options())
+            .await
+            .is_err()
+    );
+}
+
+#[tokio::test]
+async fn explicit_discard_keeps_nfts_frozen_accounts_none_and_ignored_empty_accounts() {
+    let signer = Keypair::new();
+    let mut nft = asset(signer.pubkey(), 1, 1);
+    nft.kind = AssetKind::NonFungible;
+    let mut frozen = asset(signer.pubkey(), 2, 2);
+    frozen.account.state = "Frozen".into();
+    let empty = asset(signer.pubkey(), 3, 0);
+    let provider = Provider::new(vec![]);
+    let mut options = CleanupOptions {
+        policy: CleanupPolicy::ExplicitDiscard,
+        ..options()
+    };
+    let plan = build_plan(
+        &signer.pubkey(),
+        vec![nft, frozen, empty.clone()],
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(
+        plan.entries[0].reason_code,
+        CleanupReasonCode::NftUnsupported
+    );
+    assert_eq!(plan.entries[1].reason_code, CleanupReasonCode::Frozen);
+    assert_eq!(plan.summary.empty, 1);
+    options
+        .selection
+        .ignored_mints
+        .insert(empty.account.mint.clone());
+    let plan = build_plan(
+        &signer.pubkey(),
+        vec![empty.clone()],
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(plan.entries[0].reason_code, CleanupReasonCode::IgnoredMint);
+    options.selection.ignored_mints.clear();
+    options.selection.none = true;
+    let plan = build_plan(
+        &signer.pubkey(),
+        vec![empty],
+        ScanStatus::Complete,
+        vec![],
+        &provider,
+        &options,
+    )
+    .await;
+    assert_eq!(plan.summary.accounts_to_close, 0);
+    assert_eq!(plan.entries[0].reason_code, CleanupReasonCode::NotSelected);
+}
+
+#[tokio::test]
+async fn explicit_discard_changed_balance_and_residual_balance_never_close() {
+    for changed in [true, false] {
+        let signer = Keypair::new();
+        let full = asset(signer.pubkey(), 1, 42);
+        let provider = Provider::new(vec![]);
+        let options = CleanupOptions {
+            policy: CleanupPolicy::ExplicitDiscard,
+            ..options()
+        };
+        let plan = build_plan(
+            &signer.pubkey(),
+            vec![full.clone()],
+            ScanStatus::Complete,
+            vec![],
+            &provider,
+            &options,
+        )
+        .await;
+        let mut executor = Executor::new(std::slice::from_ref(&full));
+        if changed {
+            executor
+                .assets
+                .lock()
+                .unwrap()
+                .get_mut(&full.account.address)
+                .unwrap()
+                .account
+                .raw_amount += 1;
+        } else {
+            executor.leave_balance = true;
+        }
+        let report = execute_plan(&plan, &provider, &executor, &signer, &options)
+            .await
+            .unwrap();
+        assert_eq!(report.failed, 1);
+        assert_eq!(report.closed, 0);
+        assert!(
+            executor
+                .events
+                .lock()
+                .unwrap()
+                .iter()
+                .all(|(_, o)| *o != CleanupOperation::Close)
+        );
+    }
+}
+
+#[tokio::test]
+async fn explicit_discard_partial_failures_preserve_receipts_and_uncertain_burn_is_not_resent() {
+    for uncertain in [false, true] {
+        let signer = Keypair::new();
+        let assets = vec![asset(signer.pubkey(), 1, 42), asset(signer.pubkey(), 2, 13)];
+        let provider = Provider::new(vec![]);
+        let options = CleanupOptions {
+            policy: CleanupPolicy::ExplicitDiscard,
+            ..options()
+        };
+        let plan = build_plan(
+            &signer.pubkey(),
+            assets.clone(),
+            ScanStatus::Complete,
+            vec![],
+            &provider,
+            &options,
+        )
+        .await;
+        let mut executor = Executor::new(&assets);
+        executor.fail_address = Some(assets[0].account.address.clone());
+        executor.fail_operation = Some(CleanupOperation::Burn);
+        executor.uncertain = uncertain;
+        let report = execute_plan(&plan, &provider, &executor, &signer, &options)
+            .await
+            .unwrap();
+        assert_eq!(report.failed, 1);
+        if uncertain {
+            assert_eq!(report.skipped, 1);
+            assert_eq!(report.closed, 0);
+            assert_eq!(executor.events.lock().unwrap().len(), 1);
+            assert_eq!(
+                report.results[0].uncertain_signature.as_deref(),
+                Some("pending-signature")
+            );
+            assert!(!report.accounting_complete);
+        } else {
+            assert_eq!(report.closed, 1);
+            assert_eq!(report.results[1].operations.len(), 2);
+            assert_eq!(report.known_swap_net_lamports, 0);
+        }
+    }
+}
+
+#[test]
+fn empty_unknown_account_closes_without_mint_metadata_or_liquidation_classification() {
+    let owner = key(9);
+    let mut empty = asset(owner, 1, 0);
+    empty.kind = AssetKind::Unknown;
+    empty.mint = None;
+    empty.account.decimals = None;
+    empty.account.state = "Frozen".into();
+    assert!(close_instruction(&empty, &owner).is_ok());
+    assert!(burn_instruction(&empty, &owner).is_err());
+    empty.account.close_authority = Some(key(8).to_string());
+    assert!(close_instruction(&empty, &owner).is_err());
 }

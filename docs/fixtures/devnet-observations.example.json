@@ -1,0 +1,27 @@
+{
+  "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "label": "Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings",
+  "observations": [
+    {
+      "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "suspicious": true,
+      "unitUsd": null,
+      "routing": "unknown"
+    },
+    {
+      "mint": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "suspicious": false,
+      "unitUsd": 1e-10,
+      "routing": "unknown"
+    },
+    {
+      "mint": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "suspicious": false,
+      "unitUsd": null,
+      "routing": "no_route"
+    }
+  ]
+}

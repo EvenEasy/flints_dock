@@ -20,6 +20,10 @@ export interface AssetCategory {
   count: number;
   status: ScanStatus;
   checkedAt: string;
+  source?: string;
+  network?: string;
+  reason?: string | null;
+  coverage?: Record<string, ScanStatus>;
 }
 export interface WalletCategories {
   network: string;

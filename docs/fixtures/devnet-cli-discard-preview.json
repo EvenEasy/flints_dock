@@ -1,0 +1,82 @@
+{
+  "mode": "dry_run",
+  "plan": {
+    "discovery_status": {
+      "status": "complete"
+    },
+    "entries": [
+      {
+        "asset": {
+          "account": {
+            "address": "48zXLcu4BPaXow2pTwPiG5MjEfSdQgBSFwwsp17gvWDy",
+            "close_authority": null,
+            "closure": {
+              "reason": "Nonzero token balance",
+              "status": "not_reclaimable"
+            },
+            "data_len": 165,
+            "decimals": 6,
+            "delegate": null,
+            "delegated_amount": 0,
+            "extension_types": [],
+            "extensions": null,
+            "is_native": false,
+            "lamports": 1488440,
+            "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "native_reserve_lamports": null,
+            "owner": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv",
+            "program": "legacy",
+            "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "raw_amount": "100000000000",
+            "state": "Initialized"
+          },
+          "kind": "fungible",
+          "mint": {
+            "decimals": 6,
+            "extension_types": [],
+            "extensions": [],
+            "freeze_authority": null,
+            "metadata": {
+              "collection": null,
+              "image_uri": null,
+              "name": null,
+              "source": null,
+              "symbol": null,
+              "token_standard": null,
+              "uri": null
+            },
+            "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "mint_authority": null,
+            "program": "legacy",
+            "supply": "100000000000"
+          }
+        },
+        "category": "Burnable",
+        "quote": null,
+        "reason": "Explicit discard: burn the approved full balance, then close; irreversible",
+        "reason_code": "explicit_discard"
+      }
+    ],
+    "policy": "explicitDiscard",
+    "selection": {
+      "accounts": [
+        "48zXLcu4BPaXow2pTwPiG5MjEfSdQgBSFwwsp17gvWDy"
+      ],
+      "ignored_mints": [],
+      "none": false
+    },
+    "summary": {
+      "accounts_to_close": 1,
+      "burnable": 1,
+      "empty": 0,
+      "estimated_reclaimed_lamports": "1488440",
+      "estimated_swap_lamports": "0",
+      "swappable": 0,
+      "token_accounts": 1,
+      "unsupported": 0
+    },
+    "unparsed_accounts": [],
+    "wallet": "9FCR2PU1jZgCHyjWxzk2BNQHJxszAK24vBFiWmUyRNpv"
+  },
+  "transactions_submitted": 0
+}

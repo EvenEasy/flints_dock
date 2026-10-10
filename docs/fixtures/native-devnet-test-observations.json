@@ -1,0 +1,198 @@
+{
+  "runtime": {
+    "url": "tauri://localhost#main",
+    "width": 1100,
+    "height": 1000,
+    "dpr": 2
+  },
+  "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "source": "EXPLICIT TEST DATA CONFIGURATION, not real market/risk/route findings",
+  "categories": {
+    "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "dustThresholdUsd": 0.01,
+    "categories": {
+      "dead_token": {
+        "items": [
+          {
+            "id": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "name": "AVLFztQ2EVuTyDjc56KHjnUnyB5wippdAfWAJaoH7nkg",
+            "kind": "fungible",
+            "accounts": [
+              "5e1KwQRu3hWNDaSYWiWWPv11FagCJy9mQ9857NWXT8BG"
+            ],
+            "rawAmount": "10000000000",
+            "risk": {
+              "status": "unknown",
+              "source": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+              "reasons": [
+                "Explicitly configured test observation; not a production risk verdict"
+              ],
+              "checkedAt": "1791582902"
+            },
+            "valuation": "unpriced",
+            "valueUsd": null,
+            "tradability": "test_no_route",
+            "evidence": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+            "checkedAt": "1791582902",
+            "providerScope": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes"
+          }
+        ],
+        "count": 1,
+        "status": {
+          "status": "partial",
+          "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown"
+        },
+        "checkedAt": "1791582902",
+        "source": "TEST DATA: devnet manifest",
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown",
+        "coverage": {}
+      },
+      "dust": {
+        "items": [
+          {
+            "id": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "name": "Gi4q3YLv5uqKcc4Jdr37UEkAQLmdvHQ6BqGxMApd6yLK",
+            "kind": "fungible",
+            "accounts": [
+              "4YfYZZFedUuQdNrU3GiANC1WQa3xzPvWuNX5L5s7YrRr"
+            ],
+            "rawAmount": "10000000000000",
+            "risk": {
+              "status": "unknown",
+              "source": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+              "reasons": [
+                "Explicitly configured test observation; not a production risk verdict"
+              ],
+              "checkedAt": "1791582902"
+            },
+            "valuation": "test_priced",
+            "valueUsd": 0.001,
+            "tradability": "unknown",
+            "evidence": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+            "checkedAt": "1791582902",
+            "providerScope": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes"
+          }
+        ],
+        "count": 1,
+        "status": {
+          "status": "partial",
+          "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown"
+        },
+        "checkedAt": "1791582902",
+        "source": "TEST DATA: devnet manifest",
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown",
+        "coverage": {}
+      },
+      "nft": {
+        "items": [],
+        "count": 0,
+        "status": {
+          "status": "partial",
+          "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable"
+        },
+        "checkedAt": "1791582902",
+        "source": "Solana / Metaplex / MPL Core / DAS",
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "DAS: DAS endpoint not configured; compressed NFT inventory unavailable",
+        "coverage": {
+          "das": {
+            "status": "unsupported",
+            "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+          },
+          "nft_classic": {
+            "status": "complete"
+          },
+          "nft_core": {
+            "status": "complete"
+          }
+        }
+      },
+      "scam": {
+        "items": [
+          {
+            "id": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "mint": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "name": "BoRqn6ocvLS924cWdyk84gkAeWJhtf5jxx5q9JVmZgXh",
+            "kind": "fungible",
+            "accounts": [
+              "48zXLcu4BPaXow2pTwPiG5MjEfSdQgBSFwwsp17gvWDy"
+            ],
+            "rawAmount": "100000000000",
+            "risk": {
+              "status": "suspicious",
+              "source": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+              "reasons": [
+                "Explicitly configured test observation; not a production risk verdict"
+              ],
+              "checkedAt": "1791582902"
+            },
+            "valuation": "unpriced",
+            "valueUsd": null,
+            "tradability": "unknown",
+            "evidence": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes",
+            "checkedAt": "1791582902",
+            "providerScope": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes"
+          }
+        ],
+        "count": 1,
+        "status": {
+          "status": "partial",
+          "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown"
+        },
+        "checkedAt": "1791582902",
+        "source": "TEST DATA: devnet manifest",
+        "network": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+        "reason": "Test observations cover only manifest mint/program pairs; other holdings are unknown",
+        "coverage": {}
+      }
+    },
+    "providers": {
+      "das": {
+        "status": "unsupported",
+        "reason": "DAS endpoint not configured; compressed NFT inventory unavailable"
+      },
+      "nft_classic": {
+        "status": "complete"
+      },
+      "nft_core": {
+        "status": "complete"
+      },
+      "pricing": {
+        "status": "unsupported",
+        "reason": "Jupiter valuation is mainnet-only; network is different or could not be verified"
+      },
+      "risk": {
+        "status": "unsupported",
+        "reason": "Mainnet risk provider unavailable on this network"
+      },
+      "routing": {
+        "status": "unsupported",
+        "reason": "Jupiter routing is mainnet-only"
+      },
+      "rpc": {
+        "status": "complete"
+      },
+      "test_data": {
+        "status": "partial",
+        "reason": "TEST DATA: Illustrative test observations for the public devnet fixture; invented risk, valuation and routing, not real findings; devnet observations, not market quotes"
+      }
+    }
+  },
+  "reactCategoryLabels": [
+    "SCAM: 1+ \u00b7 incomplete",
+    "NFT: \u2014",
+    "DUST: 1+ \u00b7 incomplete",
+    "DEAD TOKEN: 1+ \u00b7 incomplete"
+  ],
+  "canSign": false,
+  "decodedAccounts": 26,
+  "autoBurnCount": 0,
+  "transactionsSubmitted": 0
+}

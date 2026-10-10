@@ -37,6 +37,10 @@ pub struct CleanupArgs {
     /// Protect every account of this mint from swap, burn and close; repeatable
     #[arg(long, help_heading = "Selection")]
     pub ignore_mint: Vec<Pubkey>,
+
+    /// Irreversibly discard explicitly selected devnet accounts without routing
+    #[arg(long, requires = "account", help_heading = "Selection")]
+    pub explicit_discard: bool,
     #[command(flatten)]
     pub rpc: RpcArgs,
     #[command(flatten)]
@@ -60,12 +64,39 @@ async fn run_inner(args: CleanupArgs) -> anyhow::Result<ExitCode> {
         wallet.signer()?;
     }
     let rpc = args.rpc.client();
-    let provider = super::args::swap_provider()?;
+    let genesis = rpc
+        .get_genesis_hash()
+        .await
+        .map_err(|error| anyhow::anyhow!(crate::infra::solana::safe_error(error)))?
+        .to_string();
+    if args.explicit_discard {
+        anyhow::ensure!(
+            genesis == dock_flints_core::app::test_observations::DEVNET_GENESIS,
+            "Explicit discard requires verified devnet and explicit --account selection"
+        );
+    }
+    let mainnet = genesis == "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
+    // Devnet discard has no Jupiter dependency, including irrelevant API-key configuration.
+    let jupiter = if mainnet {
+        Some(super::args::swap_provider()?)
+    } else {
+        None
+    };
+    let provider = crate::app::categories::ScopedSwap {
+        provider: jupiter.as_ref(),
+        mainnet,
+    };
     let options = CleanupOptions {
+        policy: if args.explicit_discard {
+            CleanupPolicy::ExplicitDiscard
+        } else {
+            CleanupPolicy::Auto
+        },
         slippage_bps: args.quote.slippage_bps,
         quote_interval: Duration::from_millis(args.quote_interval_ms),
         swap_limits: args.execution.limits(&args.quote),
         selection: CleanupSelection {
+            none: false,
             accounts: args.account.iter().map(ToString::to_string).collect(),
             ignored_mints: args.ignore_mint.iter().map(ToString::to_string).collect(),
         },

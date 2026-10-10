@@ -14,6 +14,9 @@ export function AssetRow({
   onToggle,
   art,
   dead = false,
+  action,
+  reason,
+  details,
 }: {
   name: string;
   quantity: string;
@@ -23,6 +26,9 @@ export function AssetRow({
   onToggle: () => void;
   art?: string;
   dead?: boolean;
+  action?: string;
+  reason?: string;
+  details?: string;
 }) {
   const quantityId = useId();
   return (
@@ -51,11 +57,23 @@ export function AssetRow({
       <div className="asset-identity" title={identity}>
         <strong>{name}</strong>
         <p id={quantityId}>{quantity}</p>
+        {reason && (
+          <p className="type-caption" title={details}>
+            {reason}
+          </p>
+        )}
+        {details && (
+          <details className="type-caption">
+            <summary>Account details</summary>
+            <p>{details}</p>
+          </details>
+        )}
       </div>
       <div className="asset-valuation">
         <strong>
           {value.endsWith(' SOL') ? <ExactAmount amount={value.slice(0, -4)} size="row" /> : value}
         </strong>
+        {action && <span className="type-caption">{action}</span>}
         {!selected ? (
           <span className="keep-label">KEEP</span>
         ) : dead ? (

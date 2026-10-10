@@ -9,6 +9,8 @@ pub enum SwapError {
     InsufficientLiquidity(String),
     #[error("Insufficient funds: {0}")]
     InsufficientFunds(String),
+    #[error("Routing unavailable on this network: {0}")]
+    UnsupportedNetwork(String),
     #[error("Swap provider request failed: {0}")]
     Api(String),
     #[error("Invalid swap provider response: {0}")]

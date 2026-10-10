@@ -1492,3 +1492,33 @@ async fn legacy_edition_evidence_drives_all_categories_and_unknown_fallback() {
         );
     }
 }
+
+#[test]
+fn zero_decimal_multiunit_tokens_are_fungible_without_labels_but_unique_mints_need_evidence() {
+    use dock_flints::core::classification::classify;
+    let mut account = token(2);
+    account.decimals = Some(0);
+    let mut mint = mint_info(0, 100);
+    assert_eq!(
+        classify(&account, Some(&mint), None),
+        AssetKind::FungibleAsset
+    );
+    let record = MetadataRecord {
+        mint: mint.mint.clone(),
+        metadata: TokenMetadata {
+            token_standard: Some("NonFungible".into()),
+            ..Default::default()
+        },
+        nft: None,
+    };
+    assert_eq!(
+        classify(&account, Some(&mint), Some(&record)),
+        AssetKind::Unknown
+    );
+    account.raw_amount = 1;
+    mint.supply = 1;
+    assert_eq!(classify(&account, Some(&mint), None), AssetKind::Unknown);
+    account.raw_amount = 0;
+    mint.supply = 0;
+    assert_eq!(classify(&account, Some(&mint), None), AssetKind::Unknown);
+}

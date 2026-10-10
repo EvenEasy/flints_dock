@@ -112,21 +112,22 @@ pub async fn analyze_wallet<R: tauri::Runtime>(
                 .then(|| compressed.items.clone()),
             });
         }
-        Some(
-            dock_flints_core::app::categories::classify(
-                &snapshot,
-                &owner,
-                state.jupiter.as_ref(),
-                scope
-                    .map(|(hash, _)| hash)
-                    .unwrap_or_else(|| "unknown".into()),
-                mainnet,
-                state.dust_threshold_usd,
-                compressed,
-            )
-            .await
-            .into(),
+        let mut category_report = dock_flints_core::app::categories::classify(
+            &snapshot,
+            &owner,
+            state.jupiter.as_ref(),
+            scope
+                .map(|(hash, _)| hash)
+                .unwrap_or_else(|| "unknown".into()),
+            mainnet,
+            state.dust_threshold_usd,
+            compressed,
         )
+        .await;
+        if let Some(observations) = &state.test_observations {
+            observations.apply(&mut category_report, &snapshot);
+        }
+        Some(category_report.into())
     } else {
         None
     };
